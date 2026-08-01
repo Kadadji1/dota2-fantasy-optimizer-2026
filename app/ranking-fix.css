@@ -1,0 +1,37 @@
+/* Ranking rows have three columns by default: rank, identity, score. */
+.alternative-row {
+  grid-template-columns: 32px minmax(0, 1fr) auto !important;
+  min-width: 0;
+}
+
+/* When a team logo is present, reserve a dedicated logo column. */
+.alternative-row:has(.team-logo) {
+  grid-template-columns: 32px 38px minmax(0, 1fr) auto !important;
+}
+
+.alternative-row > div {
+  min-width: 0;
+}
+
+.alternative-row > div > strong,
+.alternative-row > div > small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alternative-row > b {
+  justify-self: end;
+  padding-left: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .alternative-row {
+    grid-template-columns: 30px minmax(0, 1fr) auto !important;
+  }
+
+  .alternative-row:has(.team-logo) {
+    grid-template-columns: 30px 34px minmax(0, 1fr) auto !important;
+  }
+}
