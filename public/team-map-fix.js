@@ -13,6 +13,19 @@
     "planet & zzq":"Team Resilience","Save- & Kataomi":"BoomBoys","Bignum & Speeed":"GamerLegion","sayuw & RESPECT":"HULIGANI"
   };
 
+  // These support pairs are still absent from the React teamByPlayerId map.
+  // Restricting winner-card hydration to this set prevents duplicate Mid/Core teams.
+  const missingWinnerTeams = new Set([
+    "Mira & kaori",
+    "OmaR & GH",
+    "XinQ & y`",
+    "9Class & Dukalis",
+    "planet & zzq",
+    "Save- & Kataomi",
+    "Bignum & Speeed",
+    "sayuw & RESPECT"
+  ]);
+
   function logo(team, size) {
     const span = document.createElement('span');
     span.className = `team-logo team-logo-${size}`;
@@ -41,10 +54,29 @@
     }
   }
 
+  function hydrateMissingSupportWinner(card) {
+    const name = card.querySelector('.winner-name')?.textContent?.trim();
+    if (!name || !missingWinnerTeams.has(name)) return;
+
+    const team = teams[name];
+    const identity = card.querySelector('.winner-identity');
+    if (!team || !identity) return;
+    if (identity.querySelector('.team-logo') || identity.querySelector('.winner-team')) return;
+
+    identity.insertBefore(logo(team, 'lg'), identity.firstChild);
+    const text = identity.querySelector('div');
+    if (text) {
+      const label = document.createElement('div');
+      label.className = 'winner-team';
+      label.textContent = team;
+      label.dataset.teamMapInjected = 'true';
+      text.appendChild(label);
+    }
+  }
+
   function hydrate() {
     document.querySelectorAll('.alternative-row').forEach(hydrateAlternative);
-    // Winner cards are rendered completely by React. Mutating them here caused
-    // duplicate team logos and labels after hydration, especially on mobile.
+    document.querySelectorAll('.winner-card').forEach(hydrateMissingSupportWinner);
   }
 
   let queued = false;
