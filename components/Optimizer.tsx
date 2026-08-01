@@ -2,74 +2,39 @@
 
 import { useMemo, useState } from "react";
 import { players, roleStats, Role, StatKey } from "../data/players";
-import { averageEmblemValues, methodologyNotes, scoringRules, statColors, tierBonuses } from "../data/rules";
-import { rankPlayers } from "../lib/optimizer";
+import {
+  averageEmblemValues,
+  bannerSlotColors,
+  methodologyNotes,
+  scoringRules,
+  statColors,
+  tierBonuses,
+  traitDescriptions,
+  Tier,
+  Trait
+} from "../data/rules";
+import { rankPlayers, EmblemInput } from "../lib/optimizer";
 
 type Language = "en" | "ru";
 
-type Copy = {
-  subtitle: string;
-  core: string;
-  mid: string;
-  support: string;
-  emblem: string;
-  percentage: string;
-  ranking: string;
-  score: string;
-  breakdown: string;
-  base: string;
-  weighted: string;
-  warning: string;
-  note: string;
-  dataLabel: string;
-  rollGuide: string;
-  rules: string;
-  tierGuide: string;
-  methodology: string;
-};
-
-const text: Record<Language, Copy> = {
+const text = {
   en: {
-    subtitle: "Set three emblems and their in-game percentages to rank TI 2026 fantasy choices",
-    core: "Core pair",
-    mid: "Mid",
-    support: "Support pair",
-    emblem: "Emblem",
-    percentage: "Bonus shown in game, %",
-    ranking: "Best roster choices",
-    score: "Average projected score",
-    breakdown: "Score contribution",
-    base: "Base",
-    weighted: "With bonus",
-    warning: "Duplicate emblems are selected. Each banner slot has a fixed color pattern in game.",
-    note: "Community-derived season averages. The calculator now treats the entered value as a percentage bonus: 60% = ×1.60. Titles and traits are not yet applied automatically.",
-    dataLabel: "TI 2026 COMMUNITY DATA",
-    rollGuide: "What to reroll",
-    rules: "Official scoring rules",
-    tierGuide: "Tier bonuses",
-    methodology: "Methodology and limitations"
+    subtitle: "Set the three emblem stats, tiers and traits from your banner to rank TI 2026 fantasy choices",
+    core: "Core pair", mid: "Mid", support: "Support pair", emblem: "Emblem", tier: "Tier", trait: "Trait",
+    ranking: "Best roster choices", score: "Average projected score", breakdown: "Score contribution", base: "Base",
+    weighted: "With tier and trait", note: "Tier and trait effects use the official in-game glossary. Titles are not applied yet.",
+    dataLabel: "TI 2026 COMMUNITY DATA", rollGuide: "What to reroll", rules: "Official scoring rules",
+    tierGuide: "Tier bonuses", methodology: "Methodology and limitations", traits: "Trait rules", color: "slot"
   },
   ru: {
-    subtitle: "Задайте три эмблемы и проценты из игры — калькулятор ранжирует связки TI 2026",
-    core: "Основа — пара",
-    mid: "Центр",
-    support: "Поддержка — пара",
-    emblem: "Эмблема",
-    percentage: "Бонус на эмблеме, %",
-    ranking: "Лучшие связки",
-    score: "Средний прогнозный счёт",
-    breakdown: "Вклад показателей",
-    base: "База",
-    weighted: "С бонусом",
-    warning: "Выбраны одинаковые показатели. В игре слоты знамени имеют фиксированные цвета.",
-    note: "Используются средние значения из таблиц сообщества. Введённое число теперь считается именно процентом: 60% = ×1,60. Титулы и свойства пока не применяются автоматически.",
-    dataLabel: "ДАННЫЕ СООБЩЕСТВА TI 2026",
-    rollGuide: "Что роллить",
-    rules: "Правила начисления очков",
-    tierGuide: "Бонусы разрядов",
-    methodology: "Методика и ограничения"
+    subtitle: "Выберите показатели, разряды и свойства трёх эмблем — калькулятор ранжирует связки TI 2026",
+    core: "Основа — пара", mid: "Центр", support: "Поддержка — пара", emblem: "Эмблема", tier: "Разряд", trait: "Свойство",
+    ranking: "Лучшие связки", score: "Средний прогнозный счёт", breakdown: "Вклад показателей", base: "База",
+    weighted: "С разрядом и свойством", note: "Разряды и свойства рассчитываются по официальному внутриигровому глоссарию. Титулы пока не применяются.",
+    dataLabel: "ДАННЫЕ СООБЩЕСТВА TI 2026", rollGuide: "Что роллить", rules: "Правила начисления очков",
+    tierGuide: "Бонусы разрядов", methodology: "Методика и ограничения", traits: "Правила свойств", color: "слот"
   }
-};
+} as const;
 
 const labels: Record<StatKey, { en: string; ru: string }> = {
   gpm: { en: "GPM", ru: "З/М" }, deaths: { en: "Deaths", ru: "Смерти" }, creeps: { en: "Creeps", ru: "Крипы" },
@@ -80,19 +45,37 @@ const labels: Record<StatKey, { en: string; ru: string }> = {
   watchers: { en: "Watchers", ru: "Захват смотрителей" }, runes: { en: "Runes", ru: "Руны" }, smokes: { en: "Smokes", ru: "Применения Smoke of Deceit" }
 };
 
-const defaults: Record<Role, { stat: StatKey; percentage: number }[]> = {
-  core: [{ stat: "creeps", percentage: 60 }, { stat: "teamfight", percentage: 60 }, { stat: "gpm", percentage: 60 }],
-  mid: [{ stat: "kills", percentage: 60 }, { stat: "runes", percentage: 60 }, { stat: "teamfight", percentage: 60 }],
-  support: [{ stat: "wards", percentage: 60 }, { stat: "teamfight", percentage: 60 }, { stat: "stacks", percentage: 60 }]
+const traitLabels: Record<Trait, { en: string; ru: string }> = {
+  none: { en: "No trait", ru: "Без свойства" }, fractal: { en: "Fractal", ru: "Фрактальная" },
+  benevolent: { en: "Benevolent", ru: "Благотворная" }, vampiric: { en: "Vampiric", ru: "Вампирическая" },
+  unique: { en: "Unique", ru: "Уникальная" }, friendly: { en: "Friendly", ru: "Дружелюбная" }
+};
+
+const defaults: Record<Role, EmblemInput[]> = {
+  core: [
+    { stat: "creeps", tier: "III", trait: "none" },
+    { stat: "teamfight", tier: "III", trait: "none" },
+    { stat: "gpm", tier: "III", trait: "none" }
+  ],
+  mid: [
+    { stat: "kills", tier: "III", trait: "none" },
+    { stat: "runes", tier: "III", trait: "none" },
+    { stat: "teamfight", tier: "III", trait: "none" }
+  ],
+  support: [
+    { stat: "wards", tier: "III", trait: "none" },
+    { stat: "teamfight", tier: "III", trait: "none" },
+    { stat: "stacks", tier: "III", trait: "none" }
+  ]
 };
 
 export default function Optimizer() {
   const [language, setLanguage] = useState<Language>("en");
   const [role, setRole] = useState<Role>("core");
-  const [emblems, setEmblems] = useState(defaults.core);
+  const [emblems, setEmblems] = useState<EmblemInput[]>(defaults.core);
   const t = text[language];
+
   const ranking = useMemo(() => rankPlayers(players, role, emblems), [role, emblems]);
-  const duplicateEmblems = new Set(emblems.map((item) => item.stat)).size !== emblems.length;
   const rollRanking = useMemo(() => {
     const values = averageEmblemValues[role];
     return roleStats[role]
@@ -120,27 +103,43 @@ export default function Optimizer() {
         <div className="role-tabs">
           {(["core", "mid", "support"] as Role[]).map((item) => <button key={item} className={role === item ? "active" : ""} onClick={() => changeRole(item)}>{t[item]}</button>)}
         </div>
+
         <div className="emblem-grid">
-          {emblems.map((emblem, index) => (
-            <article className="emblem-card" key={index}>
-              <span>{t.emblem} {index + 1} · {statColors[emblem.stat]}</span>
-              <select value={emblem.stat} onChange={(event) => {
-                const next = [...emblems];
-                next[index] = { ...next[index], stat: event.target.value as StatKey };
-                setEmblems(next);
-              }}>
-                {roleStats[role].map((stat) => <option key={stat} value={stat}>{labels[stat][language]}</option>)}
-              </select>
-              <label>{t.percentage}</label>
-              <input type="number" min="0" max="400" step="1" value={emblem.percentage} onChange={(event) => {
-                const next = [...emblems];
-                next[index] = { ...next[index], percentage: Math.max(0, Number(event.target.value)) };
-                setEmblems(next);
-              }} />
-            </article>
-          ))}
+          {emblems.map((emblem, index) => {
+            const slotColor = bannerSlotColors[role][index];
+            const availableStats = roleStats[role].filter((stat) => statColors[stat] === slotColor);
+            return (
+              <article className={`emblem-card color-${slotColor}`} key={index}>
+                <span>{t.emblem} {index + 1} · {slotColor} {t.color}</span>
+                <select value={emblem.stat} onChange={(event) => {
+                  const next = [...emblems];
+                  next[index] = { ...next[index], stat: event.target.value as StatKey };
+                  setEmblems(next);
+                }}>
+                  {availableStats.map((stat) => <option key={stat} value={stat}>{labels[stat][language]}</option>)}
+                </select>
+
+                <div className="control-pair">
+                  <label>{t.tier}<select value={emblem.tier} onChange={(event) => {
+                    const next = [...emblems];
+                    next[index] = { ...next[index], tier: event.target.value as Tier };
+                    setEmblems(next);
+                  }}>
+                    {(Object.keys(tierBonuses) as Tier[]).map((tier) => <option key={tier} value={tier}>{tier} (+{tierBonuses[tier]}%)</option>)}
+                  </select></label>
+
+                  <label>{t.trait}<select value={emblem.trait} onChange={(event) => {
+                    const next = [...emblems];
+                    next[index] = { ...next[index], trait: event.target.value as Trait };
+                    setEmblems(next);
+                  }}>
+                    {(Object.keys(traitLabels) as Trait[]).map((trait) => <option key={trait} value={trait}>{traitLabels[trait][language]}</option>)}
+                  </select></label>
+                </div>
+              </article>
+            );
+          })}
         </div>
-        {duplicateEmblems && <p className="warning">{t.warning}</p>}
       </section>
 
       <section className="ranking-section">
@@ -153,7 +152,13 @@ export default function Optimizer() {
                 <div className="score"><span>{t.score}</span><strong>{Math.round(score).toLocaleString(language === "ru" ? "ru-RU" : "en-US")}</strong></div>
               </div>
               {index < 3 && <div className="contribution-panel"><span className="contribution-title">{t.breakdown}</span><div className="contribution-grid">
-                {contributions.map((item) => <div className="contribution-item" key={item.stat}><strong>{labels[item.stat][language]}</strong><span>{t.base}: {item.baseValue.toLocaleString()}</span><span>+{item.percentage}% · ×{item.factor.toFixed(2)}</span><span>{t.weighted}: {Math.round(item.weightedValue).toLocaleString()}</span></div>)}
+                {contributions.map((item) => <div className="contribution-item" key={item.stat}>
+                  <strong>{labels[item.stat][language]}</strong>
+                  <span>{t.base}: {item.baseValue.toLocaleString()}</span>
+                  <span>{item.tier} +{item.tierBonus}% · {traitLabels[item.trait][language]}</span>
+                  <span>Trait ×{item.traitFactor.toFixed(2)} · total ×{item.factor.toFixed(2)}</span>
+                  <span>{t.weighted}: {Math.round(item.weightedValue).toLocaleString()}</span>
+                </div>)}
               </div></div>}
             </article>
           ))}
@@ -166,9 +171,13 @@ export default function Optimizer() {
           {rollRanking.slice(0, 8).map(({ stat, value }) => <li key={stat}><span>{labels[stat][language]} · {statColors[stat]}</span><strong>{value.toLocaleString()}</strong></li>)}
         </ol></article>
         <article className="panel info-card"><div className="eyebrow">{t.tierGuide}</div><h2>{t.tierGuide}</h2><div className="tier-grid">
-          {Object.entries(tierBonuses).map(([tier, value]) => <div key={tier}><strong>{tier}</strong><span>+{value}%</span></div>)}
+          {(Object.entries(tierBonuses) as [Tier, number][]).map(([tier, value]) => <div key={tier}><strong>{tier}</strong><span>+{value}%</span></div>)}
         </div></article>
       </section>
+
+      <section className="panel rules-section"><div className="eyebrow">{t.traits}</div><h2>{t.traits}</h2><div className="rules-grid">
+        {(Object.keys(traitDescriptions) as Trait[]).filter((trait) => trait !== "none").map((trait) => <div className="rule-item" key={trait}><strong>{traitLabels[trait][language]}</strong><span>{traitDescriptions[trait][language]}</span></div>)}
+      </div></section>
 
       <section className="panel rules-section"><div className="eyebrow">{t.rules}</div><h2>{t.rules}</h2><div className="rules-grid">
         {roleStats[role].filter((stat) => scoringRules[stat]).map((stat) => <div className="rule-item" key={stat}><strong>{labels[stat][language]}</strong><span>{scoringRules[stat]}</span></div>)}
