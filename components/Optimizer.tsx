@@ -16,23 +16,78 @@ import {
 import { rankPlayers, EmblemInput } from "../lib/optimizer";
 
 type Language = "en" | "ru";
+type BannerState = Record<Role, EmblemInput[]>;
+
+const roles: Role[] = ["core", "mid", "support"];
 
 const text = {
   en: {
-    subtitle: "Set the three emblem stats, tiers and traits from your banner to rank TI 2026 fantasy choices",
-    core: "Core pair", mid: "Mid", support: "Support pair", emblem: "Emblem", tier: "Tier", trait: "Trait",
-    ranking: "Best roster choices", score: "Average projected score", breakdown: "Score contribution", base: "Base",
-    weighted: "With tier and trait", note: "Tier and trait effects use the official in-game glossary. Titles are not applied yet.",
-    dataLabel: "TI 2026 COMMUNITY DATA", rollGuide: "What to reroll", rules: "Official scoring rules",
-    tierGuide: "Tier bonuses", methodology: "Methodology and limitations", traits: "Trait rules", color: "slot"
+    kicker: "THE INTERNATIONAL 2026",
+    title: "Dota 2 Fantasy Optimizer",
+    subtitle: "Build all three banners, compare roster combinations and understand exactly where every projected point comes from.",
+    builder: "Banner builder",
+    results: "Best roster",
+    traits: "Traits",
+    rerolls: "Reroll guide",
+    rules: "Rules",
+    core: "Core",
+    mid: "Mid",
+    support: "Support",
+    pair: "same-team pair",
+    single: "one player",
+    emblem: "Emblem",
+    tier: "Tier",
+    trait: "Trait",
+    optimize: "Optimize roster",
+    reset: "Reset banners",
+    total: "Projected roster score",
+    score: "Projected score",
+    alternatives: "Top alternatives",
+    why: "Why this ranks here",
+    base: "Base",
+    contribution: "Contribution",
+    source: "Community dataset · TI 2026 methodology",
+    titleSoon: "Coach title support is next. Current calculations include emblem tiers and traits only.",
+    noTrait: "No trait",
+    confidence: "Sample strength",
+    strong: "Strong",
+    medium: "Medium",
+    limited: "Limited",
+    scroll: "Jump to results"
   },
   ru: {
-    subtitle: "Выберите показатели, разряды и свойства трёх эмблем — калькулятор ранжирует связки TI 2026",
-    core: "Основа — пара", mid: "Центр", support: "Поддержка — пара", emblem: "Эмблема", tier: "Разряд", trait: "Свойство",
-    ranking: "Лучшие связки", score: "Средний прогнозный счёт", breakdown: "Вклад показателей", base: "База",
-    weighted: "С разрядом и свойством", note: "Разряды и свойства рассчитываются по официальному внутриигровому глоссарию. Титулы пока не применяются.",
-    dataLabel: "ДАННЫЕ СООБЩЕСТВА TI 2026", rollGuide: "Что роллить", rules: "Правила начисления очков",
-    tierGuide: "Бонусы разрядов", methodology: "Методика и ограничения", traits: "Правила свойств", color: "слот"
+    kicker: "THE INTERNATIONAL 2026",
+    title: "Dota 2 Fantasy Optimizer",
+    subtitle: "Соберите сразу три знамени, сравните связки и увидьте, откуда берётся каждое прогнозное очко.",
+    builder: "Калькулятор знамён",
+    results: "Лучший состав",
+    traits: "Свойства",
+    rerolls: "Что роллить",
+    rules: "Правила",
+    core: "Основа",
+    mid: "Центр",
+    support: "Поддержка",
+    pair: "пара из одной команды",
+    single: "1 игрок",
+    emblem: "Эмблема",
+    tier: "Разряд",
+    trait: "Свойство",
+    optimize: "Подобрать состав",
+    reset: "Сбросить настройки",
+    total: "Прогноз состава",
+    score: "Прогнозный счёт",
+    alternatives: "Лучшие альтернативы",
+    why: "Почему этот вариант выше",
+    base: "База",
+    contribution: "Вклад",
+    source: "Данные сообщества · методика TI 2026",
+    titleSoon: "Тренерские титулы добавим следующим этапом. Сейчас расчёт учитывает разряды и свойства эмблем.",
+    noTrait: "Без свойства",
+    confidence: "Сила выборки",
+    strong: "Высокая",
+    medium: "Средняя",
+    limited: "Ограниченная",
+    scroll: "К результатам"
   }
 } as const;
 
@@ -51,7 +106,7 @@ const traitLabels: Record<Trait, { en: string; ru: string }> = {
   unique: { en: "Unique", ru: "Уникальная" }, friendly: { en: "Friendly", ru: "Дружелюбная" }
 };
 
-const defaults: Record<Role, EmblemInput[]> = {
+const defaults: BannerState = {
   core: [
     { stat: "creeps", tier: "III", trait: "none" },
     { stat: "teamfight", tier: "III", trait: "none" },
@@ -69,119 +124,145 @@ const defaults: Record<Role, EmblemInput[]> = {
   ]
 };
 
+function sampleStrength(index: number, language: Language) {
+  const t = text[language];
+  if (index < 3) return t.strong;
+  if (index < 6) return t.medium;
+  return t.limited;
+}
+
 export default function Optimizer() {
   const [language, setLanguage] = useState<Language>("en");
-  const [role, setRole] = useState<Role>("core");
-  const [emblems, setEmblems] = useState<EmblemInput[]>(defaults.core);
+  const [banners, setBanners] = useState<BannerState>(defaults);
   const t = text[language];
 
-  const ranking = useMemo(() => rankPlayers(players, role, emblems), [role, emblems]);
-  const rollRanking = useMemo(() => {
-    const values = averageEmblemValues[role];
-    return roleStats[role]
-      .filter((stat) => values[stat] !== undefined)
-      .map((stat) => ({ stat, value: values[stat] ?? 0 }))
-      .sort((a, b) => b.value - a.value);
-  }, [role]);
+  const rankings = useMemo(() => ({
+    core: rankPlayers(players, "core", banners.core),
+    mid: rankPlayers(players, "mid", banners.mid),
+    support: rankPlayers(players, "support", banners.support)
+  }), [banners]);
 
-  function changeRole(nextRole: Role) {
-    setRole(nextRole);
-    setEmblems(defaults[nextRole]);
+  const totalScore = roles.reduce((sum, role) => sum + (rankings[role][0]?.score ?? 0), 0);
+
+  function updateEmblem(role: Role, index: number, patch: Partial<EmblemInput>) {
+    setBanners((current) => ({
+      ...current,
+      [role]: current[role].map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item)
+    }));
+  }
+
+  function resetBanners() {
+    setBanners({
+      core: defaults.core.map((item) => ({ ...item })),
+      mid: defaults.mid.map((item) => ({ ...item })),
+      support: defaults.support.map((item) => ({ ...item }))
+    });
+  }
+
+  function scrollToResults() {
+    document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
-    <main className="shell">
-      <header className="header">
-        <div><div className="eyebrow">THE INTERNATIONAL 2026</div><h1>Dota 2 Fantasy Optimizer 2026</h1><p>{t.subtitle}</p></div>
-        <div className="language-switch" aria-label="Language selector">
-          <button className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>EN</button>
-          <button className={language === "ru" ? "active" : ""} onClick={() => setLanguage("ru")}>RU</button>
-        </div>
+    <main className="site-shell">
+      <header className="topbar">
+        <a className="brand" href="#top"><span className="brand-mark">II</span><span>DOTA FANTASY 2026</span></a>
+        <nav className="anchor-nav" aria-label="Page navigation">
+          <a href="#builder">{t.builder}</a><a href="#results">{t.results}</a><a href="#traits">{t.traits}</a><a href="#rerolls">{t.rerolls}</a><a href="#rules">{t.rules}</a>
+        </nav>
+        <div className="language-switch"><button className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>EN</button><button className={language === "ru" ? "active" : ""} onClick={() => setLanguage("ru")}>RU</button></div>
       </header>
 
-      <section className="panel">
-        <div className="role-tabs">
-          {(["core", "mid", "support"] as Role[]).map((item) => <button key={item} className={role === item ? "active" : ""} onClick={() => changeRole(item)}>{t[item]}</button>)}
+      <section className="hero" id="top">
+        <div className="hero-glow" />
+        <div className="hero-copy">
+          <div className="eyebrow">{t.kicker}</div>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
+          <div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div>
         </div>
+        <aside className="dataset-card"><span>{t.source}</span><strong>1,408</strong><small>matches in current source methodology</small></aside>
+      </section>
 
-        <div className="emblem-grid">
-          {emblems.map((emblem, index) => {
-            const slotColor = bannerSlotColors[role][index];
-            const availableStats = roleStats[role].filter((stat) => statColors[stat] === slotColor);
+      <section className="section" id="builder">
+        <div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div>
+        <div className="banner-board">
+          {roles.map((role) => (
+            <article className={`banner-column role-${role}`} key={role}>
+              <div className="banner-heading"><div><span>{t[role]}</span><small>{role === "mid" ? t.single : t.pair}</small></div><b>{bannerSlotColors[role].map((color) => color[0].toUpperCase()).join(" · ")}</b></div>
+              <div className="banner-slots">
+                {banners[role].map((emblem, index) => {
+                  const slotColor = bannerSlotColors[role][index];
+                  const availableStats = roleStats[role].filter((stat) => statColors[stat] === slotColor);
+                  return (
+                    <div className={`slot-card color-${slotColor}`} key={`${role}-${index}`}>
+                      <div className="slot-topline"><span>{t.emblem} {index + 1}</span><i>{slotColor}</i></div>
+                      <select value={emblem.stat} onChange={(event) => updateEmblem(role, index, { stat: event.target.value as StatKey })}>
+                        {availableStats.map((stat) => <option key={stat} value={stat}>{labels[stat][language]}</option>)}
+                      </select>
+                      <div className="dual-control">
+                        <label>{t.tier}<select value={emblem.tier} onChange={(event) => updateEmblem(role, index, { tier: event.target.value as Tier })}>{(Object.keys(tierBonuses) as Tier[]).map((tier) => <option key={tier} value={tier}>{tier} (+{tierBonuses[tier]}%)</option>)}</select></label>
+                        <label>{t.trait}<select value={emblem.trait} onChange={(event) => updateEmblem(role, index, { trait: event.target.value as Trait })}>{(Object.keys(traitLabels) as Trait[]).map((trait) => <option key={trait} value={trait}>{traitLabels[trait][language]}</option>)}</select></label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="builder-footer"><p>{t.titleSoon}</p><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button></div>
+      </section>
+
+      <section className="section results-section" id="results">
+        <div className="results-hero"><div><div className="eyebrow">02 · {t.results}</div><h2>{t.results}</h2><p>{t.source}</p></div><div className="total-score"><span>{t.total}</span><strong>{Math.round(totalScore).toLocaleString(language === "ru" ? "ru-RU" : "en-US")}</strong></div></div>
+        <div className="winner-grid">
+          {roles.map((role) => {
+            const winner = rankings[role][0];
+            if (!winner) return null;
             return (
-              <article className={`emblem-card color-${slotColor}`} key={index}>
-                <span>{t.emblem} {index + 1} · {slotColor} {t.color}</span>
-                <select value={emblem.stat} onChange={(event) => {
-                  const next = [...emblems];
-                  next[index] = { ...next[index], stat: event.target.value as StatKey };
-                  setEmblems(next);
-                }}>
-                  {availableStats.map((stat) => <option key={stat} value={stat}>{labels[stat][language]}</option>)}
-                </select>
-
-                <div className="control-pair">
-                  <label>{t.tier}<select value={emblem.tier} onChange={(event) => {
-                    const next = [...emblems];
-                    next[index] = { ...next[index], tier: event.target.value as Tier };
-                    setEmblems(next);
-                  }}>
-                    {(Object.keys(tierBonuses) as Tier[]).map((tier) => <option key={tier} value={tier}>{tier} (+{tierBonuses[tier]}%)</option>)}
-                  </select></label>
-
-                  <label>{t.trait}<select value={emblem.trait} onChange={(event) => {
-                    const next = [...emblems];
-                    next[index] = { ...next[index], trait: event.target.value as Trait };
-                    setEmblems(next);
-                  }}>
-                    {(Object.keys(traitLabels) as Trait[]).map((trait) => <option key={trait} value={trait}>{traitLabels[trait][language]}</option>)}
-                  </select></label>
+              <article className="winner-card" key={role}>
+                <div className="winner-role"><span>{t[role]}</span><small>{role === "mid" ? t.single : t.pair}</small></div>
+                <div className="winner-name">{winner.player.name}</div>
+                {winner.player.team && <div className="winner-team">{winner.player.team}</div>}
+                <div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(language === "ru" ? "ru-RU" : "en-US")}</strong></div>
+                <div className="winner-breakdown">
+                  {winner.contributions.map((item) => <div key={item.stat}><span>{labels[item.stat][language]}</span><b>{Math.round(item.weightedValue).toLocaleString()}</b></div>)}
                 </div>
               </article>
             );
           })}
         </div>
-      </section>
 
-      <section className="ranking-section">
-        <div className="section-heading"><div><div className="eyebrow">{t.dataLabel}</div><h2>{t.ranking}</h2></div><span>{role.toUpperCase()}</span></div>
-        <div className="ranking-list">
-          {ranking.slice(0, 8).map(({ player, score, contributions }, index) => (
-            <article className="player-row expanded" key={player.id}>
-              <div className="player-summary">
-                <div className="place">{index + 1}</div><div className="player-info"><strong>{player.name}</strong>{player.team && <span>{player.team}</span>}</div>
-                <div className="score"><span>{t.score}</span><strong>{Math.round(score).toLocaleString(language === "ru" ? "ru-RU" : "en-US")}</strong></div>
-              </div>
-              {index < 3 && <div className="contribution-panel"><span className="contribution-title">{t.breakdown}</span><div className="contribution-grid">
-                {contributions.map((item) => <div className="contribution-item" key={item.stat}>
-                  <strong>{labels[item.stat][language]}</strong>
-                  <span>{t.base}: {item.baseValue.toLocaleString()}</span>
-                  <span>{item.tier} +{item.tierBonus}% · {traitLabels[item.trait][language]}</span>
-                  <span>Trait ×{item.traitFactor.toFixed(2)} · total ×{item.factor.toFixed(2)}</span>
-                  <span>{t.weighted}: {Math.round(item.weightedValue).toLocaleString()}</span>
-                </div>)}
-              </div></div>}
+        <div className="alternatives-grid">
+          {roles.map((role) => (
+            <article className="alternatives-card" key={role}>
+              <div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives}</span></div>
+              {rankings[role].slice(0, 8).map((entry, index) => <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index + 1}</span><div><strong>{entry.player.name}</strong><small>{t.confidence}: {sampleStrength(index, language)}</small></div><b>{Math.round(entry.score).toLocaleString(language === "ru" ? "ru-RU" : "en-US")}</b></div>)}
             </article>
           ))}
         </div>
-        <p className="note">{t.note}</p>
       </section>
 
-      <section className="info-grid">
-        <article className="panel info-card"><div className="eyebrow">{t.rollGuide}</div><h2>{t.rollGuide}</h2><ol className="value-list">
-          {rollRanking.slice(0, 8).map(({ stat, value }) => <li key={stat}><span>{labels[stat][language]} · {statColors[stat]}</span><strong>{value.toLocaleString()}</strong></li>)}
-        </ol></article>
-        <article className="panel info-card"><div className="eyebrow">{t.tierGuide}</div><h2>{t.tierGuide}</h2><div className="tier-grid">
-          {(Object.entries(tierBonuses) as [Tier, number][]).map(([tier, value]) => <div key={tier}><strong>{tier}</strong><span>+{value}%</span></div>)}
-        </div></article>
+      <section className="section split-section" id="traits">
+        <div><div className="eyebrow">03 · {t.traits}</div><h2>{t.traits}</h2></div>
+        <div className="trait-grid">{(Object.keys(traitDescriptions) as Trait[]).filter((trait) => trait !== "none").map((trait) => <article className="info-tile" key={trait}><span>{traitLabels[trait][language]}</span><p>{traitDescriptions[trait][language]}</p></article>)}</div>
       </section>
 
-      <section className="panel rules-section"><div className="eyebrow">{t.traits}</div><h2>{t.traits}</h2><div className="rules-grid">
-        {(Object.keys(traitDescriptions) as Trait[]).filter((trait) => trait !== "none").map((trait) => <div className="rule-item" key={trait}><strong>{traitLabels[trait][language]}</strong><span>{traitDescriptions[trait][language]}</span></div>)}
-      </div></section>
+      <section className="section" id="rerolls">
+        <div className="section-title"><div><div className="eyebrow">04 · {t.rerolls}</div><h2>{t.rerolls}</h2></div></div>
+        <div className="reroll-grid">{roles.map((role) => {
+          const values = averageEmblemValues[role];
+          const ranking = roleStats[role].filter((stat) => values[stat] !== undefined).map((stat) => ({ stat, value: values[stat] ?? 0 })).sort((a, b) => b.value - a.value);
+          return <article className="reroll-card" key={role}><h3>{t[role]}</h3>{ranking.map((item, index) => <div key={item.stat}><span><i>{index + 1}</i>{labels[item.stat][language]} <small>{statColors[item.stat]}</small></span><b>{item.value.toLocaleString()}</b></div>)}</article>;
+        })}</div>
+      </section>
 
-      <section className="panel rules-section"><div className="eyebrow">{t.rules}</div><h2>{t.rules}</h2><div className="rules-grid">
-        {roleStats[role].filter((stat) => scoringRules[stat]).map((stat) => <div className="rule-item" key={stat}><strong>{labels[stat][language]}</strong><span>{scoringRules[stat]}</span></div>)}
-      </div><h3>{t.methodology}</h3><ul className="methodology-list">{methodologyNotes.map((note) => <li key={note}>{note}</li>)}</ul></section>
+      <section className="section" id="rules">
+        <div className="section-title"><div><div className="eyebrow">05 · {t.rules}</div><h2>{t.rules}</h2></div></div>
+        <div className="rules-grid">{Object.entries(scoringRules).map(([stat, formula]) => <article className="rule-tile" key={stat}><span>{labels[stat as StatKey][language]}</span><b>{formula}</b></article>)}</div>
+        <div className="methodology"><h3>Methodology</h3><ul>{methodologyNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>
+      </section>
     </main>
   );
 }
