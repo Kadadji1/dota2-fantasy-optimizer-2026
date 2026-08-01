@@ -85,6 +85,6 @@ export const players: Player[] = [
 
 export const roleStats: Record<Role, StatKey[]> = {
   core: ["creeps", "gpm", "deaths", "towers", "kills", "madstones", "roshan", "teamfight", "tormentor", "stuns", "courier", "firstBlood"],
-  mid: ["creeps", "gpm", "deaths", "kills", "madstones", "towers", "teamfight", "stuns", "tormentor", "runes"],
+  mid: ["creeps", "gpm", "deaths", "kills", "madstones", "towers", "teamfight", "stuns", "tormentor", "runes", "wards", "stacks", "watchers", "lotuses", "smokes"],
   support: ["wards", "smokes", "stacks", "watchers", "lotuses", "runes", "teamfight", "tormentor", "courier", "firstBlood", "roshan", "stuns"]
 };
