@@ -29,11 +29,11 @@ function CoffeeIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h13a2 2 0 0 1 2 2v1h1a3 3 0 0 1 0 6h-1.25A7 7 0 0 1 12 18H9a7 7 0 0 1-7-7V6a2 2 0 0 1 2-2Zm15 5v2h1a1 1 0 0 0 0-2h-1ZM5 7v4a4 4 0 0 0 4 4h3a4 4 0 0 0 4-4V7H5Zm-2 13h16v2H3v-2Z"/></svg>;
 }
 
-function SocialLinks({ compact = false }: { compact?: boolean }) {
-  return <div className={compact ? "social-links-header" : "social-links-footer"}>
-    <a className={compact ? "social-link social-link-compact" : "social-link"} href={links.github} target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub"><GithubIcon />{!compact && <span>GitHub</span>}</a>
-    <a className={compact ? "social-link social-link-compact" : "social-link"} href={links.steam} target="_blank" rel="noreferrer" aria-label="Steam" title="Steam"><SteamIcon />{!compact && <span>Steam</span>}</a>
-    <a className={compact ? "social-link social-link-compact" : "social-link"} href={links.coffee} target="_blank" rel="noreferrer" aria-label="Buy Me a Coffee" title="Buy Me a Coffee"><CoffeeIcon />{!compact && <span>Buy me a coffee</span>}</a>
+function SocialLinks() {
+  return <div className="social-links-footer">
+    <a className="social-link" href={links.github} target="_blank" rel="noreferrer"><GithubIcon /><span>GitHub</span></a>
+    <a className="social-link" href={links.steam} target="_blank" rel="noreferrer"><SteamIcon /><span>Steam</span></a>
+    <a className="social-link" href={links.coffee} target="_blank" rel="noreferrer"><CoffeeIcon /><span>Buy me a coffee</span></a>
   </div>;
 }
 
@@ -41,7 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <SocialLinks compact />
         {children}
         <footer className="site-social-footer">
           <div className="footer-signature">
@@ -51,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SocialLinks />
         </footer>
         <script src="/team-map-fix.js" defer />
+        <script src="/social-links.js" defer />
       </body>
     </html>
   );
