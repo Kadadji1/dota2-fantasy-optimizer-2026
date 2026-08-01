@@ -1,38 +1,80 @@
 import { Player, Role, StatKey } from "../data/players";
+import { Tier, Trait, tierBonuses } from "../data/rules";
 
-export type EmblemInput = { stat: StatKey; percentage: number };
+export type EmblemInput = {
+  stat: StatKey;
+  tier: Tier;
+  trait: Trait;
+};
 
 export type ScoreContribution = {
   stat: StatKey;
+  tier: Tier;
+  trait: Trait;
   baseValue: number;
-  percentage: number;
+  tierBonus: number;
+  traitFactor: number;
   factor: number;
   weightedValue: number;
 };
 
-export function percentageToFactor(percentage: number): number {
-  return 1 + Math.max(0, percentage) / 100;
+function isAdjacent(a: number, b: number): boolean {
+  return Math.abs(a - b) === 1;
 }
 
-export function calculatePlayerScore(player: Player, emblems: EmblemInput[]): number {
-  return emblems.reduce((total, emblem) => {
-    const value = player.stats[emblem.stat] ?? 0;
-    return total + value * percentageToFactor(emblem.percentage);
-  }, 0);
+export function getTraitFactors(emblems: EmblemInput[]): number[] {
+  const factors = emblems.map(() => 1);
+  const allTiersDifferent = new Set(emblems.map((item) => item.tier)).size === emblems.length;
+  const uniqueCount = emblems.filter((item) => item.trait === "unique").length;
+  const friendlyCount = emblems.filter((item) => item.trait === "friendly").length;
+
+  emblems.forEach((emblem, index) => {
+    if (emblem.trait === "fractal" && allTiersDifferent) factors[index] *= 1.6;
+    if (emblem.trait === "unique" && uniqueCount === 1) factors[index] *= 1.3;
+    if (emblem.trait === "friendly" && friendlyCount >= 3) factors[index] *= 1.5;
+
+    if (emblem.trait === "benevolent") {
+      emblems.forEach((_, targetIndex) => {
+        if (isAdjacent(index, targetIndex)) factors[targetIndex] *= 1.2;
+      });
+    }
+
+    if (emblem.trait === "vampiric") {
+      factors[index] *= 1.5;
+      emblems.forEach((_, targetIndex) => {
+        if (isAdjacent(index, targetIndex)) factors[targetIndex] *= 0.9;
+      });
+    }
+  });
+
+  return factors;
 }
 
 export function getScoreContributions(player: Player, emblems: EmblemInput[]): ScoreContribution[] {
-  return emblems.map((emblem) => {
+  const traitFactors = getTraitFactors(emblems);
+
+  return emblems.map((emblem, index) => {
     const baseValue = player.stats[emblem.stat] ?? 0;
-    const factor = percentageToFactor(emblem.percentage);
+    const tierBonus = tierBonuses[emblem.tier];
+    const tierFactor = 1 + tierBonus / 100;
+    const traitFactor = traitFactors[index];
+    const factor = tierFactor * traitFactor;
+
     return {
       stat: emblem.stat,
+      tier: emblem.tier,
+      trait: emblem.trait,
       baseValue,
-      percentage: emblem.percentage,
+      tierBonus,
+      traitFactor,
       factor,
       weightedValue: baseValue * factor
     };
   });
+}
+
+export function calculatePlayerScore(player: Player, emblems: EmblemInput[]): number {
+  return getScoreContributions(player, emblems).reduce((sum, item) => sum + item.weightedValue, 0);
 }
 
 export function rankPlayers(players: Player[], role: Role, emblems: EmblemInput[]) {
