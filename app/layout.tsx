@@ -4,6 +4,7 @@ import "./team-logos.css";
 import "./ranking-fix.css";
 import "./rosters.css";
 import "./header-fix.css";
+import "./social-links.css";
 
 export const metadata: Metadata = {
   title: "Dota 2 Fantasy Optimizer 2026",
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}<script src="/team-map-fix.js" defer /></body>
+      <body>
+        {children}
+        <script src="/team-map-fix.js" defer />
+        <script src="/social-links.js" defer />
+      </body>
     </html>
   );
 }
