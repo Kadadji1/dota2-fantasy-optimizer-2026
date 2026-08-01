@@ -48,22 +48,22 @@ export const players: Player[] = [
   { id: "natsumi-raven", name: "Natsumi & Raven", team: "", role: "core", stats: { gpm: 2449, deaths: 2541, creeps: 2471, madstones: 1138, kills: 1128, towers: 1098, teamfight: 2793, stuns: 385, tormentor: 843, roshan: 666, firstBlood: 389, courier: 309 } },
   { id: "sumail-davai", name: "SumaiL & Davai", team: "", role: "core", stats: { gpm: 2329, deaths: 2020, creeps: 2057, madstones: 892, kills: 1407, towers: 708 } },
 
-  { id: "nisha", name: "Nisha", team: "", role: "mid", stats: { gpm: 1267, deaths: 1262, creeps: 1212, madstones: 521, kills: 894, towers: 478, teamfight: 1483, stuns: 316, tormentor: 500 } },
-  { id: "marl1ne", name: "Malr1ne", team: "", role: "mid", stats: { gpm: 1215, deaths: 1122, creeps: 1161, madstones: 532, kills: 837, towers: 383, teamfight: 1500, stuns: 494, tormentor: 677 } },
-  { id: "gpk", name: "gpk", team: "", role: "mid", stats: { gpm: 1228, deaths: 1273, creeps: 1213, madstones: 536, kills: 831, towers: 345, teamfight: 1487, stuns: 352, tormentor: 579 } },
-  { id: "lorenof", name: "lorenof", team: "", role: "mid", stats: { gpm: 1273, deaths: 1378, creeps: 1095, madstones: 405, kills: 849, towers: 525, teamfight: 1450, stuns: 279, tormentor: 324 } },
+  { id: "nisha", name: "Nisha", team: "", role: "mid", stats: { gpm: 1267, deaths: 1262, creeps: 1212, madstones: 521, kills: 894, towers: 478, teamfight: 1483, stuns: 316, tormentor: 500, wards: 172.42, stacks: 508.03, watchers: 346.22, runes: 1601.09, smokes: 7.71 } },
+  { id: "marl1ne", name: "Malr1ne", team: "", role: "mid", stats: { gpm: 1215, deaths: 1122, creeps: 1161, madstones: 532, kills: 837, towers: 383, teamfight: 1500, stuns: 494, tormentor: 677, wards: 185.53, stacks: 471.34, watchers: 180.60, runes: 1583.23, smokes: 58.60 } },
+  { id: "gpk", name: "gpk", team: "", role: "mid", stats: { gpm: 1228, deaths: 1273, creeps: 1213, madstones: 536, kills: 831, towers: 345, teamfight: 1487, stuns: 352, tormentor: 579, wards: 195.48, stacks: 482.27, watchers: 358.54, runes: 1564.76, smokes: 10.72 } },
+  { id: "lorenof", name: "lorenof", team: "", role: "mid", stats: { gpm: 1273, deaths: 1378, creeps: 1095, madstones: 405, kills: 849, towers: 525, teamfight: 1450, stuns: 279, tormentor: 324, wards: 210.60, stacks: 533.52, watchers: 94.08, runes: 1353.60, smokes: 11.72 } },
   { id: "echozz", name: "Echozz", team: "", role: "mid", stats: { gpm: 1104, deaths: 1425, creeps: 962, madstones: 616, kills: 520, towers: 217, teamfight: 1549, stuns: 278, tormentor: 541 } },
-  { id: "mikoto", name: "Mikoto", team: "", role: "mid", stats: { gpm: 1239, deaths: 1414, creeps: 1170, madstones: 491, kills: 852, towers: 374, teamfight: 1446, stuns: 257, tormentor: 302 } },
-  { id: "bzm", name: "bzm", team: "", role: "mid", stats: { gpm: 1265, deaths: 1045, creeps: 1203, madstones: 255, kills: 786, towers: 439, teamfight: 1481, stuns: 451, tormentor: 538 } },
-  { id: "noone", name: "No[o]ne", team: "", role: "mid", stats: { gpm: 1220, deaths: 1324, creeps: 1079, madstones: 442, kills: 768, towers: 405, teamfight: 1496, stuns: 312, tormentor: 471 } },
-  { id: "xm", name: "Xm", team: "", role: "mid", stats: { gpm: 1211, deaths: 1184, creeps: 1244, madstones: 570, kills: 728, towers: 258, teamfight: 1519, stuns: 311, tormentor: 482 } },
-  { id: "tailung", name: "Tailung", team: "", role: "mid", stats: { gpm: 1230, deaths: 1133, creeps: 1285, madstones: 484, kills: 690, towers: 499, teamfight: 1395, stuns: 292, tormentor: 424 } },
-  { id: "larl", name: "Larl", team: "", role: "mid", stats: { gpm: 1220, deaths: 1147, creeps: 1182, madstones: 527, kills: 847, towers: 277, teamfight: 1480, stuns: 333, tormentor: 447 } },
-  { id: "chira", name: "CHIRA_JUNIOR", team: "", role: "mid", stats: { gpm: 1193, deaths: 1227, creeps: 1034, madstones: 369, kills: 763, towers: 429, teamfight: 1429, stuns: 393, tormentor: 474 } },
-  { id: "rcy", name: "RCY", team: "", role: "mid", stats: { gpm: 1236, deaths: 1270, creeps: 1170, madstones: 407, kills: 867, towers: 362, teamfight: 1488, stuns: 295, tormentor: 367 } },
-  { id: "nts", name: "NothingToSay", team: "", role: "mid", stats: { gpm: 1154, deaths: 1178, creeps: 1159, madstones: 462, kills: 673, towers: 176, teamfight: 1539, stuns: 363, tormentor: 473 } },
+  { id: "mikoto", name: "Mikoto", team: "", role: "mid", stats: { gpm: 1239, deaths: 1414, creeps: 1170, madstones: 491, kills: 852, towers: 374, teamfight: 1446, stuns: 257, tormentor: 302, wards: 198.39, stacks: 310.30, watchers: 321.16, runes: 1603.11, smokes: 0 } },
+  { id: "bzm", name: "bzm", team: "", role: "mid", stats: { gpm: 1265, deaths: 1045, creeps: 1203, madstones: 255, kills: 786, towers: 439, teamfight: 1481, stuns: 451, tormentor: 538, wards: 176.37, stacks: 722.96, watchers: 399.31, runes: 1403.69, smokes: 17.49 } },
+  { id: "noone", name: "No[o]ne", team: "", role: "mid", stats: { gpm: 1220, deaths: 1324, creeps: 1079, madstones: 442, kills: 768, towers: 405, teamfight: 1496, stuns: 312, tormentor: 471, wards: 135.78, stacks: 407.33, watchers: 533.56, runes: 1415.22, smokes: 25.32 } },
+  { id: "xm", name: "Xm", team: "", role: "mid", stats: { gpm: 1211, deaths: 1184, creeps: 1244, madstones: 570, kills: 728, towers: 258, teamfight: 1519, stuns: 311, tormentor: 482, wards: 176.69, stacks: 267.43, watchers: 411.00, runes: 1294.90, smokes: 0 } },
+  { id: "tailung", name: "Tailung", team: "", role: "mid", stats: { gpm: 1230, deaths: 1133, creeps: 1285, madstones: 484, kills: 690, towers: 499, teamfight: 1395, stuns: 292, tormentor: 424, wards: 133.71, stacks: 494.74, watchers: 405.30, runes: 1305.26, smokes: 4.19 } },
+  { id: "larl", name: "Larl", team: "", role: "mid", stats: { gpm: 1220, deaths: 1147, creeps: 1182, madstones: 527, kills: 847, towers: 277, teamfight: 1480, stuns: 333, tormentor: 447, wards: 128.22, stacks: 362.22, watchers: 390.66, runes: 1475.67, smokes: 12.04 } },
+  { id: "chira", name: "CHIRA_JUNIOR", team: "", role: "mid", stats: { gpm: 1193, deaths: 1227, creeps: 1034, madstones: 369, kills: 763, towers: 429, teamfight: 1429, stuns: 393, tormentor: 474, wards: 198.18, stacks: 382.04, watchers: 282.00, runes: 1211.45, smokes: 0 } },
+  { id: "rcy", name: "RCY", team: "", role: "mid", stats: { gpm: 1236, deaths: 1270, creeps: 1170, madstones: 407, kills: 867, towers: 362, teamfight: 1488, stuns: 295, tormentor: 367, wards: 234.00, stacks: 278.27, watchers: 369.49, runes: 1261.38, smokes: 23.76 } },
+  { id: "nts", name: "NothingToSay", team: "", role: "mid", stats: { gpm: 1154, deaths: 1178, creeps: 1159, madstones: 462, kills: 673, towers: 176, teamfight: 1539, stuns: 363, tormentor: 473, wards: 184.42, stacks: 475.93, watchers: 368.75, runes: 1484.08, smokes: 4.97 } },
   { id: "mirage", name: "Mirage`", team: "", role: "mid", stats: { gpm: 1159, deaths: 1112, creeps: 1001, madstones: 397, kills: 767, towers: 194, teamfight: 1517, stuns: 344, tormentor: 220 } },
-  { id: "yopaj", name: "Yopaj", team: "", role: "mid", stats: { gpm: 1080, deaths: 1224, creeps: 967, madstones: 453, kills: 734, towers: 281, teamfight: 1557, stuns: 324, tormentor: 312 } },
+  { id: "yopaj", name: "Yopaj", team: "", role: "mid", stats: { gpm: 1080, deaths: 1224, creeps: 967, madstones: 453, kills: 734, towers: 281, teamfight: 1557, stuns: 324, tormentor: 312, wards: 239.09, stacks: 396.78, watchers: 191.74, runes: 1158.65, smokes: 12.74 } },
 
   { id: "thiolicor-kj", name: "Thiolicor & KJ", team: "", role: "support", stats: { wards: 2260, stacks: 2349, lotuses: 1755, watchers: 2418, runes: 1403, smokes: 2016, teamfight: 2719, stuns: 852, tormentor: 760, roshan: 149, firstBlood: 334, courier: 1042 } },
   { id: "saksa-malady", name: "Saksa & Malady", team: "", role: "support", stats: { wards: 2012, stacks: 2038, lotuses: 1365, watchers: 1850, runes: 1013, smokes: 1704, teamfight: 2859, stuns: 766, tormentor: 904, roshan: 116, firstBlood: 507, courier: 808 } },
@@ -85,6 +85,7 @@ export const players: Player[] = [
 
 export const roleStats: Record<Role, StatKey[]> = {
   core: ["creeps", "gpm", "deaths", "towers", "kills", "madstones", "roshan", "teamfight", "tormentor", "stuns", "courier", "firstBlood"],
-  mid: ["creeps", "gpm", "deaths", "kills", "madstones", "towers", "teamfight", "stuns", "tormentor", "runes"],
+  // Mid lotuses remain unavailable because the source explicitly reports no data for that stat.
+  mid: ["creeps", "gpm", "deaths", "kills", "madstones", "towers", "wards", "stacks", "watchers", "runes", "smokes", "teamfight", "stuns", "tormentor"],
   support: ["wards", "smokes", "stacks", "watchers", "lotuses", "runes", "teamfight", "tormentor", "courier", "firstBlood", "roshan", "stuns"]
 };
