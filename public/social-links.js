@@ -34,24 +34,12 @@
 
   const install = () => {
     const header = document.querySelector(".topbar");
-    const languageSwitch = document.querySelector(".language-switch");
-    if (!header || !languageSwitch || header.querySelector(".social-links-header")) return;
+    if (!header || header.querySelector(".social-links-header")) return;
 
     const headerLinks = document.createElement("div");
     headerLinks.className = "social-links-header";
     links.forEach((item) => headerLinks.appendChild(createLink(item, true)));
-    header.insertBefore(headerLinks, languageSwitch);
-
-    if (!document.querySelector(".site-social-footer")) {
-      const footer = document.createElement("footer");
-      footer.className = "site-social-footer";
-      footer.innerHTML = '<div class="footer-signature"><strong>Made by Kadadji</strong><span>Dota 2 and The International are trademarks of Valve Corporation. This project is not affiliated with Valve.</span></div>';
-      const footerLinks = document.createElement("div");
-      footerLinks.className = "social-links-footer";
-      links.forEach((item) => footerLinks.appendChild(createLink(item, false)));
-      footer.appendChild(footerLinks);
-      document.body.appendChild(footer);
-    }
+    header.insertBefore(headerLinks, header.firstElementChild);
   };
 
   if (document.readyState === "loading") {
