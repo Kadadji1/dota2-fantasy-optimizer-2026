@@ -22,9 +22,14 @@ function isAdjacent(a: number, b: number): boolean {
   return Math.abs(a - b) === 1;
 }
 
+function normalizeTier(tier: Tier): Tier {
+  const key = String(tier).trim().split(/\s+/)[0] as Tier;
+  return Object.prototype.hasOwnProperty.call(tierBonuses, key) ? key : "I";
+}
+
 export function getTraitFactors(emblems: EmblemInput[]): number[] {
   const factors = emblems.map(() => 1);
-  const allTiersDifferent = new Set(emblems.map((item) => item.tier)).size === emblems.length;
+  const allTiersDifferent = new Set(emblems.map((item) => normalizeTier(item.tier))).size === emblems.length;
   const uniqueCount = emblems.filter((item) => item.trait === "unique").length;
   const friendlyCount = emblems.filter((item) => item.trait === "friendly").length;
 
@@ -54,21 +59,24 @@ export function getScoreContributions(player: Player, emblems: EmblemInput[]): S
   const traitFactors = getTraitFactors(emblems);
 
   return emblems.map((emblem, index) => {
-    const baseValue = player.stats[emblem.stat] ?? 0;
-    const tierBonus = tierBonuses[emblem.tier];
+    const normalizedTier = normalizeTier(emblem.tier);
+    const rawBaseValue = player.stats[emblem.stat];
+    const baseValue = Number.isFinite(rawBaseValue) ? Number(rawBaseValue) : 0;
+    const tierBonus = tierBonuses[normalizedTier];
     const tierFactor = 1 + tierBonus / 100;
-    const traitFactor = traitFactors[index];
+    const traitFactor = Number.isFinite(traitFactors[index]) ? traitFactors[index] : 1;
     const factor = tierFactor * traitFactor;
+    const weightedValue = baseValue * factor;
 
     return {
       stat: emblem.stat,
-      tier: emblem.tier,
+      tier: normalizedTier,
       trait: emblem.trait,
       baseValue,
       tierBonus,
       traitFactor,
       factor,
-      weightedValue: baseValue * factor
+      weightedValue: Number.isFinite(weightedValue) ? weightedValue : 0
     };
   });
 }
