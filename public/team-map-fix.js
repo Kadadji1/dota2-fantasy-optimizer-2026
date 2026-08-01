@@ -19,6 +19,7 @@
     span.title = team;
     span.setAttribute('role', 'img');
     span.setAttribute('aria-label', team);
+    span.dataset.teamMapInjected = 'true';
     return span;
   }
 
@@ -34,29 +35,16 @@
       const label = document.createElement('small');
       label.className = 'team-label';
       label.textContent = team;
+      label.dataset.teamMapInjected = 'true';
       const confidence = info.querySelector('small');
       info.insertBefore(label, confidence || null);
     }
   }
 
-  function hydrateWinner(card) {
-    const name = card.querySelector('.winner-name')?.textContent?.trim();
-    const team = name && teams[name];
-    const identity = card.querySelector('.winner-identity');
-    if (!team || !identity || identity.querySelector('.team-logo')) return;
-    identity.insertBefore(logo(team, 'lg'), identity.firstChild);
-    const text = identity.querySelector('div');
-    if (text && !text.querySelector('.winner-team')) {
-      const label = document.createElement('div');
-      label.className = 'winner-team';
-      label.textContent = team;
-      text.appendChild(label);
-    }
-  }
-
   function hydrate() {
     document.querySelectorAll('.alternative-row').forEach(hydrateAlternative);
-    document.querySelectorAll('.winner-card').forEach(hydrateWinner);
+    // Winner cards are rendered completely by React. Mutating them here caused
+    // duplicate team logos and labels after hydration, especially on mobile.
   }
 
   let queued = false;
