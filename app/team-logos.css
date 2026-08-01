@@ -1,12 +1,8 @@
-.team-logo{display:grid;place-items:center;flex:0 0 auto;border:1px solid rgba(214,165,38,.35);background:radial-gradient(circle at 35% 30%,rgba(255,229,160,.14),rgba(18,15,10,.92));overflow:hidden;box-shadow:inset 0 0 20px rgba(214,165,38,.05)}
-.team-logo img{display:block;width:78%;height:78%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
-.team-logo b{font-size:11px;letter-spacing:.06em;color:var(--gold2)}
-.team-logo-sm{width:28px;height:28px;border-radius:7px}
-.team-logo-md{width:38px;height:38px;border-radius:9px}
-.team-logo-lg{width:56px;height:56px;border-radius:12px}
-.winner-identity{display:flex;align-items:center;gap:14px;margin:22px 0 4px}
-.winner-identity .winner-name{margin:0}
-.team-card-title{display:flex;align-items:center;gap:12px;min-width:0}
-.team-card-title h3{overflow:hidden;text-overflow:ellipsis}
-.alternative-row{grid-template-columns:32px 28px minmax(0,1fr) auto}
-@media(max-width:700px){.team-logo-lg{width:48px;height:48px}.alternative-row{grid-template-columns:28px 26px minmax(0,1fr) auto;gap:8px}.team-logo-sm{width:26px;height:26px}}
+.team-logo{position:relative;display:grid;place-items:center;flex:0 0 auto;overflow:hidden;border:1px solid rgba(214,165,38,.42);border-radius:12px;background:linear-gradient(145deg,#21190e,#0c0a07);background-position:center;background-repeat:no-repeat;background-size:82%;box-shadow:inset 0 0 0 1px rgba(255,229,160,.04),0 8px 22px rgba(0,0,0,.22)}
+.team-logo-sm{width:34px;height:34px;border-radius:9px}.team-logo-md{width:44px;height:44px}.team-logo-lg{width:64px;height:64px;border-radius:15px}
+.team-logo img{display:none!important}.team-logo b{font-size:12px;letter-spacing:.04em;color:var(--gold2);text-align:center}.team-logo-lg b{font-size:15px}
+.team-logo[title="OG"]{background-image:url('/teams/og.svg')}.team-logo[title="Team Liquid"]{background-image:url('/teams/liquid.svg')}.team-logo[title="Team Falcons"]{background-image:url('/teams/falcons.svg')}.team-logo[title="Team Spirit"]{background-image:url('/teams/spirit.svg')}.team-logo[title="LGD Gaming"]{background-image:url('/teams/lgd.svg')}.team-logo[title="Xtreme Gaming"]{background-image:url('/teams/xtreme.svg')}.team-logo[title="Team Yandex"]{background-image:url('/teams/yandex.svg')}.team-logo[title="Iron Wing"]{background-image:url('/teams/iron-wing.svg')}.team-logo[title="Nigma Galaxy"]{background-image:url('/teams/nigma.svg')}.team-logo[title="Aurora Gaming"]{background-image:url('/teams/aurora.svg')}
+.winner-identity{position:relative;z-index:1;display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;margin:22px 0 8px}.winner-identity .winner-name{margin:0;font-size:29px;line-height:1.06}.winner-team{display:block;width:auto;margin-top:7px;padding:0;background:none;color:var(--gold);font-size:11px;letter-spacing:.11em;text-transform:uppercase}
+.alternative-row{grid-template-columns:32px 34px minmax(0,1fr) auto}.alternative-row>div{min-width:0}.alternative-row strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.team-label{font-size:11px;letter-spacing:.04em}
+.team-card-title{display:flex;align-items:center;gap:14px;min-width:0}.team-card-title h3{line-height:1.05}.team-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.team-card:hover{transform:translateY(-2px);border-color:rgba(255,229,160,.6);box-shadow:0 18px 42px rgba(0,0,0,.26)}
+@media(max-width:700px){.winner-identity{grid-template-columns:52px minmax(0,1fr);gap:12px}.team-logo-lg{width:52px;height:52px;border-radius:12px}.winner-identity .winner-name{font-size:25px}.alternative-row{grid-template-columns:28px 30px minmax(0,1fr) auto;gap:8px}.team-logo-sm{width:30px;height:30px}.team-card-header{align-items:center}.team-card-title .team-logo-lg{width:48px;height:48px}}
