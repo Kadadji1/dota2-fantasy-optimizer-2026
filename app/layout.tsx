@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./team-logos.css";
 import "./ranking-fix.css";
+import "./rosters.css";
 
 export const metadata: Metadata = {
   title: "Dota 2 Fantasy Optimizer 2026",
