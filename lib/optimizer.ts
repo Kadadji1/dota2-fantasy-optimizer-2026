@@ -1,29 +1,36 @@
 import { Player, Role, StatKey } from "../data/players";
 
-export type EmblemInput = { stat: StatKey; multiplier: number };
+export type EmblemInput = { stat: StatKey; percentage: number };
 
 export type ScoreContribution = {
   stat: StatKey;
   baseValue: number;
-  multiplier: number;
+  percentage: number;
+  factor: number;
   weightedValue: number;
 };
+
+export function percentageToFactor(percentage: number): number {
+  return 1 + Math.max(0, percentage) / 100;
+}
 
 export function calculatePlayerScore(player: Player, emblems: EmblemInput[]): number {
   return emblems.reduce((total, emblem) => {
     const value = player.stats[emblem.stat] ?? 0;
-    return total + value * emblem.multiplier;
+    return total + value * percentageToFactor(emblem.percentage);
   }, 0);
 }
 
 export function getScoreContributions(player: Player, emblems: EmblemInput[]): ScoreContribution[] {
   return emblems.map((emblem) => {
     const baseValue = player.stats[emblem.stat] ?? 0;
+    const factor = percentageToFactor(emblem.percentage);
     return {
       stat: emblem.stat,
       baseValue,
-      multiplier: emblem.multiplier,
-      weightedValue: baseValue * emblem.multiplier
+      percentage: emblem.percentage,
+      factor,
+      weightedValue: baseValue * factor
     };
   });
 }
