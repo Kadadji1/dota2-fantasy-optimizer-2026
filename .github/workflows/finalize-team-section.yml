@@ -23,6 +23,10 @@ jobs:
           path = Path('components/Optimizer.tsx')
           s = path.read_text()
 
+          s = s.replace('Community dataset · TI 2026 methodology', 'Reddit dataset · 13 Tier 1 tournaments')
+          s = s.replace('Данные сообщества · методика TI 2026', 'Reddit-датасет · 13 турниров Tier 1')
+          s = s.replace('<strong>1,408</strong>', '<strong>1,601</strong>')
+
           s = re.sub(
             r'\nconst tournamentTeams = \[.*?\] as const;\n',
             '\n',
@@ -66,6 +70,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No component changes"
           else
-            git commit -m "fix: show only teams represented in Reddit dataset"
+            git commit -m "fix: use Reddit dataset teams and source labels"
             git push
           fi
