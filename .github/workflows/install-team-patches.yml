@@ -1,0 +1,33 @@
+name: Install uploaded team patches
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/install-team-patches.yml'
+      - 'assets/team-patches/**'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild patch archive
+        run: |
+          mkdir -p public/teams/patches
+          cat assets/team-patches/part-*.b64 | tr -d '\n' | base64 --decode > /tmp/team-patches.zip
+          unzip -o /tmp/team-patches.zip -d public/teams/patches
+      - name: Commit generated WebP patches
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/teams/patches
+          if git diff --cached --quiet; then
+            echo "No patch changes"
+          else
+            git commit -m "feat: install uploaded TI 2026 team patches"
+            git push
+          fi
