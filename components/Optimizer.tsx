@@ -25,31 +25,31 @@ const text = {
     kicker: "THE INTERNATIONAL 2026", title: "Dota 2 Fantasy Optimizer",
     subtitle: "Build all three banners, compare roster combinations and understand exactly where every projected point comes from.",
     builder: "Banner builder", results: "Best roster", teams: "Teams",
-    teamsSubtitle: "Known TI 2026 team affiliations for the players included in the current dataset.",
+    teamsSubtitle: "Teams represented by players in the current Reddit dataset.",
     traits: "Traits", rerolls: "Reroll guide", rules: "Rules", methodology: "Methodology",
     core: "Core", mid: "Mid", support: "Support", pair: "same-team pair", single: "one player",
     emblem: "Emblem", tier: "Tier", trait: "Trait", optimize: "Optimize roster", reset: "Reset banners",
     total: "Projected roster score", score: "Projected score", alternatives: "Top alternatives",
-    source: "Community dataset · TI 2026 methodology",
+    source: "Reddit dataset · 13 Tier 1 tournaments",
     titleSoon: "Coach title support is next. Current calculations include emblem tiers and traits only.",
     confidence: "Sample strength", strong: "Strong", medium: "Medium", limited: "Limited",
-    matches: "matches in the current source methodology", representedRoles: "Roles represented",
-    availableTotal: "Available-role total", noData: "Player data not added yet", red: "red", blue: "blue", green: "green"
+    matches: "matches in the source dataset", representedRoles: "Roles represented",
+    availableTotal: "Available-role total", red: "red", blue: "blue", green: "green"
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026", title: "Оптимизатор Dota 2 Fantasy",
     subtitle: "Соберите сразу три знамени, сравните связки и увидьте, откуда берётся каждое прогнозное очко.",
     builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды",
-    teamsSubtitle: "Известная принадлежность игроков к командам TI 2026 в текущем наборе данных.",
+    teamsSubtitle: "Команды, игроки которых представлены в текущем датасете Reddit.",
     traits: "Свойства", rerolls: "Что роллить", rules: "Правила", methodology: "Методика расчёта",
     core: "Основа", mid: "Центр", support: "Поддержка", pair: "пара из одной команды", single: "1 игрок",
     emblem: "Эмблема", tier: "Разряд", trait: "Свойство", optimize: "Подобрать состав", reset: "Сбросить настройки",
     total: "Прогноз состава", score: "Прогнозный счёт", alternatives: "Лучшие альтернативы",
-    source: "Данные сообщества · методика TI 2026",
+    source: "Данные Reddit · 13 турниров Tier 1",
     titleSoon: "Тренерские титулы добавим следующим этапом. Сейчас расчёт учитывает разряды и свойства эмблем.",
     confidence: "Сила выборки", strong: "Высокая", medium: "Средняя", limited: "Ограниченная",
-    matches: "матчей в текущей методике источников", representedRoles: "Представленные роли",
-    availableTotal: "Сумма доступных ролей", noData: "Данные игроков пока не добавлены", red: "красный", blue: "синий", green: "зелёный"
+    matches: "матчей в исходном датасете", representedRoles: "Представленные роли",
+    availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный"
   }
 } as const;
 
@@ -96,13 +96,6 @@ const teamByPlayerId: Record<string,string> = {
   "rue-notme":"Team Spirit","ari-whitemon":"Iron Wing","cr1t-sneyking":"Team Falcons","boxi-tofu":"Team Liquid"
 };
 
-const tournamentTeams = [
-  "Team Yandex", "Team Vision", "BOOMBOYS", "Team Spirit",
-  "Team Liquid", "Iron Wing", "Aurora Gaming", "Vici Gaming",
-  "Team Falcons", "Nigma Galaxy", "OG", "HULIGANI",
-  "LGD Gaming", "GamerLegion", "Xtreme Gaming", "Team Resilience"
-] as const;
-
 const defaults: BannerState = {
   core:[{stat:"creeps",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"gpm",tier:"III",trait:"none"}],
   mid:[{stat:"kills",tier:"III",trait:"none"},{stat:"runes",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"}],
@@ -124,18 +117,19 @@ export default function Optimizer(){
   const rankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
   const totalScore=roles.reduce((sum,role)=>sum+(rankings[role][0]?.score??0),0);
   const teamOverview=useMemo<TeamEntry[]>(()=>{
-  const teams=new Map<string,TeamEntry>(tournamentTeams.map(team=>[team,{team,roles:{},total:0}]));
-  roles.forEach(role=>rankings[role].forEach(entry=>{
-    const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
-    const current=teams.get(team)??{team,roles:{},total:0};
-    if(!current.roles[role]||entry.score>current.roles[role]!.score)current.roles[role]={name:entry.player.name,score:entry.score};
-    teams.set(team,current);
-  }));
-  return tournamentTeams.map(team=>{
-    const entry=teams.get(team)!;
-    return {...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)};
-  });
-},[rankings]);
+    const teams=new Map<string,TeamEntry>();
+    roles.forEach(role=>rankings[role].forEach(entry=>{
+      const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
+      const current=teams.get(team)??{team,roles:{},total:0};
+      if(!current.roles[role]||entry.score>current.roles[role]!.score){
+        current.roles[role]={name:entry.player.name,score:entry.score};
+      }
+      teams.set(team,current);
+    }));
+    return Array.from(teams.values())
+      .map(entry=>({...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)}))
+      .sort((a,b)=>b.total-a.total);
+  },[rankings]);
 
   const updateEmblem=(role:Role,index:number,patch:Partial<EmblemInput>)=>setBanners(c=>({...c,[role]:c[role].map((x,i)=>i===index?{...x,...patch}:x)}));
   const resetBanners=()=>setBanners({core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))});
@@ -148,7 +142,7 @@ export default function Optimizer(){
       <div className="language-switch"><button className={language==="en"?"active":""} onClick={()=>setLanguage("en")}>EN</button><button className={language==="ru"?"active":""} onClick={()=>setLanguage("ru")}>RU</button></div>
     </header>
 
-    <section className="hero" id="top"><div className="hero-glow"/><div className="hero-copy"><div className="eyebrow">{t.kicker}</div><h1>{t.title}</h1><p>{t.subtitle}</p><div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div></div><aside className="dataset-card"><span>{t.source}</span><strong>1,408</strong><small>{t.matches}</small></aside></section>
+    <section className="hero" id="top"><div className="hero-glow"/><div className="hero-copy"><div className="eyebrow">{t.kicker}</div><h1>{t.title}</h1><p>{t.subtitle}</p><div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div></div><aside className="dataset-card"><span>{t.source}</span><strong>1,601</strong><small>{t.matches}</small></aside></section>
 
     <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div><div className="banner-board">
       {roles.map(role=><article className={`banner-column role-${role}`} key={role}><div className="banner-heading"><div><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><b>{bannerSlotColors[role].map(c=>t[c]).join(" · ")}</b></div><div className="banner-slots">
@@ -160,7 +154,7 @@ export default function Optimizer(){
       {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team">{team}</div>}</div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}</div></article>})}
     </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}<small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
 
-    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div></section>
+    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
 
     <section className="section split-section" id="traits"><div><div className="eyebrow">04 · {t.traits}</div><h2>{t.traits}</h2></div><div className="trait-grid">{(Object.keys(traitDescriptions) as Trait[]).filter(x=>x!=="none").map(x=><article className="info-tile" key={x}><span>{traitLabels[x][language]}</span><p>{traitDescriptions[x][language]}</p></article>)}</div></section>
 
