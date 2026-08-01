@@ -1,4 +1,4 @@
-name: Finalize TI 2026 team section
+name: Keep only represented dataset teams
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update team roster and logo component
+      - name: Limit team section to represented dataset teams
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -23,60 +23,36 @@ jobs:
           path = Path('components/Optimizer.tsx')
           s = path.read_text()
 
-          s = s.replace('availableTotal: "Available-role total", red:', 'availableTotal: "Available-role total", noData: "Player data not added yet", red:')
-          s = s.replace('availableTotal: "Сумма доступных ролей", red:', 'availableTotal: "Сумма доступных ролей", noData: "Данные игроков пока не добавлены", red:')
-          s = s.replace('"satanic-noticed":"TEAM VISION"', '"satanic-noticed":"Team Vision"')
-
-          s, n = re.subn(
-            r'const teamDomains: Record<string,string> = \{.*?\n\};',
-            '''const tournamentTeams = [
-            "Team Yandex", "Team Vision", "BOOMBOYS", "Team Spirit",
-            "Team Liquid", "Iron Wing", "Aurora Gaming", "Vici Gaming",
-            "Team Falcons", "Nigma Galaxy", "OG", "HULIGANI",
-            "LGD Gaming", "GamerLegion", "Xtreme Gaming", "Team Resilience"
-          ] as const;''',
+          s = re.sub(
+            r'\nconst tournamentTeams = \[.*?\] as const;\n',
+            '\n',
             s,
             count=1,
             flags=re.S
           )
-          if n != 1: raise SystemExit(f'teamDomains replacements: {n}')
-
-          s = re.sub(r'function initials\(team:string\)\{.*?\}\n', '', s, count=1)
 
           s, n = re.subn(
-            r'function TeamLogo\(\{team,size="md"\}:\{team:string;size\?:"sm"\|"md"\|"lg"\}\)\{.*?\n\}',
-            '''function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
-            return <span className={`team-logo team-logo-${size}`} title={team} role="img" aria-label={team} />;
-          }''',
-            s,
-            count=1,
-            flags=re.S
-          )
-          if n != 1: raise SystemExit(f'TeamLogo replacements: {n}')
-
-          s, n = re.subn(
-            r'  const teamOverview=useMemo<TeamEntry\[\]>\(\(\)=>\{.*?\n  \},\[rankings\]\);',
+            r'  const teamOverview=useMemo<TeamEntry\[\]>\(\(\)=>\{.*?\n\},\[rankings\]\);',
             '''  const teamOverview=useMemo<TeamEntry[]>(()=>{
-            const teams=new Map<string,TeamEntry>(tournamentTeams.map(team=>[team,{team,roles:{},total:0}]));
-            roles.forEach(role=>rankings[role].forEach(entry=>{
-              const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
-              const current=teams.get(team)??{team,roles:{},total:0};
-              if(!current.roles[role]||entry.score>current.roles[role]!.score)current.roles[role]={name:entry.player.name,score:entry.score};
-              teams.set(team,current);
-            }));
-            return tournamentTeams.map(team=>{
-              const entry=teams.get(team)!;
-              return {...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)};
-            });
-          },[rankings]);''',
+    const teams=new Map<string,TeamEntry>();
+    roles.forEach(role=>rankings[role].forEach(entry=>{
+      const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
+      const current=teams.get(team)??{team,roles:{},total:0};
+      if(!current.roles[role]||entry.score>current.roles[role]!.score)current.roles[role]={name:entry.player.name,score:entry.score};
+      teams.set(team,current);
+    }));
+    return Array.from(teams.values())
+      .map(entry=>({...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)}))
+      .sort((a,b)=>b.total-a.total);
+  },[rankings]);''',
             s,
             count=1,
             flags=re.S
           )
           if n != 1: raise SystemExit(f'teamOverview replacements: {n}')
 
-          old = '<div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div>'
-          new = '<div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div>'
+          old = '<div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div>'
+          new = '<div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div>'
           if old not in s: raise SystemExit('team card rendering not found')
           s = s.replace(old, new, 1)
 
@@ -90,6 +66,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No component changes"
           else
-            git commit -m "feat: show all 16 TI 2026 teams with local patches"
+            git commit -m "fix: show only teams represented in Reddit dataset"
             git push
           fi
