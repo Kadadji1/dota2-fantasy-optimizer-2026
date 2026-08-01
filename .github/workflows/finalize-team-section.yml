@@ -18,68 +18,45 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('components/Optimizer.tsx')
           s = path.read_text()
 
-          s = s.replace(
-            '    availableTotal: "Available-role total", red: "red", blue: "blue", green: "green"',
-            '    availableTotal: "Available-role total", noData: "Player data not added yet", red: "red", blue: "blue", green: "green"'
-          )
-          s = s.replace(
-            '    availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный"',
-            '    availableTotal: "Сумма доступных ролей", noData: "Данные игроков пока не добавлены", red: "красный", blue: "синий", green: "зелёный"'
-          )
-
+          s = s.replace('availableTotal: "Available-role total", red:', 'availableTotal: "Available-role total", noData: "Player data not added yet", red:')
+          s = s.replace('availableTotal: "Сумма доступных ролей", red:', 'availableTotal: "Сумма доступных ролей", noData: "Данные игроков пока не добавлены", red:')
           s = s.replace('"satanic-noticed":"TEAM VISION"', '"satanic-noticed":"Team Vision"')
 
-          old_domains = '''const teamDomains: Record<string,string> = {
-            "OG":"ogs.gg","Team Liquid":"teamliquid.com","Team Falcons":"teamfalcons.gg","Team Spirit":"teamspirit.gg",
-            "Nigma Galaxy":"nigmagalaxy.com","Aurora Gaming":"auroragg.com","LGD Gaming":"lgd.com",
-            "Xtreme Gaming":"xtremegaming.cn","Team Yandex":"yandex.com"
-          };
-          '''
-          new_teams = '''const tournamentTeams = [
+          s, n = re.subn(
+            r'const teamDomains: Record<string,string> = \{.*?\n\};',
+            '''const tournamentTeams = [
             "Team Yandex", "Team Vision", "BOOMBOYS", "Team Spirit",
             "Team Liquid", "Iron Wing", "Aurora Gaming", "Vici Gaming",
             "Team Falcons", "Nigma Galaxy", "OG", "HULIGANI",
             "LGD Gaming", "GamerLegion", "Xtreme Gaming", "Team Resilience"
-          ] as const;
-          '''
-          if old_domains not in s:
-            raise SystemExit('teamDomains block not found')
-          s = s.replace(old_domains, new_teams)
+          ] as const;''',
+            s,
+            count=1,
+            flags=re.S
+          )
+          if n != 1: raise SystemExit(f'teamDomains replacements: {n}')
 
-          s = s.replace('function initials(team:string){ return team.split(/\\s+/).map(x=>x[0]).join("").slice(0,3).toUpperCase(); }\n', '')
+          s = re.sub(r'function initials\(team:string\)\{.*?\}\n', '', s, count=1)
 
-          old_logo = '''function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
-            const domain=teamDomains[team];
-            const [failed,setFailed]=useState(false);
-            return <span className={`team-logo team-logo-${size}`} title={team}>
-              {domain&&!failed?<img src={`https://logo.clearbit.com/${domain}`} alt={`${team} logo`} onError={()=>setFailed(true)} />:<b>{initials(team)}</b>}
-            </span>;
-          }
-          '''
-          new_logo = '''function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
+          s, n = re.subn(
+            r'function TeamLogo\(\{team,size="md"\}:\{team:string;size\?:"sm"\|"md"\|"lg"\}\)\{.*?\n\}',
+            '''function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
             return <span className={`team-logo team-logo-${size}`} title={team} role="img" aria-label={team} />;
-          }
-          '''
-          if old_logo not in s:
-            raise SystemExit('TeamLogo block not found')
-          s = s.replace(old_logo, new_logo)
+          }''',
+            s,
+            count=1,
+            flags=re.S
+          )
+          if n != 1: raise SystemExit(f'TeamLogo replacements: {n}')
 
-          old_overview = '''  const teamOverview=useMemo<TeamEntry[]>(()=>{
-            const teams=new Map<string,TeamEntry>();
-            roles.forEach(role=>rankings[role].forEach(entry=>{
-              const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
-              const current=teams.get(team)??{team,roles:{},total:0};
-              if(!current.roles[role]||entry.score>current.roles[role]!.score)current.roles[role]={name:entry.player.name,score:entry.score};
-              teams.set(team,current);
-            }));
-            return Array.from(teams.values()).map(e=>({...e,total:roles.reduce((s,r)=>s+(e.roles[r]?.score??0),0)})).sort((a,b)=>b.total-a.total);
-          },[rankings]);
-          '''
-          new_overview = '''  const teamOverview=useMemo<TeamEntry[]>(()=>{
+          s, n = re.subn(
+            r'  const teamOverview=useMemo<TeamEntry\[\]>\(\(\)=>\{.*?\n  \},\[rankings\]\);',
+            '''  const teamOverview=useMemo<TeamEntry[]>(()=>{
             const teams=new Map<string,TeamEntry>(tournamentTeams.map(team=>[team,{team,roles:{},total:0}]));
             roles.forEach(role=>rankings[role].forEach(entry=>{
               const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
@@ -91,17 +68,17 @@ jobs:
               const entry=teams.get(team)!;
               return {...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)};
             });
-          },[rankings]);
-          '''
-          if old_overview not in s:
-            raise SystemExit('teamOverview block not found')
-          s = s.replace(old_overview, new_overview)
+          },[rankings]);''',
+            s,
+            count=1,
+            flags=re.S
+          )
+          if n != 1: raise SystemExit(f'teamOverview replacements: {n}')
 
-          old_cards = '''<div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div>'''
-          new_cards = '''<div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div>'''
-          if old_cards not in s:
-            raise SystemExit('team cards block not found')
-          s = s.replace(old_cards, new_cards)
+          old = '<div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div>'
+          new = '<div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div>'
+          if old not in s: raise SystemExit('team card rendering not found')
+          s = s.replace(old, new, 1)
 
           path.write_text(s)
           PY
