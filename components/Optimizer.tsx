@@ -34,7 +34,7 @@ const text = {
     titleSoon: "Coach title support is next. Current calculations include emblem tiers and traits only.",
     confidence: "Sample strength", strong: "Strong", medium: "Medium", limited: "Limited",
     matches: "matches in the current source methodology", representedRoles: "Roles represented",
-    availableTotal: "Available-role total", red: "red", blue: "blue", green: "green"
+    availableTotal: "Available-role total", noData: "Player data not added yet", red: "red", blue: "blue", green: "green"
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026", title: "Оптимизатор Dota 2 Fantasy",
@@ -49,7 +49,7 @@ const text = {
     titleSoon: "Тренерские титулы добавим следующим этапом. Сейчас расчёт учитывает разряды и свойства эмблем.",
     confidence: "Сила выборки", strong: "Высокая", medium: "Средняя", limited: "Ограниченная",
     matches: "матчей в текущей методике источников", representedRoles: "Представленные роли",
-    availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный"
+    availableTotal: "Сумма доступных ролей", noData: "Данные игроков пока не добавлены", red: "красный", blue: "синий", green: "зелёный"
   }
 } as const;
 
@@ -88,7 +88,7 @@ const traitLabels: Record<Trait,{en:string;ru:string}> = {
 };
 
 const teamByPlayerId: Record<string,string> = {
-  "natsumi-raven":"OG","ssnovv-corrupted":"HULIGANI","yuma-wisper":"LGD Gaming","satanic-noticed":"TEAM VISION",
+  "natsumi-raven":"OG","ssnovv-corrupted":"HULIGANI","yuma-wisper":"LGD Gaming","satanic-noticed":"Team Vision",
   "watson-dm":"Team Yandex","pure-33":"Iron Wing","skiter-atf":"Team Falcons","ame-xxs":"Xtreme Gaming",
   "yatoro-collapse":"Team Spirit","nisha":"Team Liquid","mikoto":"Aurora Gaming","marl1ne":"Team Falcons",
   "yopaj":"OG","mirage":"HULIGANI","larl":"Team Spirit","lorenof":"Nigma Galaxy","bzm":"Iron Wing","xm":"Xtreme Gaming",
@@ -96,11 +96,12 @@ const teamByPlayerId: Record<string,string> = {
   "rue-notme":"Team Spirit","ari-whitemon":"Iron Wing","cr1t-sneyking":"Team Falcons","boxi-tofu":"Team Liquid"
 };
 
-const teamDomains: Record<string,string> = {
-  "OG":"ogs.gg","Team Liquid":"teamliquid.com","Team Falcons":"teamfalcons.gg","Team Spirit":"teamspirit.gg",
-  "Nigma Galaxy":"nigmagalaxy.com","Aurora Gaming":"auroragg.com","LGD Gaming":"lgd.com",
-  "Xtreme Gaming":"xtremegaming.cn","Team Yandex":"yandex.com"
-};
+const tournamentTeams = [
+  "Team Yandex", "Team Vision", "BOOMBOYS", "Team Spirit",
+  "Team Liquid", "Iron Wing", "Aurora Gaming", "Vici Gaming",
+  "Team Falcons", "Nigma Galaxy", "OG", "HULIGANI",
+  "LGD Gaming", "GamerLegion", "Xtreme Gaming", "Team Resilience"
+] as const;
 
 const defaults: BannerState = {
   core:[{stat:"creeps",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"gpm",tier:"III",trait:"none"}],
@@ -109,15 +110,10 @@ const defaults: BannerState = {
 };
 
 function playerTeam(id:string, stored:string){ return stored || teamByPlayerId[id] || ""; }
-function initials(team:string){ return team.split(/\s+/).map(x=>x[0]).join("").slice(0,3).toUpperCase(); }
 function sampleStrength(index:number, language:Language){ const t=text[language]; return index<3?t.strong:index<6?t.medium:t.limited; }
 
 function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
-  const domain=teamDomains[team];
-  const [failed,setFailed]=useState(false);
-  return <span className={`team-logo team-logo-${size}`} title={team}>
-    {domain&&!failed?<img src={`https://logo.clearbit.com/${domain}`} alt={`${team} logo`} onError={()=>setFailed(true)} />:<b>{initials(team)}</b>}
-  </span>;
+  return <span className={`team-logo team-logo-${size}`} title={team} role="img" aria-label={team} />;
 }
 
 export default function Optimizer(){
@@ -128,15 +124,18 @@ export default function Optimizer(){
   const rankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
   const totalScore=roles.reduce((sum,role)=>sum+(rankings[role][0]?.score??0),0);
   const teamOverview=useMemo<TeamEntry[]>(()=>{
-    const teams=new Map<string,TeamEntry>();
-    roles.forEach(role=>rankings[role].forEach(entry=>{
-      const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
-      const current=teams.get(team)??{team,roles:{},total:0};
-      if(!current.roles[role]||entry.score>current.roles[role]!.score)current.roles[role]={name:entry.player.name,score:entry.score};
-      teams.set(team,current);
-    }));
-    return Array.from(teams.values()).map(e=>({...e,total:roles.reduce((s,r)=>s+(e.roles[r]?.score??0),0)})).sort((a,b)=>b.total-a.total);
-  },[rankings]);
+  const teams=new Map<string,TeamEntry>(tournamentTeams.map(team=>[team,{team,roles:{},total:0}]));
+  roles.forEach(role=>rankings[role].forEach(entry=>{
+    const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
+    const current=teams.get(team)??{team,roles:{},total:0};
+    if(!current.roles[role]||entry.score>current.roles[role]!.score)current.roles[role]={name:entry.player.name,score:entry.score};
+    teams.set(team,current);
+  }));
+  return tournamentTeams.map(team=>{
+    const entry=teams.get(team)!;
+    return {...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)};
+  });
+},[rankings]);
 
   const updateEmblem=(role:Role,index:number,patch:Partial<EmblemInput>)=>setBanners(c=>({...c,[role]:c[role].map((x,i)=>i===index?{...x,...patch}:x)}));
   const resetBanners=()=>setBanners({core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))});
@@ -161,7 +160,7 @@ export default function Optimizer(){
       {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team">{team}</div>}</div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}</div></article>})}
     </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}<small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
 
-    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
+    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div></section>
 
     <section className="section split-section" id="traits"><div><div className="eyebrow">04 · {t.traits}</div><h2>{t.traits}</h2></div><div className="trait-grid">{(Object.keys(traitDescriptions) as Trait[]).filter(x=>x!=="none").map(x=><article className="info-tile" key={x}><span>{traitLabels[x][language]}</span><p>{traitDescriptions[x][language]}</p></article>)}</div></section>
 
