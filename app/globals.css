@@ -6,6 +6,8 @@ button,select,input { font:inherit; }
 .header { display:flex; justify-content:space-between; gap:24px; align-items:flex-start; margin-bottom:30px; }
 .eyebrow { color:var(--accent); letter-spacing:.16em; font-size:12px; font-weight:800; }
 h1 { font-size:clamp(34px,6vw,62px); line-height:1; margin:10px 0 12px; max-width:780px; }
+h2 { margin:6px 0 18px; }
+h3 { margin:24px 0 12px; }
 p { color:var(--muted); }
 .language-switch,.role-tabs { display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#0d1115; }
 .language-switch button,.role-tabs button { border:0; background:transparent; color:var(--muted); padding:10px 14px; cursor:pointer; }
@@ -37,12 +39,27 @@ label { color:var(--muted); font-size:13px; }
 .contribution-item strong { color:var(--accent); }
 .contribution-item span { color:var(--muted); font-size:12px; }
 .note { margin:16px 0 0; font-size:13px; }
+.info-grid { display:grid; grid-template-columns:1.4fr .6fr; gap:22px; margin-top:22px; }
+.info-card { box-shadow:none; }
+.value-list { margin:0; padding-left:22px; display:grid; gap:8px; }
+.value-list li { padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#0d1115; }
+.value-list li::marker { color:var(--accent); font-weight:900; }
+.value-list li span { display:inline-block; width:calc(100% - 90px); color:var(--muted); }
+.value-list li strong { float:right; color:var(--text); }
+.tier-grid { display:grid; gap:10px; }
+.tier-grid div { display:flex; justify-content:space-between; padding:12px; border:1px solid var(--line); border-radius:10px; background:#0d1115; }
+.tier-grid span { color:var(--accent); font-weight:800; }
+.rules-section { margin-top:22px; }
+.rules-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.rule-item { display:grid; gap:5px; padding:12px; border:1px solid var(--line); border-radius:10px; background:#0d1115; }
+.rule-item span { color:var(--muted); font-size:13px; }
+.methodology-list { color:var(--muted); line-height:1.6; padding-left:20px; }
 @media (max-width:760px){
   .shell{padding:28px 14px 60px}
   .header{flex-direction:column}
   .role-tabs{width:100%}
   .role-tabs button{flex:1;padding:10px 8px;font-size:13px}
-  .emblem-grid{grid-template-columns:1fr}
+  .emblem-grid,.info-grid,.rules-grid{grid-template-columns:1fr}
   .player-summary{grid-template-columns:40px 1fr}
   .score{grid-column:2;text-align:left}
   .contribution-grid{grid-template-columns:1fr}
