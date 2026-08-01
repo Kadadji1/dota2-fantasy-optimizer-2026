@@ -1,4 +1,4 @@
-name: Apply Reddit dataset teams
+name: Repair alternative ranking layout
 
 on:
   workflow_dispatch:
@@ -14,60 +14,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update optimizer dataset presentation
+      - name: Fix alternative row grid
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
+          cat >> app/globals.css <<'CSS'
 
-          path = Path('components/Optimizer.tsx')
-          s = path.read_text()
-
-          # Remove the fixed 16-team tournament list.
-          s = re.sub(r'\nconst tournamentTeams = \[.*?\] as const;\n', '\n', s, count=1, flags=re.S)
-
-          # Build the Teams section only from players actually present in rankings.
-          pattern = r'  const teamOverview=useMemo<TeamEntry\[\]>\(\(\)=>\{.*?\n\},\[rankings\]\);'
-          replacement = '''  const teamOverview=useMemo<TeamEntry[]>(()=>{
-    const teams=new Map<string,TeamEntry>();
-    roles.forEach(role=>rankings[role].forEach(entry=>{
-      const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
-      const current=teams.get(team)??{team,roles:{},total:0};
-      if(!current.roles[role]||entry.score>current.roles[role]!.score){
-        current.roles[role]={name:entry.player.name,score:entry.score};
-      }
-      teams.set(team,current);
-    }));
-    return Array.from(teams.values())
-      .map(entry=>({...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)}))
-      .sort((a,b)=>b.total-a.total);
-  },[rankings]);'''
-          s, n = re.subn(pattern, replacement, s, count=1, flags=re.S)
-          if n != 1:
-            raise SystemExit(f'teamOverview replacements: {n}')
-
-          # Remove empty-team rendering; all displayed teams now have data.
-          old_cards = '<div className="team-grid">{teamOverview.map(entry=>{const represented=roles.filter(role=>entry.roles[role]).length;return <article className={`team-card ${represented===0?"team-card-empty":""}`} key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{represented?Math.round(entry.total).toLocaleString(locale):"—"}</strong></div><small>{t.availableTotal}</small>{represented?<div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>:<div className="team-empty-state">{t.noData}</div>}<footer>{t.representedRoles}: {represented}/3</footer></article>})}</div>'
-          new_cards = '<div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div>'
-          if old_cards not in s:
-            raise SystemExit('team cards block not found')
-          s = s.replace(old_cards, new_cards, 1)
-
-          # Correct dataset attribution and match count.
-          s = s.replace('source: "Community dataset · TI 2026 methodology"', 'source: "Reddit dataset · 13 Tier 1 tournaments"')
-          s = s.replace('source: "Данные сообщества · методика TI 2026"', 'source: "Данные Reddit · 13 турниров Tier 1"')
-          s = s.replace('<strong>1,408</strong>', '<strong>1,601</strong>')
-
-          path.write_text(s)
-          PY
+/* Keep ranking rows aligned with and without a mapped team logo. */
+.alternative-row{
+  grid-template-columns:32px minmax(0,1fr) auto;
+  min-width:0;
+}
+.alternative-row:has(.team-logo){
+  grid-template-columns:32px 38px minmax(0,1fr) auto;
+}
+.alternative-row>div{
+  min-width:0;
+}
+.alternative-row>div>strong,
+.alternative-row>div>small{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.alternative-row>b{
+  white-space:nowrap;
+  justify-self:end;
+  padding-left:8px;
+}
+@media(max-width:700px){
+  .alternative-row{grid-template-columns:30px minmax(0,1fr) auto}
+  .alternative-row:has(.team-logo){grid-template-columns:30px 34px minmax(0,1fr) auto}
+}
+CSS
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add components/Optimizer.tsx
+          git add app/globals.css
           if git diff --cached --quiet; then
             echo "No changes needed"
           else
-            git commit -m "fix: use only teams represented in Reddit dataset"
+            git commit -m "fix: align alternative ranking rows"
             git push
           fi
