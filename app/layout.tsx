@@ -55,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script src="/extra-languages.js" defer />
         <script src="/language-switch-fix.js" defer />
         <script src="/source-copy-fix.js" defer />
+        <script src="/footer-language-fix.js" defer />
       </body>
     </html>
   );
