@@ -5,10 +5,11 @@ import "./ranking-fix.css";
 import "./rosters.css";
 import "./header-fix.css";
 import "./social-links.css";
+import "./extra-languages.css";
 
 export const metadata: Metadata = {
   title: "Dota 2 Fantasy Optimizer 2026",
-  description: "Bilingual Dota 2 Fantasy roster optimizer for The International 2026"
+  description: "Multilingual Dota 2 Fantasy roster optimizer for The International 2026"
 };
 
 const links = {
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </footer>
         <script src="/team-map-fix.js" defer />
         <script src="/social-links.js" defer />
+        <script src="/extra-languages.js" defer />
       </body>
     </html>
   );
