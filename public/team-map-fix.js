@@ -13,9 +13,10 @@
     "planet & zzq":"Team Resilience","Save- & Kataomi":"BoomBoys","Bignum & Speeed":"GamerLegion","sayuw & RESPECT":"HULIGANI"
   };
 
-  // These support pairs are still absent from the React teamByPlayerId map.
-  // Restricting winner-card hydration to this set prevents duplicate Mid/Core teams.
+  // Entries still absent from the React teamByPlayerId map.
+  // Restricting winner-card hydration to this set prevents duplicate teams.
   const missingWinnerTeams = new Set([
+    "YSR-04E & niu",
     "Mira & kaori",
     "OmaR & GH",
     "XinQ & y`",
@@ -54,7 +55,7 @@
     }
   }
 
-  function hydrateMissingSupportWinner(card) {
+  function hydrateMissingWinner(card) {
     const name = card.querySelector('.winner-name')?.textContent?.trim();
     if (!name || !missingWinnerTeams.has(name)) return;
 
@@ -76,7 +77,7 @@
 
   function hydrate() {
     document.querySelectorAll('.alternative-row').forEach(hydrateAlternative);
-    document.querySelectorAll('.winner-card').forEach(hydrateMissingSupportWinner);
+    document.querySelectorAll('.winner-card').forEach(hydrateMissingWinner);
   }
 
   let queued = false;
