@@ -88,6 +88,8 @@ There are several ways to support the project:
 - [x] English and Russian localization
 - [x] Mobile support
 - [ ] Coach title support
+- [ ] TI2026 tournament predictions after the Group Stage
+- [ ] Playoff bracket predictions and match-by-match picks
 - [ ] Additional tournament updates, if new data becomes available
 - [ ] TI2027 update
 
