@@ -34,6 +34,11 @@
     return document.documentElement.lang === 'es' || document.documentElement.lang === 'zh-CN';
   }
 
+  function isRussianActive() {
+    const buttons = getButtons();
+    return document.documentElement.lang === 'ru' || Boolean(buttons?.ru?.classList.contains('active'));
+  }
+
   function createVisualFreeze() {
     const overlay = document.createElement('div');
     const clone = document.body.cloneNode(true);
@@ -85,6 +90,20 @@
 
     const targetExtra = target.dataset.extraLanguage;
     const targetBuiltIn = target.textContent?.trim();
+
+    // The extra-language script internally switches RU -> EN before applying
+    // ES or ZH. Keep the Russian frame visible until the destination is ready.
+    if (targetExtra && isRussianActive() && !isExtraLanguageActive()) {
+      switching = true;
+      const releaseVisualFreeze = createVisualFreeze();
+
+      window.setTimeout(() => {
+        setOnlyActive(targetExtra);
+        switching = false;
+        releaseVisualFreeze();
+      }, 220);
+      return;
+    }
 
     if (targetExtra && isExtraLanguageActive()) {
       const current = document.documentElement.lang === 'zh-CN' ? 'zh' : 'es';
