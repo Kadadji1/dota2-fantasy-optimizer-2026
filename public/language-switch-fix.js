@@ -14,8 +14,16 @@
     };
   }
 
+  function currentLanguage() {
+    const lang = document.documentElement.lang;
+    if (lang === 'zh-CN') return 'zh';
+    if (lang === 'es') return 'es';
+    return getButtons()?.ru?.classList.contains('active') ? 'ru' : 'en';
+  }
+
   function isExtraLanguageActive() {
-    return document.documentElement.lang === 'es' || document.documentElement.lang === 'zh-CN';
+    const language = currentLanguage();
+    return language === 'es' || language === 'zh';
   }
 
   function restoreEnglishReact(done) {
@@ -45,19 +53,27 @@
 
     const targetExtra = target.dataset.extraLanguage;
     const targetBuiltIn = target.textContent?.trim();
+    const destination = targetExtra || (targetBuiltIn === 'RU' ? 'ru' : targetBuiltIn === 'EN' ? 'en' : null);
+    const current = currentLanguage();
+
+    // Clicking the already active language must be a no-op for all four buttons.
+    // Stop the event here so the underlying extra-language handler cannot reset
+    // ES or ZH back to English on a repeated click.
+    if (destination && destination === current) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
 
     if (targetExtra && isExtraLanguageActive()) {
-      const current = document.documentElement.lang === 'zh-CN' ? 'zh' : 'es';
-      if (targetExtra === current) return;
-
       event.preventDefault();
       event.stopImmediatePropagation();
       switching = true;
 
       restoreEnglishReact(() => {
         const buttons = getButtons();
-        const destination = targetExtra === 'es' ? buttons?.es : buttons?.zh;
-        destination?.click();
+        const next = targetExtra === 'es' ? buttons?.es : buttons?.zh;
+        next?.click();
         window.setTimeout(() => { switching = false; }, 100);
       });
       return;
