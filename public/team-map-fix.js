@@ -17,6 +17,7 @@
   // Restricting winner-card hydration to this set prevents duplicate teams.
   const missingWinnerTeams = new Set([
     "YSR-04E & niu",
+    "gpk",
     "Mira & kaori",
     "OmaR & GH",
     "XinQ & y`",
