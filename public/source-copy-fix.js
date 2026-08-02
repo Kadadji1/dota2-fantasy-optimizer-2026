@@ -30,6 +30,7 @@
   ]);
 
   let applying = false;
+  let scheduled = false;
 
   function getActiveLanguage() {
     const active = document.querySelector(".language-switch button.active");
@@ -41,28 +42,45 @@
   }
 
   function replaceText() {
+    scheduled = false;
     if (applying || !document.body) return;
     applying = true;
+
     const language = getActiveLanguage();
+    const sourceTarget = sourceByLanguage[language];
+    const teamsTarget = teamsByLanguage[language];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
+
     while (walker.nextNode()) nodes.push(walker.currentNode);
 
     nodes.forEach((node) => {
       const parent = node.parentElement;
       if (!parent || parent.closest("script, style")) return;
+
       const value = node.nodeValue || "";
       const trimmed = value.trim();
-      if (sourceVariants.has(trimmed)) {
-        node.nodeValue = value.replace(trimmed, sourceByLanguage[language]);
-      } else if (teamVariants.has(trimmed)) {
-        node.nodeValue = value.replace(trimmed, teamsByLanguage[language]);
+      let target = null;
+
+      if (sourceVariants.has(trimmed)) target = sourceTarget;
+      else if (teamVariants.has(trimmed)) target = teamsTarget;
+
+      if (target && trimmed !== target) {
+        node.nodeValue = value.replace(trimmed, target);
       }
     });
+
     applying = false;
   }
 
-  const observer = new MutationObserver(replaceText);
+  function scheduleReplace() {
+    if (scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(replaceText);
+  }
+
+  const observer = new MutationObserver(scheduleReplace);
+
   window.addEventListener("DOMContentLoaded", () => {
     replaceText();
     observer.observe(document.body, {
@@ -72,8 +90,9 @@
       attributes: true,
       attributeFilter: ["class"]
     });
+
     document.querySelector(".language-switch")?.addEventListener("click", () => {
-      window.setTimeout(replaceText, 80);
+      window.setTimeout(scheduleReplace, 100);
     });
   });
 })();
