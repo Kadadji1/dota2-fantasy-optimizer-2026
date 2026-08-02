@@ -1,47 +1,120 @@
-# Dota 2 Fantasy Optimizer 2026
+<div align="center">
 
-Bilingual EN/RU web app for optimizing The International 2026 Fantasy picks around a user's actual banner multipliers.
+# 🛡️ Dota 2 Fantasy Optimizer — TI2026
 
-## Current MVP
+Build the strongest Fantasy roster for **The International 2026** using historical professional tournament statistics.
 
-- English/Russian language switch
-- Core, Mid and Support role modes
-- Three configurable emblems per role
-- Editable multipliers
-- Live player ranking
-- Transparent weighted scoring formula
-- Responsive mobile interface
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
+[![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
-## Run locally
+**English / Русский · Desktop / Mobile**
+
+</div>
+
+---
+
+## ⭐ Enjoying the project?
+
+If this optimizer helped you build your Fantasy roster, please consider giving the repository a **GitHub Star**.
+
+Stars help more Dota 2 players discover the project and support future updates.
+
+**[⭐ Star this repository](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026)**
+
+---
+
+## What the optimizer does
+
+The app helps players compare banner configurations and find the strongest projected Fantasy roster for TI2026.
+
+### Main features
+
+- **Banner Builder** — configure all three emblems for Core, Mid and Support.
+- **Best Roster** — instantly compare the strongest projected player combinations.
+- **Team Overview** — see represented TI2026 teams, players and role coverage.
+- **Traits Guide** — understand how banner properties affect the final score.
+- **Reroll Guide** — compare the average value of different emblem statistics.
+- **Scoring Reference** — review the Fantasy scoring rules used by the calculator.
+- **English and Russian interface**.
+- **Responsive layout** for desktop, tablet and mobile.
+
+---
+
+## How to use it
+
+1. Choose the statistics shown on your three emblems.
+2. Select each emblem tier and property.
+3. Open **Best Roster** to see the highest projected lineup.
+4. Compare alternatives, team combinations and score breakdowns.
+
+🌐 **Live website:** [dota2-fantasy-optimizer-2026.vercel.app](https://dota2-fantasy-optimizer-2026.vercel.app/)
+
+---
+
+## Data and methodology
+
+The current dataset is based on community research covering professional matches from **13 Tier 1 tournaments** played before TI2026.
+
+The optimizer uses the published historical Fantasy values for individual players and same-team role pairs, then applies the selected emblem tiers and properties to estimate the strongest roster.
+
+Some statistics depend on the limitations of publicly available match data. The methodology and known approximations are explained directly on the website.
+
+---
+
+## Credits
+
+Fantasy calculations are based on publicly available professional match data and community research.
+
+A dedicated credit to the original statistics author will be added after permission is confirmed.
+
+---
+
+## ❤️ Support the Project
+
+There are several ways to support the project:
+
+- **[⭐ Star this repository](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026)**
+- **[❤️ Support the Project](https://buymeacoffee.com/kadadji?status=1)**
+- **[🎮 Steam Profile](https://steamcommunity.com/id/Kadadji1/)**
+
+---
+
+## Roadmap
+
+- [x] TI2026 Fantasy optimizer
+- [x] Banner tiers and properties
+- [x] Best roster and alternatives
+- [x] Team logos and team overview
+- [x] English and Russian localization
+- [x] Mobile support
+- [ ] Coach title support
+- [ ] Additional tournament updates, if new data becomes available
+- [ ] TI2027 update
+
+---
+
+## Technology
+
+- Next.js
+- React
+- TypeScript
+- Vercel
+
+---
+
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Then open `http://localhost:3000`.
 
-## Scoring
-
-The MVP currently uses:
-
-```text
-score = stat_1 × multiplier_1 + stat_2 × multiplier_2 + stat_3 × multiplier_3
-```
-
-Player statistics currently use normalized seed values. The next milestone is importing the complete 2026 dataset from the research tables and validating it against public match data.
-
-## Planned
-
-- Full 2026 player dataset
-- Banner traits and titles
-- Reroll recommendations
-- Player comparison
-- Group Stage / The International stage presets
-- Historical variance and ceiling metrics
-- Swiss-stage simulation
-- Screenshot import
+---
 
 ## Disclaimer
 
-This is an independent community project and is not affiliated with Valve Corporation or The International.
+This is an independent fan-made community project and is not affiliated with Valve Corporation.
+
+Dota 2, The International and all related trademarks and assets belong to their respective owners.
