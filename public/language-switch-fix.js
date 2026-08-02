@@ -14,6 +14,22 @@
     };
   }
 
+  function setOnlyActive(language) {
+    const buttons = getButtons();
+    if (!buttons) return;
+
+    buttons.switcher.querySelectorAll('button').forEach((button) => {
+      button.classList.remove('active');
+      button.setAttribute('aria-pressed', 'false');
+    });
+
+    const activeButton = buttons[language];
+    if (activeButton) {
+      activeButton.classList.add('active');
+      activeButton.setAttribute('aria-pressed', 'true');
+    }
+  }
+
   function isExtraLanguageActive() {
     return document.documentElement.lang === 'es' || document.documentElement.lang === 'zh-CN';
   }
@@ -76,6 +92,7 @@
       if (targetExtra === current) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        setOnlyActive(current);
         return;
       }
 
@@ -89,6 +106,7 @@
         const destination = targetExtra === 'es' ? buttons?.es : buttons?.zh;
         destination?.click();
         window.setTimeout(() => {
+          setOnlyActive(targetExtra);
           switching = false;
           releaseVisualFreeze();
         }, 120);
@@ -101,10 +119,12 @@
       event.stopImmediatePropagation();
       switching = true;
       const releaseVisualFreeze = createVisualFreeze();
+      const destination = targetBuiltIn === 'RU' ? 'ru' : 'en';
 
       restoreEnglishReact(() => {
-        if (targetBuiltIn === 'RU') getButtons()?.ru?.click();
+        if (destination === 'ru') getButtons()?.ru?.click();
         window.setTimeout(() => {
+          setOnlyActive(destination);
           switching = false;
           releaseVisualFreeze();
         }, 120);
