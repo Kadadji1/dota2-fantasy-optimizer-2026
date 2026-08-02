@@ -6,6 +6,7 @@ import "./rosters.css";
 import "./header-fix.css";
 import "./social-links.css";
 import "./extra-languages.css";
+import "./mobile-team-role-fix.css";
 
 export const metadata: Metadata = {
   title: "Dota 2 Fantasy Optimizer 2026",
