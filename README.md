@@ -4,7 +4,7 @@
 
 Build the strongest Fantasy roster for **The International 2026** using historical professional tournament statistics.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
+[![Open Optimizer](https://img.shields.io/badge/Open%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
 [![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
 **English / Русский · Desktop / Mobile**
