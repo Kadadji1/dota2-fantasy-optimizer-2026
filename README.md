@@ -11,6 +11,14 @@ Build the strongest Fantasy roster for **The International 2026** using historic
 
 </div>
 
+<p align="center">
+  <img
+    src="./docs/775155BD-7682-4F14-BC16-84EF29BDEDDB.png"
+    alt="Dota 2 Fantasy Optimizer TI2026 interface preview"
+    width="100%"
+  />
+</p>
+
 ---
 
 ## ⭐ Enjoying the project?
