@@ -7,7 +7,7 @@ Build the strongest Fantasy roster for **The International 2026** using historic
 [![Open Optimizer](https://img.shields.io/badge/Open%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
 [![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
-**English / Русский · Desktop / Mobile**
+**English · Русский · Español · 简体中文 · Desktop / Mobile**
 
 </div>
 
@@ -35,7 +35,7 @@ The app helps players compare banner configurations and find the strongest proje
 - **Traits Guide** — understand how banner properties affect the final score.
 - **Reroll Guide** — compare the average value of different emblem statistics.
 - **Scoring Reference** — review the Fantasy scoring rules used by the calculator.
-- **English and Russian interface**.
+- **Four interface languages** — English, Russian, Spanish and Simplified Chinese.
 - **Responsive layout** for desktop, tablet and mobile.
 
 ---
@@ -85,7 +85,7 @@ There are several ways to support the project:
 - [x] Banner tiers and properties
 - [x] Best roster and alternatives
 - [x] Team logos and team overview
-- [x] English and Russian localization
+- [x] English, Russian, Spanish and Simplified Chinese localization
 - [x] Mobile support
 - [ ] Coach title support
 - [ ] TI2026 tournament predictions after the Group Stage
