@@ -53,9 +53,11 @@ The app helps players compare banner configurations and find the strongest proje
 
 ## Data and methodology
 
-The current dataset is based on community research covering professional matches from **13 Tier 1 tournaments** played before TI2026.
+**Professional match statistics · 13 Tier 1 tournaments**
 
-The optimizer uses the published historical Fantasy values for individual players and same-team role pairs, then applies the selected emblem tiers and properties to estimate the strongest roster.
+Built from professional Tier 1 match statistics collected across 13 tournaments played before TI2026.
+
+The optimizer uses historical Fantasy values for individual players and same-team role pairs, then applies the selected emblem tiers and properties to estimate the strongest roster.
 
 Some statistics depend on the limitations of publicly available match data. The methodology and known approximations are explained directly on the website.
 
@@ -63,7 +65,7 @@ Some statistics depend on the limitations of publicly available match data. The 
 
 ## Credits
 
-Fantasy calculations are based on publicly available professional match data and community research.
+Fantasy calculations are based on publicly available professional match statistics and additional community research.
 
 A dedicated credit to the original statistics author will be added after permission is confirmed.
 
