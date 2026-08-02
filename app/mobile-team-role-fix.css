@@ -1,0 +1,17 @@
+@media (max-width: 700px) {
+  .team-role-list div {
+    grid-template-columns: minmax(118px, auto) minmax(0, 1fr) auto;
+    column-gap: 12px;
+    align-items: center;
+  }
+
+  .team-role-list span {
+    white-space: nowrap;
+    font-size: 11px;
+  }
+
+  .team-role-list b {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
