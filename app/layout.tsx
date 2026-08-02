@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AnalyticsEvents from "./AnalyticsEvents";
 import "./globals.css";
 import "./team-logos.css";
 import "./ranking-fix.css";
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           <SocialLinks />
         </footer>
+        <AnalyticsEvents />
         <script src="/team-map-fix.js" defer />
         <script src="/social-links.js" defer />
         <script src="/extra-languages.js" defer />
