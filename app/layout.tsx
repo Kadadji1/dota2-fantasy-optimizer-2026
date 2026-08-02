@@ -53,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script src="/team-map-fix.js" defer />
         <script src="/social-links.js" defer />
         <script src="/extra-languages.js" defer />
+        <script src="/language-switch-fix.js" defer />
       </body>
     </html>
   );
