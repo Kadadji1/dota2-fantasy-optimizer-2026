@@ -14,16 +14,35 @@
     };
   }
 
-  function currentLanguage() {
-    const lang = document.documentElement.lang;
-    if (lang === 'zh-CN') return 'zh';
-    if (lang === 'es') return 'es';
-    return getButtons()?.ru?.classList.contains('active') ? 'ru' : 'en';
+  function isExtraLanguageActive() {
+    return document.documentElement.lang === 'es' || document.documentElement.lang === 'zh-CN';
   }
 
-  function isExtraLanguageActive() {
-    const language = currentLanguage();
-    return language === 'es' || language === 'zh';
+  function createVisualFreeze() {
+    const overlay = document.createElement('div');
+    const clone = document.body.cloneNode(true);
+
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.style.cssText = [
+      'position:fixed',
+      'inset:0',
+      'z-index:2147483647',
+      'overflow:hidden',
+      'pointer-events:none',
+      'background:#090806'
+    ].join(';');
+
+    clone.style.position = 'absolute';
+    clone.style.left = '0';
+    clone.style.top = `${-window.scrollY}px`;
+    clone.style.width = '100%';
+    clone.style.margin = '0';
+    overlay.appendChild(clone);
+    document.documentElement.appendChild(overlay);
+
+    return () => {
+      requestAnimationFrame(() => requestAnimationFrame(() => overlay.remove()));
+    };
   }
 
   function restoreEnglishReact(done) {
@@ -33,9 +52,6 @@
       return;
     }
 
-    // React may already think EN is active while the DOM was translated by the
-    // extra-language layer. Switching to RU first guarantees a real rerender,
-    // then switching back to EN restores the original English text tree.
     buttons.ru.click();
     window.setTimeout(() => {
       buttons.en.click();
@@ -53,28 +69,29 @@
 
     const targetExtra = target.dataset.extraLanguage;
     const targetBuiltIn = target.textContent?.trim();
-    const destination = targetExtra || (targetBuiltIn === 'RU' ? 'ru' : targetBuiltIn === 'EN' ? 'en' : null);
-    const current = currentLanguage();
-
-    // Clicking the already active language must be a no-op for all four buttons.
-    // Stop the event here so the underlying extra-language handler cannot reset
-    // ES or ZH back to English on a repeated click.
-    if (destination && destination === current) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
 
     if (targetExtra && isExtraLanguageActive()) {
+      const current = document.documentElement.lang === 'zh-CN' ? 'zh' : 'es';
+
+      if (targetExtra === current) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+
       event.preventDefault();
       event.stopImmediatePropagation();
       switching = true;
+      const releaseVisualFreeze = createVisualFreeze();
 
       restoreEnglishReact(() => {
         const buttons = getButtons();
-        const next = targetExtra === 'es' ? buttons?.es : buttons?.zh;
-        next?.click();
-        window.setTimeout(() => { switching = false; }, 100);
+        const destination = targetExtra === 'es' ? buttons?.es : buttons?.zh;
+        destination?.click();
+        window.setTimeout(() => {
+          switching = false;
+          releaseVisualFreeze();
+        }, 120);
       });
       return;
     }
@@ -83,10 +100,14 @@
       event.preventDefault();
       event.stopImmediatePropagation();
       switching = true;
+      const releaseVisualFreeze = createVisualFreeze();
 
       restoreEnglishReact(() => {
         if (targetBuiltIn === 'RU') getButtons()?.ru?.click();
-        window.setTimeout(() => { switching = false; }, 100);
+        window.setTimeout(() => {
+          switching = false;
+          releaseVisualFreeze();
+        }, 120);
       });
     }
   }, true);
