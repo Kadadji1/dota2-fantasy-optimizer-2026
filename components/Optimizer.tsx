@@ -45,10 +45,10 @@ const text = {
     confidence: "Sample strength", strong: "Strong", medium: "Medium", limited: "Limited",
     matches: "matches in the source dataset", representedRoles: "Roles represented",
     availableTotal: "Available-role total", red: "red", blue: "blue", green: "green",
-    titleIntro: "Choose one Prefix + Suffix for the entire Fantasy roster. Changing the title does not use roll tokens.",
+    titleIntro: "Choose one Prefix + Suffix for the entire Fantasy roster. Both bonuses apply independently to each player’s game score when their conditions are met. Changing the title does not use roll tokens.",
     prefix: "Prefix", suffix: "Suffix", expectedBonus: "Expected Prefix bonus", selectedFrequency: "Historical match rate",
     recommendedPrefix: "Recommended Prefix", useRecommended: "Use recommended", prefixRanking: "Best Prefixes for this roster",
-    suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below is a conditional scenario, not guaranteed points.",
+    suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.",
     stable: "Stable", gamble: "Gamble", avoid: "Avoid", pairAverage: "pair average",
     titleMethod: "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.",
     prefixContribution: "Expected Prefix"
@@ -66,10 +66,10 @@ const text = {
     confidence: "Сила выборки", strong: "Высокая", medium: "Средняя", limited: "Ограниченная",
     matches: "матчей в исходном датасете", representedRoles: "Представленные роли",
     availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный",
-    titleIntro: "Выберите один общий Prefix + Suffix для всего Fantasy-состава. Смена титула не расходует жетоны.",
+    titleIntro: "Выберите один общий Prefix + Suffix для всего Fantasy-состава. Оба бонуса независимо применяются к счёту каждого игрока за игру, если выполнены их условия. Смена титула не расходует жетоны.",
     prefix: "Префикс", suffix: "Суффикс", expectedBonus: "Ожидаемый бонус префикса", selectedFrequency: "Историческая частота",
     recommendedPrefix: "Рекомендуемый префикс", useRecommended: "Выбрать", prefixRanking: "Лучшие префиксы для состава",
-    suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже — условный сценарий, а не гарантированные очки.",
+    suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже независимо добавляет бонус суффикса к базовому счёту состава, не усиливая ожидаемый бонус префикса.",
     stable: "Стабильный", gamble: "Азартный", avoid: "Лучше избегать", pairAverage: "среднее пары",
     titleMethod: "Прогноз префикса использует историческую частоту каждого игрока. Для пар берётся простое среднее двух игроков, потому что исходный счёт хранится общей парой.",
     prefixContribution: "Ожидаемый префикс"
@@ -100,8 +100,8 @@ const formulas: Record<StatKey, { en: string; ru: string }> = {
 };
 
 const methodology = {
-  en:["Each game is scored separately.","A match result is the sum of the two highest-scoring games in that series.","A player or pair value is the average match score over the selected source tournaments.","Death score is not clamped at zero and can become negative.","Lotus data is approximate because OpenDota does not expose the exact pickup event.","Prefix expected value equals projected player score × historical trigger rate × Prefix bonus.","Suffixes are displayed as conditional scenarios because their future trigger cannot be projected reliably.","Two suffixes cannot be modeled reliably with OpenDota: pre-horn first blood and fountain kills.","Trait effects are applied multiplicatively to the tier-adjusted emblem contribution."],
-  ru:["Каждая игра оценивается отдельно.","Результат матча — сумма двух игр серии с наибольшим фэнтези-счётом.","Значение игрока или пары — средний счёт за матч на выбранных турнирах-источниках.","Очки за смерти не ограничиваются нулём и могут стать отрицательными.","Данные по лотосам приблизительные: OpenDota не отдаёт точное событие подбора.","Ожидаемый вклад префикса: прогноз игрока × историческая частота × бонус префикса.","Суффиксы показаны как условные сценарии, потому что их срабатывание нельзя надёжно предсказать заранее.","Два суффикса нельзя надёжно посчитать через OpenDota: первая кровь до горна и убийства у фонтана.","Эффекты свойств применяются мультипликативно к вкладу эмблемы после учёта разряда."]
+  en:["Each game is scored separately.","A match result is the sum of the two highest-scoring games in that series.","A player or pair value is the average match score over the selected source tournaments.","Death score is not clamped at zero and can become negative.","Lotus data is approximate because OpenDota does not expose the exact pickup event.","Prefix expected value equals projected player score × historical trigger rate × Prefix bonus.","Suffixes are displayed as conditional scenarios. Their bonus is calculated independently from the base score and does not multiply the expected Prefix bonus.","Two suffixes cannot be modeled reliably with OpenDota: pre-horn first blood and fountain kills.","Trait effects are applied multiplicatively to the tier-adjusted emblem contribution."],
+  ru:["Каждая игра оценивается отдельно.","Результат матча — сумма двух игр серии с наибольшим фэнтези-счётом.","Значение игрока или пары — средний счёт за матч на выбранных турнирах-источниках.","Очки за смерти не ограничиваются нулём и могут стать отрицательными.","Данные по лотосам приблизительные: OpenDota не отдаёт точное событие подбора.","Ожидаемый вклад префикса: прогноз игрока × историческая частота × бонус префикса.","Суффиксы показаны как условные сценарии. Их бонус независимо рассчитывается от базового счёта и не умножает ожидаемый бонус префикса.","Два суффикса нельзя надёжно посчитать через OpenDota: первая кровь до горна и убийства у фонтана.","Эффекты свойств применяются мультипликативно к вкладу эмблемы после учёта разряда."]
 };
 
 const traitLabels: Record<Trait,{en:string;ru:string}> = {
@@ -170,7 +170,7 @@ export default function Optimizer(){
   const totalScore=roles.reduce((sum,role)=>sum+(rankings[role][0]?.score??0),0);
   const baseTotalScore=roles.reduce((sum,role)=>sum+(rankings[role][0]?.baseScore??0),0);
   const selectedPrefixBonus=totalScore-baseTotalScore;
-  const suffixTriggeredScore=totalScore*(1+suffixes[suffix].bonus/100);
+  const suffixTriggeredScore=totalScore+baseTotalScore*(suffixes[suffix].bonus/100);
   const teamOverview=useMemo<TeamEntry[]>(()=>{
     const teams=new Map<string,TeamEntry>();
     roles.forEach(role=>rankings[role].forEach(entry=>{
