@@ -6,7 +6,7 @@
 
 Build and compare Core, Mid and Support banners for **The International 2026** using historical professional tournament statistics.
 
-[![Open Fantasy Calculator & Optimizer](https://img.shields.io/badge/Open%20Fantasy%20Calculator%20%26%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
+[![Open Fantasy Calculator & Optimizer](https://img.shields.io/badge/Open%20Fantasy%20Calculator%20%26%20Optimizer-d6a93d?style=for-the-badge)](https://www.ti2026calculator.com/)
 [![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
 **English · Русский · Español · 简体中文 · Desktop / Mobile**
@@ -25,7 +25,7 @@ Build and compare Core, Mid and Support banners for **The International 2026** u
 
 ## Live TI2026 Fantasy Calculator & Optimizer
 
-**https://dota2-fantasy-optimizer-2026.vercel.app/**
+**https://www.ti2026calculator.com/**
 
 Use the tool to compare Fantasy banner configurations, estimate projected roster scores and identify stronger player combinations for TI2026.
 
@@ -55,7 +55,7 @@ The app helps Dota 2 players compare banner configurations and find the stronges
 3. Open **Best Roster** to see the highest projected lineup.
 4. Compare alternatives, team combinations and score breakdowns.
 
-🌐 **Live website:** [Dota 2 TI2026 Fantasy Calculator & Optimizer](https://dota2-fantasy-optimizer-2026.vercel.app/)
+🌐 **Live website:** [Dota 2 TI2026 Fantasy Calculator & Optimizer](https://www.ti2026calculator.com/)
 
 ---
 
