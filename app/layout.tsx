@@ -9,9 +9,30 @@ import "./social-links.css";
 import "./extra-languages.css";
 import "./mobile-team-role-fix.css";
 
+const siteUrl = "https://www.ti2026calculator.com";
+
 export const metadata: Metadata = {
-  title: "Dota 2 Fantasy Optimizer 2026",
-  description: "Multilingual Dota 2 Fantasy roster optimizer for The International 2026"
+  metadataBase: new URL(siteUrl),
+  title: "Dota 2 TI2026 Fantasy Calculator & Optimizer",
+  description:
+    "Free Dota 2 TI2026 Fantasy Calculator & Optimizer for comparing Core, Mid and Support banners using historical Tier 1 tournament statistics.",
+  alternates: {
+    canonical: "/"
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "TI2026 Fantasy Calculator & Optimizer",
+    title: "Dota 2 TI2026 Fantasy Calculator & Optimizer",
+    description:
+      "Compare Fantasy banners, player combinations and projected TI2026 roster scores."
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dota 2 TI2026 Fantasy Calculator & Optimizer",
+    description:
+      "Compare Fantasy banners, player combinations and projected TI2026 roster scores."
+  }
 };
 
 const links = {
