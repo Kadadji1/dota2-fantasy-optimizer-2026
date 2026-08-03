@@ -1,10 +1,12 @@
 <div align="center">
 
-# 🛡️ Dota 2 Fantasy Optimizer — TI2026
+# 🛡️ TI2026 Fantasy Optimizer
 
-Build the strongest Fantasy roster for **The International 2026** using historical professional tournament statistics.
+## Dota 2 TI2026 Fantasy Calculator & Optimizer
 
-[![Open Optimizer](https://img.shields.io/badge/Open%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
+Build and compare Core, Mid and Support banners for **The International 2026** using historical professional tournament statistics.
+
+[![Open Fantasy Calculator & Optimizer](https://img.shields.io/badge/Open%20Fantasy%20Calculator%20%26%20Optimizer-d6a93d?style=for-the-badge)](https://dota2-fantasy-optimizer-2026.vercel.app/)
 [![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
 **English · Русский · Español · 简体中文 · Desktop / Mobile**
@@ -14,26 +16,24 @@ Build the strongest Fantasy roster for **The International 2026** using historic
 <p align="center">
   <img
     src="./docs/775155BD-7682-4F14-BC16-84EF29BDEDDB.png"
-    alt="Dota 2 Fantasy Optimizer TI2026 interface preview"
+    alt="Dota 2 TI2026 Fantasy Calculator and Optimizer interface preview"
     width="100%"
   />
 </p>
 
 ---
 
-## ⭐ Enjoying the project?
+## Live TI2026 Fantasy Calculator & Optimizer
 
-If this optimizer helped you build your Fantasy roster, please consider giving the repository a **GitHub Star**.
+**https://dota2-fantasy-optimizer-2026.vercel.app/**
 
-Stars help more Dota 2 players discover the project and support future updates.
-
-**[⭐ Star this repository](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026)**
+Use the tool to compare Fantasy banner configurations, estimate projected roster scores and identify stronger player combinations for TI2026.
 
 ---
 
-## What the optimizer does
+## What the calculator and optimizer does
 
-The app helps players compare banner configurations and find the strongest projected Fantasy roster for TI2026.
+The app helps Dota 2 players compare banner configurations and find the strongest projected Fantasy roster for TI2026.
 
 ### Main features
 
@@ -55,7 +55,7 @@ The app helps players compare banner configurations and find the strongest proje
 3. Open **Best Roster** to see the highest projected lineup.
 4. Compare alternatives, team combinations and score breakdowns.
 
-🌐 **Live website:** [dota2-fantasy-optimizer-2026.vercel.app](https://dota2-fantasy-optimizer-2026.vercel.app/)
+🌐 **Live website:** [Dota 2 TI2026 Fantasy Calculator & Optimizer](https://dota2-fantasy-optimizer-2026.vercel.app/)
 
 ---
 
@@ -79,9 +79,7 @@ A dedicated credit to the original statistics author will be added after permiss
 
 ---
 
-## ❤️ Support the Project
-
-There are several ways to support the project:
+## Support the project
 
 - **[⭐ Star this repository](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026)**
 - **[❤️ Support the Project](https://buymeacoffee.com/kadadji?status=1)**
@@ -91,7 +89,7 @@ There are several ways to support the project:
 
 ## Roadmap
 
-- [x] TI2026 Fantasy optimizer
+- [x] TI2026 Fantasy calculator and optimizer
 - [x] Banner tiers and properties
 - [x] Best roster and alternatives
 - [x] Team logos and team overview
