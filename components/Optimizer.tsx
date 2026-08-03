@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { players, roleStats, Role, StatKey } from "../data/players";
 import {
   averageEmblemValues,
@@ -13,9 +13,9 @@ import {
   Trait
 } from "../data/rules";
 import { rankPlayers, EmblemInput } from "../lib/optimizer";
+import { BannerState, cloneBanners, defaultBanners, loadBanners, saveBanners, slotStats } from "../lib/bannerStorage";
 
 type Language = "en" | "ru";
-type BannerState = Record<Role, EmblemInput[]>;
 type TeamEntry = { team: string; roles: Partial<Record<Role, { name: string; score: number }>>; total: number };
 
 const roles: Role[] = ["core", "mid", "support"];
@@ -106,12 +106,6 @@ const teamByPlayerId: Record<string,string> = {
   "sumail-davai":"Nigma Galaxy", "lorenof":"Nigma Galaxy", "omar-gh":"Nigma Galaxy"
 };
 
-const defaults: BannerState = {
-  core:[{stat:"creeps",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"gpm",tier:"III",trait:"none"}],
-  mid:[{stat:"kills",tier:"III",trait:"none"},{stat:"runes",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"}],
-  support:[{stat:"wards",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"stacks",tier:"III",trait:"none"}]
-};
-
 function playerTeam(id:string, stored:string){ return stored || teamByPlayerId[id] || ""; }
 function sampleStrength(index:number, language:Language){ const t=text[language]; return index<3?t.strong:index<6?t.medium:t.limited; }
 
@@ -121,7 +115,12 @@ function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
 
 export default function Optimizer(){
   const [language,setLanguage]=useState<Language>("en");
-  const [banners,setBanners]=useState<BannerState>(defaults);
+  // Always render the defaults on the server pass, then swap in the saved banners once
+  // mounted — reading localStorage during the initial render would break hydration.
+  const [banners,setBanners]=useState<BannerState>(defaultBanners);
+  const [restored,setRestored]=useState(false);
+  useEffect(()=>{setBanners(loadBanners());setRestored(true);},[]);
+  useEffect(()=>{if(restored)saveBanners(banners);},[banners,restored]);
   const t=text[language];
   const locale=language==="ru"?"ru-RU":"en-US";
   const rankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
@@ -142,7 +141,7 @@ export default function Optimizer(){
   },[rankings]);
 
   const updateEmblem=(role:Role,index:number,patch:Partial<EmblemInput>)=>setBanners(c=>({...c,[role]:c[role].map((x,i)=>i===index?{...x,...patch}:x)}));
-  const resetBanners=()=>setBanners({core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))});
+  const resetBanners=()=>setBanners(cloneBanners(defaultBanners));
   const scrollToResults=()=>document.getElementById("results")?.scrollIntoView({behavior:"smooth",block:"start"});
 
   return <main className="site-shell">
@@ -156,7 +155,7 @@ export default function Optimizer(){
 
     <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div><div className="banner-board">
       {roles.map(role=><article className={`banner-column role-${role}`} key={role}><div className="banner-heading"><div><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><b>{bannerSlotColors[role].map(c=>t[c]).join(" · ")}</b></div><div className="banner-slots">
-        {banners[role].map((emblem,index)=>{const color=bannerSlotColors[role][index];const stats=roleStats[role].filter(s=>statColors[s]===color);return <div className={`slot-card color-${color}`} key={`${role}-${index}`}><div className="slot-topline"><span>{t.emblem} {index+1}</span><i>{t[color]}</i></div><select value={emblem.stat} onChange={e=>updateEmblem(role,index,{stat:e.target.value as StatKey})}>{stats.map(s=><option key={s} value={s}>{labels[s][language]}</option>)}</select><div className="dual-control"><label>{t.tier}<select value={emblem.tier} onChange={e=>updateEmblem(role,index,{tier:e.target.value as Tier})}>{(Object.keys(tierBonuses) as Tier[]).map(x=><option key={x}>{x} (+{tierBonuses[x]}%)</option>)}</select></label><label>{t.trait}<select value={emblem.trait} onChange={e=>updateEmblem(role,index,{trait:e.target.value as Trait})}>{(Object.keys(traitLabels) as Trait[]).map(x=><option key={x} value={x}>{traitLabels[x][language]}</option>)}</select></label></div></div>})}
+        {banners[role].map((emblem,index)=>{const color=bannerSlotColors[role][index];const stats=slotStats(role,index);return <div className={`slot-card color-${color}`} key={`${role}-${index}`}><div className="slot-topline"><span>{t.emblem} {index+1}</span><i>{t[color]}</i></div><select value={emblem.stat} onChange={e=>updateEmblem(role,index,{stat:e.target.value as StatKey})}>{stats.map(s=><option key={s} value={s}>{labels[s][language]}</option>)}</select><div className="dual-control"><label>{t.tier}<select value={emblem.tier} onChange={e=>updateEmblem(role,index,{tier:e.target.value as Tier})}>{(Object.keys(tierBonuses) as Tier[]).map(x=><option key={x} value={x}>{x} (+{tierBonuses[x]}%)</option>)}</select></label><label>{t.trait}<select value={emblem.trait} onChange={e=>updateEmblem(role,index,{trait:e.target.value as Trait})}>{(Object.keys(traitLabels) as Trait[]).map(x=><option key={x} value={x}>{traitLabels[x][language]}</option>)}</select></label></div></div>})}
       </div></article>)}
     </div><div className="builder-footer"><p>{t.titleSoon}</p><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button></div></section>
 
