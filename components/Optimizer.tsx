@@ -12,6 +12,15 @@ import {
   Tier,
   Trait
 } from "../data/rules";
+import {
+  getAveragePrefixFrequency,
+  getPrefixEntries,
+  prefixes,
+  suffixes,
+  PrefixKey,
+  SuffixKey,
+  SuffixCategory
+} from "../data/titles";
 import { rankPlayers, EmblemInput } from "../lib/optimizer";
 
 type Language = "en" | "ru";
@@ -19,37 +28,51 @@ type BannerState = Record<Role, EmblemInput[]>;
 type TeamEntry = { team: string; roles: Partial<Record<Role, { name: string; score: number }>>; total: number };
 
 const roles: Role[] = ["core", "mid", "support"];
+const prefixKeys = Object.keys(prefixes) as PrefixKey[];
+const suffixKeys = Object.keys(suffixes) as SuffixKey[];
 
 const text = {
   en: {
     kicker: "THE INTERNATIONAL 2026", title: "Dota 2 Fantasy Optimizer",
     subtitle: "Build all three banners, compare roster combinations and understand exactly where every projected point comes from.",
-    builder: "Banner builder", results: "Best roster", teams: "Teams",
+    builder: "Banner builder", results: "Best roster", teams: "Teams", titles: "Title",
     teamsSubtitle: "Teams represented by players in the current Reddit dataset.",
     traits: "Traits", rerolls: "Reroll guide", rules: "Rules", methodology: "Methodology",
     core: "Core", mid: "Mid", support: "Support", pair: "same-team pair", single: "one player",
     emblem: "Emblem", tier: "Tier", trait: "Trait", optimize: "Optimize roster", reset: "Reset banners",
     total: "Projected roster score", score: "Projected score", alternatives: "Top alternatives",
     source: "Reddit dataset · 13 Tier 1 tournaments",
-    titleSoon: "Coach title support is next. Current calculations include emblem tiers and traits only.",
     confidence: "Sample strength", strong: "Strong", medium: "Medium", limited: "Limited",
     matches: "matches in the source dataset", representedRoles: "Roles represented",
-    availableTotal: "Available-role total", red: "red", blue: "blue", green: "green"
+    availableTotal: "Available-role total", red: "red", blue: "blue", green: "green",
+    titleIntro: "Choose one Prefix + Suffix for the entire Fantasy roster. Changing the title does not use roll tokens.",
+    prefix: "Prefix", suffix: "Suffix", expectedBonus: "Expected Prefix bonus", selectedFrequency: "Historical match rate",
+    recommendedPrefix: "Recommended Prefix", useRecommended: "Use recommended", prefixRanking: "Best Prefixes for this roster",
+    suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below is a conditional scenario, not guaranteed points.",
+    stable: "Stable", gamble: "Gamble", avoid: "Avoid", pairAverage: "pair average",
+    titleMethod: "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.",
+    prefixContribution: "Expected Prefix"
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026", title: "Оптимизатор Dota 2 Fantasy",
     subtitle: "Соберите сразу три знамени, сравните связки и увидьте, откуда берётся каждое прогнозное очко.",
-    builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды",
+    builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды", titles: "Титул",
     teamsSubtitle: "Команды, игроки которых представлены в текущем датасете Reddit.",
     traits: "Свойства", rerolls: "Что роллить", rules: "Правила", methodology: "Методика расчёта",
     core: "Основа", mid: "Центр", support: "Поддержка", pair: "пара из одной команды", single: "1 игрок",
     emblem: "Эмблема", tier: "Разряд", trait: "Свойство", optimize: "Подобрать состав", reset: "Сбросить настройки",
     total: "Прогноз состава", score: "Прогнозный счёт", alternatives: "Лучшие альтернативы",
     source: "Данные Reddit · 13 турниров Tier 1",
-    titleSoon: "Тренерские титулы добавим следующим этапом. Сейчас расчёт учитывает разряды и свойства эмблем.",
     confidence: "Сила выборки", strong: "Высокая", medium: "Средняя", limited: "Ограниченная",
     matches: "матчей в исходном датасете", representedRoles: "Представленные роли",
-    availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный"
+    availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный",
+    titleIntro: "Выберите один общий Prefix + Suffix для всего Fantasy-состава. Смена титула не расходует жетоны.",
+    prefix: "Префикс", suffix: "Суффикс", expectedBonus: "Ожидаемый бонус префикса", selectedFrequency: "Историческая частота",
+    recommendedPrefix: "Рекомендуемый префикс", useRecommended: "Выбрать", prefixRanking: "Лучшие префиксы для состава",
+    suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже — условный сценарий, а не гарантированные очки.",
+    stable: "Стабильный", gamble: "Азартный", avoid: "Лучше избегать", pairAverage: "среднее пары",
+    titleMethod: "Прогноз префикса использует историческую частоту каждого игрока. Для пар берётся простое среднее двух игроков, потому что исходный счёт хранится общей парой.",
+    prefixContribution: "Ожидаемый префикс"
   }
 } as const;
 
@@ -77,8 +100,8 @@ const formulas: Record<StatKey, { en: string; ru: string }> = {
 };
 
 const methodology = {
-  en:["Each game is scored separately.","A match result is the sum of the two highest-scoring games in that series.","A player or pair value is the average match score over the selected source tournaments.","Death score is not clamped at zero and can become negative.","Lotus data is approximate because OpenDota does not expose the exact pickup event.","Two suffixes cannot be modeled reliably with OpenDota: pre-horn first blood and fountain kills.","Trait effects are applied multiplicatively to the tier-adjusted emblem contribution."],
-  ru:["Каждая игра оценивается отдельно.","Результат матча — сумма двух игр серии с наибольшим фэнтези-счётом.","Значение игрока или пары — средний счёт за матч на выбранных турнирах-источниках.","Очки за смерти не ограничиваются нулём и могут стать отрицательными.","Данные по лотосам приблизительные: OpenDota не отдаёт точное событие подбора.","Два суффикса нельзя надёжно посчитать через OpenDota: первая кровь до горна и убийства у фонтана.","Эффекты свойств применяются мультипликативно к вкладу эмблемы после учёта разряда."]
+  en:["Each game is scored separately.","A match result is the sum of the two highest-scoring games in that series.","A player or pair value is the average match score over the selected source tournaments.","Death score is not clamped at zero and can become negative.","Lotus data is approximate because OpenDota does not expose the exact pickup event.","Prefix expected value equals projected player score × historical trigger rate × Prefix bonus.","Suffixes are displayed as conditional scenarios because their future trigger cannot be projected reliably.","Two suffixes cannot be modeled reliably with OpenDota: pre-horn first blood and fountain kills.","Trait effects are applied multiplicatively to the tier-adjusted emblem contribution."],
+  ru:["Каждая игра оценивается отдельно.","Результат матча — сумма двух игр серии с наибольшим фэнтези-счётом.","Значение игрока или пары — средний счёт за матч на выбранных турнирах-источниках.","Очки за смерти не ограничиваются нулём и могут стать отрицательными.","Данные по лотосам приблизительные: OpenDota не отдаёт точное событие подбора.","Ожидаемый вклад префикса: прогноз игрока × историческая частота × бонус префикса.","Суффиксы показаны как условные сценарии, потому что их срабатывание нельзя надёжно предсказать заранее.","Два суффикса нельзя надёжно посчитать через OpenDota: первая кровь до горна и убийства у фонтана.","Эффекты свойств применяются мультипликативно к вкладу эмблемы после учёта разряда."]
 };
 
 const traitLabels: Record<Trait,{en:string;ru:string}> = {
@@ -114,6 +137,7 @@ const defaults: BannerState = {
 
 function playerTeam(id:string, stored:string){ return stored || teamByPlayerId[id] || ""; }
 function sampleStrength(index:number, language:Language){ const t=text[language]; return index<3?t.strong:index<6?t.medium:t.limited; }
+function categoryLabel(category:SuffixCategory, language:Language){ return text[language][category]; }
 
 function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
   return <span className={`team-logo team-logo-${size}`} title={team} role="img" aria-label={team} />;
@@ -122,47 +146,74 @@ function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
 export default function Optimizer(){
   const [language,setLanguage]=useState<Language>("en");
   const [banners,setBanners]=useState<BannerState>(defaults);
+  const [prefix,setPrefix]=useState<PrefixKey>("otherworldly");
+  const [suffix,setSuffix]=useState<SuffixKey>("clutch");
   const t=text[language];
   const locale=language==="ru"?"ru-RU":"en-US";
-  const rankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
+  const baseRankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
+
+  const buildTitleRanking=(role:Role,selectedPrefix:PrefixKey)=>baseRankings[role].map(entry=>{
+    const prefixFrequency=getAveragePrefixFrequency(entry.player.id,selectedPrefix);
+    const expectedPrefixBonus=entry.score*(prefixFrequency/100)*(prefixes[selectedPrefix].bonus/100);
+    return {...entry,baseScore:entry.score,prefixFrequency,expectedPrefixBonus,score:entry.score+expectedPrefixBonus};
+  }).sort((a,b)=>b.score-a.score);
+
+  const rankings=useMemo(()=>({core:buildTitleRanking("core",prefix),mid:buildTitleRanking("mid",prefix),support:buildTitleRanking("support",prefix)}),[baseRankings,prefix]);
+
+  const prefixRecommendations=useMemo(()=>prefixKeys.map(candidate=>{
+    const roleWinners=roles.map(role=>buildTitleRanking(role,candidate)[0]);
+    const total=roleWinners.reduce((sum,entry)=>sum+(entry?.score??0),0);
+    const base=roleWinners.reduce((sum,entry)=>sum+(entry?.baseScore??0),0);
+    return {prefix:candidate,total,bonus:total-base};
+  }).sort((a,b)=>b.total-a.total),[baseRankings]);
+
   const totalScore=roles.reduce((sum,role)=>sum+(rankings[role][0]?.score??0),0);
+  const baseTotalScore=roles.reduce((sum,role)=>sum+(rankings[role][0]?.baseScore??0),0);
+  const selectedPrefixBonus=totalScore-baseTotalScore;
+  const suffixTriggeredScore=totalScore*(1+suffixes[suffix].bonus/100);
   const teamOverview=useMemo<TeamEntry[]>(()=>{
     const teams=new Map<string,TeamEntry>();
     roles.forEach(role=>rankings[role].forEach(entry=>{
       const team=playerTeam(entry.player.id,entry.player.team); if(!team)return;
       const current=teams.get(team)??{team,roles:{},total:0};
-      if(!current.roles[role]||entry.score>current.roles[role]!.score){
-        current.roles[role]={name:entry.player.name,score:entry.score};
-      }
+      if(!current.roles[role]||entry.score>current.roles[role]!.score){current.roles[role]={name:entry.player.name,score:entry.score};}
       teams.set(team,current);
     }));
-    return Array.from(teams.values())
-      .map(entry=>({...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)}))
-      .sort((a,b)=>b.total-a.total);
+    return Array.from(teams.values()).map(entry=>({...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)})).sort((a,b)=>b.total-a.total);
   },[rankings]);
 
   const updateEmblem=(role:Role,index:number,patch:Partial<EmblemInput>)=>setBanners(c=>({...c,[role]:c[role].map((x,i)=>i===index?{...x,...patch}:x)}));
   const resetBanners=()=>setBanners({core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))});
   const scrollToResults=()=>document.getElementById("results")?.scrollIntoView({behavior:"smooth",block:"start"});
+  const frequencyText=(playerId:string)=>getPrefixEntries(playerId,prefix).map(entry=>`${entry.name} ${entry.frequency}%`).join(" · ");
 
   return <main className="site-shell">
     <header className="topbar">
       <a className="brand" href="#top"><span className="brand-mark">II</span><span>DOTA FANTASY 2026</span></a>
-      <nav className="anchor-nav"><a href="#builder">{t.builder}</a><a href="#results">{t.results}</a><a href="#teams">{t.teams}</a><a href="#traits">{t.traits}</a><a href="#rerolls">{t.rerolls}</a><a href="#rules">{t.rules}</a></nav>
+      <nav className="anchor-nav"><a href="#builder">{t.builder}</a><a href="#titles">{t.titles}</a><a href="#results">{t.results}</a><a href="#teams">{t.teams}</a><a href="#traits">{t.traits}</a><a href="#rerolls">{t.rerolls}</a><a href="#rules">{t.rules}</a></nav>
       <div className="language-switch"><button className={language==="en"?"active":""} onClick={()=>setLanguage("en")}>EN</button><button className={language==="ru"?"active":""} onClick={()=>setLanguage("ru")}>RU</button></div>
     </header>
 
     <section className="hero" id="top"><div className="hero-glow"/><div className="hero-copy"><div className="eyebrow">{t.kicker}</div><h1>{t.title}</h1><p>{t.subtitle}</p><div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div></div><aside className="dataset-card"><span>{t.source}</span><strong>1,601</strong><small>{t.matches}</small></aside></section>
 
-    <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div><div className="banner-board">
+    <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div>
+      <div className="title-panel" id="titles">
+        <div className="title-panel-heading"><div><div className="eyebrow">{t.titles}</div><h3>{t.titles}</h3><p>{t.titleIntro}</p></div><div className="title-score-chip"><span>{t.expectedBonus}</span><strong>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</strong></div></div>
+        <div className="title-control-grid">
+          <div className="title-control-card prefix-card"><label>{t.prefix}<select value={prefix} onChange={e=>setPrefix(e.target.value as PrefixKey)}>{prefixKeys.map(key=><option value={key} key={key}>{prefixes[key].label[language]} (+{prefixes[key].bonus}%)</option>)}</select></label><p>{prefixes[prefix].condition[language]}</p><div className="title-stat-line"><span>{t.expectedBonus}</span><b>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</b></div><small>{t.titleMethod}</small></div>
+          <div className="title-control-card suffix-card"><div className="suffix-label-row"><label>{t.suffix}<select value={suffix} onChange={e=>setSuffix(e.target.value as SuffixKey)}>{suffixKeys.map(key=><option value={key} key={key}>{suffixes[key].label[language]} (+{suffixes[key].bonus}%)</option>)}</select></label><span className={`suffix-badge category-${suffixes[suffix].category}`}>{categoryLabel(suffixes[suffix].category,language)}</span></div><p>{suffixes[suffix].condition[language]}</p><div className="title-stat-line"><span>{t.suffixScenario}</span><b>{Math.round(suffixTriggeredScore).toLocaleString(locale)}</b></div><small>{t.suffixNote}</small></div>
+        </div>
+        <div className="prefix-recommendations"><div className="recommendation-heading"><div><span>{t.recommendedPrefix}</span><strong>{prefixes[prefixRecommendations[0].prefix].label[language]} · +{Math.round(prefixRecommendations[0].bonus).toLocaleString(locale)}</strong></div><button className="ghost-button compact-button" onClick={()=>setPrefix(prefixRecommendations[0].prefix)}>{t.useRecommended}</button></div><div className="prefix-rank-list">{prefixRecommendations.slice(0,4).map((entry,index)=><button key={entry.prefix} className={entry.prefix===prefix?"active":""} onClick={()=>setPrefix(entry.prefix)}><i>{index+1}</i><span>{prefixes[entry.prefix].label[language]}</span><b>+{Math.round(entry.bonus).toLocaleString(locale)}</b></button>)}</div></div>
+      </div>
+      <div className="banner-board">
       {roles.map(role=><article className={`banner-column role-${role}`} key={role}><div className="banner-heading"><div><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><b>{bannerSlotColors[role].map(c=>t[c]).join(" · ")}</b></div><div className="banner-slots">
         {banners[role].map((emblem,index)=>{const color=bannerSlotColors[role][index];const stats=roleStats[role].filter(s=>statColors[s]===color);return <div className={`slot-card color-${color}`} key={`${role}-${index}`}><div className="slot-topline"><span>{t.emblem} {index+1}</span><i>{t[color]}</i></div><select value={emblem.stat} onChange={e=>updateEmblem(role,index,{stat:e.target.value as StatKey})}>{stats.map(s=><option key={s} value={s}>{labels[s][language]}</option>)}</select><div className="dual-control"><label>{t.tier}<select value={emblem.tier} onChange={e=>updateEmblem(role,index,{tier:e.target.value as Tier})}>{(Object.keys(tierBonuses) as Tier[]).map(x=><option key={x}>{x} (+{tierBonuses[x]}%)</option>)}</select></label><label>{t.trait}<select value={emblem.trait} onChange={e=>updateEmblem(role,index,{trait:e.target.value as Trait})}>{(Object.keys(traitLabels) as Trait[]).map(x=><option key={x} value={x}>{traitLabels[x][language]}</option>)}</select></label></div></div>})}
       </div></article>)}
-    </div><div className="builder-footer"><p>{t.titleSoon}</p><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button></div></section>
+    </div><div className="builder-footer"><p>{prefixes[prefix].label[language]} +{prefixes[prefix].bonus}% · {suffixes[suffix].label[language]} +{suffixes[suffix].bonus}%</p><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button></div></section>
 
-    <section className="section results-section" id="results"><div className="results-hero"><div><div className="eyebrow">02 · {t.results}</div><h2>{t.results}</h2><p>{t.source}</p></div><div className="total-score"><span>{t.total}</span><strong>{Math.round(totalScore).toLocaleString(locale)}</strong></div></div><div className="winner-grid">
-      {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team">{team}</div>}</div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}</div></article>})}
-    </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}<small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
+    <section className="section results-section" id="results"><div className="results-hero"><div><div className="eyebrow">02 · {t.results}</div><h2>{t.results}</h2><p>{t.source}</p></div><div className="total-score"><span>{t.total}</span><strong>{Math.round(totalScore).toLocaleString(locale)}</strong><small>{t.suffixScenario}: {Math.round(suffixTriggeredScore).toLocaleString(locale)}</small></div></div><div className="winner-grid">
+      {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team">{team}</div>}<div className="prefix-frequency">{frequencyText(winner.player.id)}</div></div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}<div className="prefix-breakdown"><span>{t.prefixContribution}</span><b>+{Math.round(winner.expectedPrefixBonus).toLocaleString(locale)}</b></div></div></article>})}
+    </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives} · {prefixes[prefix].label[language]}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}<small className="prefix-frequency">{frequencyText(entry.player.id)}</small><small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
 
     <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
 
