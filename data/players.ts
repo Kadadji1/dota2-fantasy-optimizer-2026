@@ -86,6 +86,6 @@ export const players: Player[] = [
 export const roleStats: Record<Role, StatKey[]> = {
   core: ["creeps", "gpm", "deaths", "towers", "kills", "madstones", "roshan", "teamfight", "tormentor", "stuns", "courier", "firstBlood"],
   // Mid lotuses remain unavailable because the source explicitly reports no data for that stat.
-  mid: ["creeps", "gpm", "deaths", "kills", "madstones", "towers", "wards", "stacks", "watchers", "runes", "smokes", "teamfight", "stuns", "tormentor"],
+  mid: ["creeps", "gpm", "deaths", "kills", "madstones", "towers", "wards", "stacks", "watchers", "runes", "smokes", "teamfight", "stuns", "tormentor", "roshan", "firstBlood", "courier"],
   support: ["wards", "smokes", "stacks", "watchers", "lotuses", "runes", "teamfight", "tormentor", "courier", "firstBlood", "roshan", "stuns"]
 };
