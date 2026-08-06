@@ -9,6 +9,7 @@ import "./social-links.css";
 import "./extra-languages.css";
 import "./mobile-team-role-fix.css";
 import "./titles.css";
+import "./predictions.css";
 
 const siteUrl = "https://www.ti2026calculator.com";
 
