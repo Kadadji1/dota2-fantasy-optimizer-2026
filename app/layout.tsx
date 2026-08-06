@@ -20,22 +20,18 @@ export const metadata: Metadata = {
   title: "Dota 2 TI2026 Fantasy Calculator & Optimizer",
   description:
     "Free Dota 2 TI2026 Fantasy Calculator & Optimizer for comparing Core, Mid and Support banners using historical Tier 1 tournament statistics.",
-  alternates: {
-    canonical: "/"
-  },
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: siteUrl,
     siteName: "TI2026 Fantasy Calculator & Optimizer",
     title: "Dota 2 TI2026 Fantasy Calculator & Optimizer",
-    description:
-      "Compare Fantasy banners, player combinations and projected TI2026 roster scores."
+    description: "Compare Fantasy banners, player combinations and projected TI2026 roster scores."
   },
   twitter: {
     card: "summary_large_image",
     title: "Dota 2 TI2026 Fantasy Calculator & Optimizer",
-    description:
-      "Compare Fantasy banners, player combinations and projected TI2026 roster scores."
+    description: "Compare Fantasy banners, player combinations and projected TI2026 roster scores."
   }
 };
 
@@ -78,14 +74,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SocialLinks />
         </footer>
         <AnalyticsEvents />
-        <script src="/team-map-fix.js" defer />
-        <script src="/social-links.js" defer />
-        <script src="/extra-languages.js" defer />
-        <script src="/language-switch-fix.js" defer />
-        <script src="/source-copy-fix.js" defer />
-        <script src="/footer-language-fix.js" defer />
-        <script src="/title-ui-enhance.js" defer />
-        <script src="/header-layout-v2.js" defer />
       </body>
     </html>
   );
