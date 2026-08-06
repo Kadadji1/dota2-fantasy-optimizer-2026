@@ -45,6 +45,8 @@ const recommended: Bracket = {
   "0-4": ["HULIGANI"]
 };
 
+const BASE_EXPECTED_POINTS = 1122;
+const BASE_CORRECT_SLOTS = 5.4;
 const byName = new Map(teams.map((team) => [team.team, team]));
 const cloneBracket = (bracket: Bracket) => Object.fromEntries(categories.map((category) => [category, [...bracket[category]]])) as Bracket;
 const formatPercent = (value: number) => `${value.toFixed(value < 10 && value % 1 !== 0 ? 1 : 0)}%`;
@@ -69,6 +71,11 @@ export default function Predictions() {
     ),
     []
   );
+
+  const isRecommended = Math.abs(selectionScore - recommendedScore) < 0.001;
+  const scoreRatio = recommendedScore > 0 ? selectionScore / recommendedScore : 1;
+  const expectedPoints = Math.max(0, Math.round(BASE_EXPECTED_POINTS * scoreRatio));
+  const expectedCorrectSlots = Math.max(0, Math.min(16, BASE_CORRECT_SLOTS * scoreRatio));
 
   function moveTeam(targetCategory: Category, targetIndex: number, selectedTeam: string) {
     setBracket((current) => {
@@ -129,13 +136,19 @@ export default function Predictions() {
             <div className="prediction-board-bottom">{renderGroup("eliminated")}{renderGroup("1-4")}{renderGroup("0-4")}</div>
             <div className="prediction-board-actions">
               <button className="ghost-button" onClick={() => setBracket(cloneBracket(recommended))}>Use recommended</button>
-              <span>{selectionScore >= recommendedScore ? "This is the model bracket with the highest confidence." : `${(recommendedScore - selectionScore).toFixed(1)} confidence points below the model.`}</span>
+              <span>{isRecommended ? "This is the model bracket with the highest confidence." : `${(recommendedScore - selectionScore).toFixed(1)} confidence points below the model.`}</span>
             </div>
           </div>
 
           <aside className="prediction-score-panel">
-            <span className="eyebrow">EXPECTED POINTS</span><strong className="prediction-points">1,122</strong><p>average over 20,000 simulations · cap 12,000</p>
-            <div className="prediction-stat-grid"><div><span>Correct slots</span><b>5.4</b></div><div><span>Typically</span><b>720+</b></div><div><span>On a good run</span><b>2,520</b></div></div>
+            <span className="eyebrow">EXPECTED POINTS</span>
+            <strong className="prediction-points">{expectedPoints.toLocaleString("en-US")}</strong>
+            <p>{isRecommended ? "average over 20,000 simulations · cap 12,000" : "estimated from the selected slot probabilities"}</p>
+            <div className="prediction-stat-grid">
+              <div><span>Correct slots</span><b>{expectedCorrectSlots.toFixed(1)}</b></div>
+              <div><span>Typically</span><b>720+</b></div>
+              <div><span>On a good run</span><b>2,520</b></div>
+            </div>
             <h3>What you can reach</h3>
             {[["8 correct", "14%", "2,520", 14], ["10 correct", "2.4%", "4,320", 2.4], ["12 correct", "0.2%", "6,600", 0.2], ["16 correct", "never", "12,000", 0.1]].map(([label, chance, points, width]) => (
               <div className="reach-row" key={label as string}>
