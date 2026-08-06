@@ -9,7 +9,7 @@ export default function Home() {
         <nav className="page-tabs homepage-tabs" aria-label="Primary navigation">
           <Link href="/" className="active">Fantasy Calculator</Link>
           <Link href="/predictions">Predictions</Link>
-          <a href="/#rules">Guide</a>
+          <Link href="/guide">Guide</Link>
         </nav>
       </div>
       <Optimizer />
