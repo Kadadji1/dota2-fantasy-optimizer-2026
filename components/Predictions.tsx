@@ -55,8 +55,20 @@ function TeamLogo({ team }: { team: string }) {
 
 export default function Predictions() {
   const [bracket, setBracket] = useState<Bracket>(() => cloneBracket(recommended));
-  const selectionScore = useMemo(() => categories.reduce((sum, category) => sum + bracket[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0), 0), [bracket]);
-  const recommendedScore = useMemo(() => categories.reduce((sum, category) => sum + recommended[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0), []);
+  const selectionScore = useMemo(
+    () => categories.reduce(
+      (sum, category) => sum + bracket[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0),
+      0
+    ),
+    [bracket]
+  );
+  const recommendedScore = useMemo(
+    () => categories.reduce(
+      (sum, category) => sum + recommended[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0),
+      0
+    ),
+    []
+  );
 
   function moveTeam(targetCategory: Category, targetIndex: number, selectedTeam: string) {
     setBracket((current) => {
@@ -125,7 +137,12 @@ export default function Predictions() {
             <span className="eyebrow">EXPECTED POINTS</span><strong className="prediction-points">1,122</strong><p>average over 20,000 simulations · cap 12,000</p>
             <div className="prediction-stat-grid"><div><span>Correct slots</span><b>5.4</b></div><div><span>Typically</span><b>720+</b></div><div><span>On a good run</span><b>2,520</b></div></div>
             <h3>What you can reach</h3>
-            {[['8 correct','14%','2,520',14],['10 correct','2.4%','4,320',2.4],['12 correct','0.2%','6,600',0.2],['16 correct','never','12,000',0.1]].map(([label,chance,points,width]) => <div className="reach-row" key={label as string}><div><span>{label}</span><small>{chance}</small><b>{points}</b></div><i><em style={{width:`${width}%`}} /></i></div>)}
+            {[["8 correct", "14%", "2,520", 14], ["10 correct", "2.4%", "4,320", 2.4], ["12 correct", "0.2%", "6,600", 0.2], ["16 correct", "never", "12,000", 0.1]].map(([label, chance, points, width]) => (
+              <div className="reach-row" key={label as string}>
+                <div><span>{label}</span><small>{chance}</small><b>{points}</b></div>
+                <i><em style={{ width: `${width}%` }} /></i>
+              </div>
+            ))}
             <h3>Outcome distribution</h3>
             <div className="distribution-bars">{[2,5,14,32,56,78,84,72,48,23,9,3].map((height,index)=><i key={index} style={{height:`${height}%`}}><span>{index}</span></i>)}</div>
           </aside>
