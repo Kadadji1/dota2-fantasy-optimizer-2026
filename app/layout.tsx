@@ -11,6 +11,7 @@ import "./extra-languages.css";
 import "./mobile-team-role-fix.css";
 import "./titles.css";
 import "./predictions.css";
+import "./predictions-refine.css";
 import "./navigation-v2.css";
 import "./guide.css";
 import "./site-header.css";
