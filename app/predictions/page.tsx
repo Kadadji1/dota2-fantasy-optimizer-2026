@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Predictions from "../../components/Predictions";
+import Predictions from "./Predictions";
 
 export const metadata: Metadata = {
   title: "TI2026 Group Stage Predictions",
