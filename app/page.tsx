@@ -1,4 +1,6 @@
 import Script from "next/script";
+import "./home-hero.css";
+import HomeHero from "../components/HomeHero";
 import Optimizer from "../components/Optimizer";
 import Rosters from "../components/Rosters";
 import SiteHeader from "../components/SiteHeader";
@@ -7,6 +9,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader active="fantasy" />
+      <HomeHero />
       <div className="calculator-page-body">
         <Optimizer />
         <Rosters />
@@ -17,7 +20,6 @@ export default function Home() {
       <Script src="/source-copy-fix.js" strategy="afterInteractive" />
       <Script src="/footer-language-fix.js" strategy="afterInteractive" />
       <Script src="/title-ui-enhance.js" strategy="afterInteractive" />
-      <Script src="/hero-refresh.js" strategy="afterInteractive" />
     </>
   );
 }
