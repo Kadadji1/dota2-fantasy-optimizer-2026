@@ -133,10 +133,13 @@ export default function Predictions() {
 
   return (
     <main className="site-shell predictions-page">
-      <header className="topbar predictions-topbar">
-        <Link href="/" className="brand"><span className="brand-mark">TI</span><span>TI2026 CALCULATOR</span></Link>
-        <nav className="page-tabs primary-page-tabs" aria-label="Primary navigation"><Link href="/">Fantasy Calculator</Link><Link href="/predictions" className="active">Predictions</Link><Link href="/guide">Guide</Link></nav>
-      </header>
+      <div className="homepage-tabs-wrap page-primary-nav-wrap">
+        <nav className="homepage-tabs primary-page-tabs" aria-label="Primary navigation">
+          <Link href="/">Fantasy Calculator</Link>
+          <Link href="/predictions" className="active">Predictions</Link>
+          <Link href="/guide">Guide</Link>
+        </nav>
+      </div>
 
       <section className="predictions-hero compact-predictions-hero"><div><span className="eyebrow">THE INTERNATIONAL 2026</span><h1>Group Stage Predictions</h1><p>Swap any team and the bracket stays complete automatically.</p></div></section>
 
