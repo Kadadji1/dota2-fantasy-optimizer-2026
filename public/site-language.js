@@ -34,8 +34,6 @@
       "Team odds table": "Таблица шансов команд",
       "Team": "Команда",
       "Playoffs": "Плей-офф",
-      "advancing": "проходят дальше",
-      "eliminated": "выбывают",
       "Fantasy basics": "Основы Fantasy",
       "Emblems and scoring": "Эмблемы и подсчёт очков",
       "Tiers": "Уровни",
@@ -95,8 +93,6 @@
       "Team odds table": "Tabla de probabilidades",
       "Team": "Equipo",
       "Playoffs": "Playoffs",
-      "advancing": "avanzan",
-      "eliminated": "eliminados",
       "Fantasy basics": "Conceptos básicos de Fantasy",
       "Emblems and scoring": "Emblemas y puntuación",
       "Tiers": "Niveles",
@@ -156,8 +152,6 @@
       "Team odds table": "战队概率表",
       "Team": "战队",
       "Playoffs": "淘汰赛",
-      "advancing": "晋级",
-      "eliminated": "淘汰",
       "Fantasy basics": "Fantasy 基础",
       "Emblems and scoring": "徽章与计分",
       "Tiers": "等级",
@@ -187,30 +181,19 @@
 
   let currentLanguage = localStorage.getItem("site-language") || "en";
   const originalText = new WeakMap();
-
-  function dictionary() {
-    return dictionaries[currentLanguage] || {};
-  }
+  const englishKeys = new Set(Object.keys(dictionaries.ru));
 
   function translateElement(el) {
-    if (!(el instanceof HTMLElement)) return;
-    if (el.closest(".site-master-header")) return;
-    if (el.children.length !== 0) return;
+    if (!(el instanceof HTMLElement) || el.closest(".site-master-header") || el.children.length !== 0) return;
     const current = el.textContent?.trim();
     if (!current) return;
-
     let source = originalText.get(el);
     if (!source) {
-      const englishKeys = new Set(Object.keys(dictionaries.ru));
-      if (englishKeys.has(current)) {
-        source = current;
-        originalText.set(el, source);
-      } else {
-        return;
-      }
+      if (!englishKeys.has(current)) return;
+      source = current;
+      originalText.set(el, source);
     }
-
-    const translated = currentLanguage === "en" ? source : dictionary()[source] || source;
+    const translated = currentLanguage === "en" ? source : (dictionaries[currentLanguage]?.[source] || source);
     if (el.textContent !== translated) el.textContent = translated;
   }
 
@@ -219,35 +202,25 @@
       const match = el.textContent?.match(/(?:rating|рейтинг|valoración|评分)\s+(\d+)\s±\s(\d+)/i);
       if (!match) return;
       const prefix = currentLanguage === "ru" ? "рейтинг" : currentLanguage === "es" ? "valoración" : currentLanguage === "zh" ? "评分" : "rating";
-      el.textContent = `${prefix} ${match[1]} ± ${match[2]}`;
+      const next = `${prefix} ${match[1]} ± ${match[2]}`;
+      if (el.textContent !== next) el.textContent = next;
     });
-
-    const action = document.querySelector(".prediction-board-actions span");
-    if (action) {
-      const text = action.textContent || "";
-      const match = text.match(/^([\d.]+) (?:confidence points below the model\.|пунктов уверенности ниже модели\.|puntos de confianza por debajo del modelo\.|个置信度点低于模型。)$/);
-      if (match) {
-        const n = match[1];
-        action.textContent = currentLanguage === "ru" ? `${n} пунктов уверенности ниже модели.` : currentLanguage === "es" ? `${n} puntos de confianza por debajo del modelo.` : currentLanguage === "zh" ? `${n} 个置信度点低于模型。` : `${n} confidence points below the model.`;
-      }
-    }
   }
 
   function translatePage() {
-    const path = location.pathname;
-    if (path.startsWith("/predictions") || path.startsWith("/guide")) {
+    if (location.pathname.startsWith("/predictions") || location.pathname.startsWith("/guide")) {
       document.querySelectorAll("h1,h2,h3,p,span,strong,button,th,td,a").forEach(translateElement);
       translateDynamic();
     }
     document.querySelectorAll(".site-social-footer strong,.site-social-footer span,.site-social-footer a span").forEach(translateElement);
   }
 
-  window.addEventListener("site-language-change", (event) => {
-    currentLanguage = event.detail?.language || "en";
-    translatePage();
-  });
+  function applyLanguage(language) {
+    currentLanguage = language || "en";
+    requestAnimationFrame(translatePage);
+  }
 
-  const observer = new MutationObserver(() => translatePage());
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-  translatePage();
+  window.addEventListener("site-language-change", (event) => applyLanguage(event.detail?.language));
+  window.addEventListener("pageshow", () => applyLanguage(localStorage.getItem("site-language") || "en"));
+  applyLanguage(currentLanguage);
 })();
