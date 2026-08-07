@@ -12,6 +12,7 @@ import "./titles.css";
 import "./predictions.css";
 import "./navigation-v2.css";
 import "./guide.css";
+import "./site-header.css";
 
 const siteUrl = "https://www.ti2026calculator.com";
 
