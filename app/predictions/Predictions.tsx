@@ -63,8 +63,20 @@ function TeamLogo({ team, size = "lg" }: { team: string; size?: "sm" | "lg" }) {
 
 export default function Predictions() {
   const [bracket, setBracket] = useState<Bracket>(() => cloneBracket(recommended));
-  const selectionScore = useMemo(() => categories.reduce((sum, category) => sum + bracket[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0), 0), [bracket]);
-  const recommendedScore = useMemo(() => categories.reduce((sum, category) => sum + recommended[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0), []);
+  const selectionScore = useMemo(
+    () => categories.reduce(
+      (sum, category) => sum + bracket[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0),
+      0
+    ),
+    [bracket]
+  );
+  const recommendedScore = useMemo(
+    () => categories.reduce(
+      (sum, category) => sum + recommended[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0),
+      0
+    ),
+    []
+  );
   const selectedCategory = useMemo(() => {
     const map = new Map<string, Category>();
     categories.forEach((category) => bracket[category].forEach((team) => map.set(team, category)));
@@ -84,7 +96,11 @@ export default function Predictions() {
       let sourceIndex = -1;
       for (const category of categories) {
         const index = next[category].indexOf(selectedTeam);
-        if (index !== -1) { sourceCategory = category; sourceIndex = index; break; }
+        if (index !== -1) {
+          sourceCategory = category;
+          sourceIndex = index;
+          break;
+        }
       }
       if (!sourceCategory || selectedTeam === currentTeam) return current;
       next[targetCategory][targetIndex] = selectedTeam;
