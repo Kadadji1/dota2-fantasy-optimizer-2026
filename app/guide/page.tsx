@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import SiteHeader from "../../components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "TI2026 Fantasy Guide",
@@ -22,36 +22,31 @@ const sections = [
 
 export default function GuidePage() {
   return (
-    <main className="site-shell guide-page">
-      <div className="homepage-tabs-wrap page-primary-nav-wrap">
-        <nav className="homepage-tabs primary-page-tabs" aria-label="Primary navigation">
-          <Link href="/">Fantasy Calculator</Link>
-          <Link href="/predictions">Predictions</Link>
-          <Link href="/guide" className="active">Guide</Link>
-        </nav>
-      </div>
+    <>
+      <SiteHeader active="guide" />
+      <main className="site-shell guide-page">
+        <div className="section-nav-wrap">
+          <nav className="section-nav" aria-label="Guide navigation">
+            {sections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}
+          </nav>
+        </div>
 
-      <div className="section-nav-wrap">
-        <nav className="section-nav" aria-label="Guide navigation">
-          {sections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}
-        </nav>
-      </div>
+        <section className="guide-hero">
+          <span className="eyebrow">THE INTERNATIONAL 2026</span>
+          <h1>Fantasy Guide</h1>
+          <p>Everything needed to understand banners, titles, rerolls and the prediction model without digging through the calculator itself.</p>
+        </section>
 
-      <section className="guide-hero">
-        <span className="eyebrow">THE INTERNATIONAL 2026</span>
-        <h1>Fantasy Guide</h1>
-        <p>Everything needed to understand banners, titles, rerolls and the prediction model without digging through the calculator itself.</p>
-      </section>
-
-      <section className="guide-grid">
-        {sections.map((section, index) => (
-          <article className="guide-card" id={section.id} key={section.id}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <h2>{section.title}</h2>
-            <p>{section.body}</p>
-          </article>
-        ))}
-      </section>
-    </main>
+        <section className="guide-grid">
+          {sections.map((section, index) => (
+            <article className="guide-card" id={section.id} key={section.id}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h2>{section.title}</h2>
+              <p>{section.body}</p>
+            </article>
+          ))}
+        </section>
+      </main>
+    </>
   );
 }
