@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import AnalyticsEvents from "./AnalyticsEvents";
 import "./globals.css";
 import "./team-logos.css";
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SocialLinks />
         </footer>
         <AnalyticsEvents />
+        <Script src="/site-language.js" strategy="afterInteractive" />
       </body>
     </html>
   );
