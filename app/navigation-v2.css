@@ -1,1 +1,59 @@
-.homepage-tabs-wrap{position:sticky;top:0;z-index:21;max-width:1280px;margin:0 auto;padding:12px 24px;background:rgba(9,8,6,.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(214,165,38,.24)}.homepage-tabs{display:flex;justify-content:center;gap:10px;overflow:auto}.homepage-tabs a,.topbar .primary-page-tabs a{color:var(--muted);text-decoration:none;border:1px solid transparent;border-radius:999px;padding:10px 16px;font-size:13px;white-space:nowrap}.homepage-tabs a:hover,.topbar .primary-page-tabs a:hover{color:var(--gold2);border-color:var(--line)}.homepage-tabs a.active,.topbar .primary-page-tabs a.active{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#181006;font-weight:800}.topbar .primary-page-tabs{display:flex;justify-content:center;gap:10px;min-width:0}.section-nav-wrap{position:sticky;top:68px;z-index:19;max-width:1280px;margin:0 auto;padding:0 24px;background:rgba(18,14,8,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(214,165,38,.2)}.section-nav{display:flex;justify-content:center;gap:22px;overflow:auto;padding:11px 0}.section-nav a{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap}.section-nav a:hover{color:var(--gold2)}.predictions-topbar .page-tabs{margin-left:auto}.guide-topbar{grid-template-columns:auto 1fr}.guide-topbar .page-tabs{justify-content:flex-end}.guide-page .section-nav-wrap{position:sticky;top:68px}@media(max-width:1020px){.topbar{grid-template-columns:auto 1fr auto}.topbar .primary-page-tabs{justify-content:center;overflow:auto}.section-nav-wrap{top:60px}.anchor-nav.section-nav{display:flex!important}}@media(max-width:760px){.homepage-tabs-wrap{padding:10px 14px}.homepage-tabs{justify-content:flex-start}.homepage-tabs a,.topbar .primary-page-tabs a{padding:8px 12px;font-size:12px}.topbar{grid-template-columns:1fr;gap:10px;padding:10px 0}.topbar .brand{justify-content:center}.topbar .primary-page-tabs{order:2;justify-content:flex-start;width:100%;padding-bottom:2px}.topbar .language-switch{position:absolute;right:0;top:10px}.section-nav-wrap{top:104px;padding:0 14px}.section-nav{justify-content:flex-start;gap:18px}}
+.homepage-tabs-wrap{position:sticky;top:0;z-index:40;max-width:1280px;margin:0 auto;padding:12px 24px;background:rgba(9,8,6,.96);backdrop-filter:blur(18px);border-bottom:1px solid rgba(214,165,38,.24)}
+.homepage-tabs{display:flex;justify-content:center;gap:10px;overflow:auto}
+.homepage-tabs a,.topbar .primary-page-tabs a{color:var(--muted);text-decoration:none;border:1px solid transparent;border-radius:999px;padding:10px 16px;font-size:13px;white-space:nowrap}
+.homepage-tabs a:hover,.topbar .primary-page-tabs a:hover{color:var(--gold2);border-color:var(--line)}
+.homepage-tabs a.active,.topbar .primary-page-tabs a.active{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#181006;font-weight:800}
+.topbar .primary-page-tabs{display:flex;justify-content:center;gap:10px;min-width:0}
+.section-nav-wrap{position:sticky;top:68px;z-index:29;max-width:1280px;margin:0 auto;padding:0 24px;background:rgba(18,14,8,.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(214,165,38,.2)}
+.section-nav{display:flex;justify-content:center;gap:22px;overflow-x:auto;overflow-y:hidden;padding:11px 0;scrollbar-width:none}
+.section-nav::-webkit-scrollbar{display:none}
+.section-nav a{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap}
+.section-nav a:hover{color:var(--gold2)}
+.predictions-topbar .page-tabs{margin-left:auto}
+.guide-topbar{grid-template-columns:auto 1fr}
+.guide-topbar .page-tabs{justify-content:flex-end}
+.guide-page .section-nav-wrap{position:sticky;top:68px}
+
+@media(max-width:1020px){
+  .topbar{grid-template-columns:auto 1fr auto}
+  .topbar .primary-page-tabs{justify-content:center;overflow:auto}
+  .section-nav-wrap{top:60px}
+  .anchor-nav.section-nav{display:flex!important}
+}
+
+@media(max-width:760px){
+  /* Global three-page navigation: one clean, fixed-height row. */
+  .homepage-tabs-wrap{height:64px;padding:8px 12px;display:flex;align-items:center}
+  .homepage-tabs{width:100%;display:grid;grid-template-columns:1.35fr 1fr .72fr;gap:6px;overflow:visible}
+  .homepage-tabs a,.topbar .primary-page-tabs a{display:flex;align-items:center;justify-content:center;min-width:0;padding:10px 8px;font-size:12px;line-height:1.1;text-align:center}
+
+  /* Predictions + Guide use the black header only for the three main tabs. */
+  .predictions-topbar,.guide-topbar{position:sticky;top:0;z-index:40;min-height:64px;height:64px;padding:8px 12px!important;display:block!important;background:rgba(9,8,6,.97)}
+  .predictions-topbar .brand,.guide-topbar .brand{display:none!important}
+  .predictions-topbar .primary-page-tabs,.guide-topbar .primary-page-tabs{width:100%;height:100%;margin:0!important;display:grid!important;grid-template-columns:1.35fr 1fr .72fr;gap:6px;overflow:visible!important;padding:0!important}
+
+  /* Page-specific navigation remains visible while scrolling, directly below the main tabs. */
+  .section-nav-wrap,.guide-page .section-nav-wrap{top:64px;z-index:35;padding:0 12px;background:rgba(14,11,7,.97)}
+  .section-nav{justify-content:flex-start;gap:20px;padding:10px 2px;overscroll-behavior-x:contain}
+  .section-nav a{font-size:12px}
+
+  /* Fantasy page internal header: compact sticky row instead of a tall two-column menu. */
+  .homepage-tabs-wrap + .site-shell .topbar,
+  body:has(.homepage-tabs-wrap) .topbar{position:sticky;top:64px;z-index:35;min-height:56px;height:auto;padding:6px 10px!important;display:grid!important;grid-template-columns:auto 1fr auto!important;gap:8px!important;background:rgba(9,8,6,.97)}
+  body:has(.homepage-tabs-wrap) .topbar .brand{min-height:0!important;height:42px;justify-content:flex-start!important;align-self:center!important}
+  body:has(.homepage-tabs-wrap) .topbar .brand-mark{width:40px!important;height:40px!important}
+  body:has(.homepage-tabs-wrap) .topbar .brand>span:last-child{display:none!important}
+  body:has(.homepage-tabs-wrap) .topbar .language-switch{position:static!important;align-self:center!important;justify-self:end!important}
+  body:has(.homepage-tabs-wrap) .topbar .language-switch button{padding:7px 8px!important;font-size:11px}
+  body:has(.homepage-tabs-wrap) .topbar .anchor-nav{grid-column:1/-1;order:3;display:flex!important;gap:4px!important;width:100%;overflow-x:auto;overflow-y:hidden;border-top:1px solid rgba(226,188,98,.14);padding:4px 0 0;scrollbar-width:none}
+  body:has(.homepage-tabs-wrap) .topbar .anchor-nav::-webkit-scrollbar{display:none}
+  body:has(.homepage-tabs-wrap) .topbar .anchor-nav a{flex:0 0 auto;width:auto!important;padding:8px 10px!important;font-size:11px!important;border-radius:999px}
+
+  /* Prevent sticky headers from covering anchored sections. */
+  .predictions-page .section,.guide-page .guide-card{scroll-margin-top:122px}
+}
+
+@media(max-width:430px){
+  .homepage-tabs a,.topbar .primary-page-tabs a{font-size:11px;padding-inline:6px}
+  .section-nav{gap:16px}
+}
