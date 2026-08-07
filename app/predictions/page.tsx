@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./predictions-intro.css";
 import SiteHeader from "../../components/SiteHeader";
 import PredictionsIntro from "../../components/PredictionsIntro";
 import Predictions from "./Predictions";
