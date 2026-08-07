@@ -23,14 +23,14 @@ const sections = [
 export default function GuidePage() {
   return (
     <main className="site-shell guide-page">
-      <header className="topbar guide-topbar">
-        <Link href="/" className="brand"><span className="brand-mark">TI</span><span>TI2026 CALCULATOR</span></Link>
-        <nav className="page-tabs primary-page-tabs" aria-label="Primary navigation">
+      <div className="homepage-tabs-wrap page-primary-nav-wrap">
+        <nav className="homepage-tabs primary-page-tabs" aria-label="Primary navigation">
           <Link href="/">Fantasy Calculator</Link>
           <Link href="/predictions">Predictions</Link>
           <Link href="/guide" className="active">Guide</Link>
         </nav>
-      </header>
+      </div>
+
       <div className="section-nav-wrap">
         <nav className="section-nav" aria-label="Guide navigation">
           {sections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}
