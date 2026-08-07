@@ -1,6 +1,7 @@
 import Script from "next/script";
 import "./home-hero.css";
 import HomeHero from "../components/HomeHero";
+import FantasySubnav from "../components/FantasySubnav";
 import Optimizer from "../components/Optimizer";
 import Rosters from "../components/Rosters";
 import SiteHeader from "../components/SiteHeader";
@@ -9,6 +10,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader active="fantasy" />
+      <FantasySubnav />
       <HomeHero />
       <div className="calculator-page-body">
         <Optimizer />
