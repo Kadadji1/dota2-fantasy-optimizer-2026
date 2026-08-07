@@ -17,6 +17,7 @@ export default function Home() {
       <Script src="/source-copy-fix.js" strategy="afterInteractive" />
       <Script src="/footer-language-fix.js" strategy="afterInteractive" />
       <Script src="/title-ui-enhance.js" strategy="afterInteractive" />
+      <Script src="/hero-refresh.js" strategy="afterInteractive" />
     </>
   );
 }
