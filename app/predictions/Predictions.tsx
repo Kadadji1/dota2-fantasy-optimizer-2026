@@ -63,6 +63,8 @@ function TeamLogo({ team, size = "lg" }: { team: string; size?: "sm" | "lg" }) {
 
 export default function Predictions() {
   const [bracket, setBracket] = useState<Bracket>(() => cloneBracket(recommended));
+  const [showRiskyPicks, setShowRiskyPicks] = useState(false);
+
   const selectionScore = useMemo(
     () => categories.reduce(
       (sum, category) => sum + bracket[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0),
@@ -70,6 +72,7 @@ export default function Predictions() {
     ),
     [bracket]
   );
+
   const recommendedScore = useMemo(
     () => categories.reduce(
       (sum, category) => sum + recommended[category].reduce((inner, team) => inner + (byName.get(team)?.odds[category] ?? 0), 0),
@@ -77,16 +80,50 @@ export default function Predictions() {
     ),
     []
   );
+
   const selectedCategory = useMemo(() => {
     const map = new Map<string, Category>();
     categories.forEach((category) => bracket[category].forEach((team) => map.set(team, category)));
     return map;
   }, [bracket]);
 
+  const recommendedCategory = useMemo(() => {
+    const map = new Map<string, Category>();
+    categories.forEach((category) => recommended[category].forEach((team) => map.set(team, category)));
+    return map;
+  }, []);
+
   const isRecommended = Math.abs(selectionScore - recommendedScore) < 0.001;
   const scoreRatio = recommendedScore > 0 ? selectionScore / recommendedScore : 1;
   const expectedPoints = Math.max(0, Math.round(BASE_EXPECTED_POINTS * scoreRatio));
   const expectedCorrectSlots = Math.max(0, Math.min(16, BASE_CORRECT_SLOTS * scoreRatio));
+  const modelFit = Math.max(0, Math.min(100, Math.round(scoreRatio * 100)));
+  const modelAgreement = teams.filter((team) => selectedCategory.get(team.team) === recommendedCategory.get(team.team)).length;
+  const vsModelPoints = expectedPoints - BASE_EXPECTED_POINTS;
+
+  const riskyPicks = useMemo(() => teams
+    .map((team) => {
+      const category = selectedCategory.get(team.team)!;
+      return { team: team.team, category, probability: team.odds[category] };
+    })
+    .filter((pick) => pick.probability < 15)
+    .sort((a, b) => a.probability - b.probability), [selectedCategory]);
+
+  const riskPosition = Math.max(12, Math.min(88, 18 + riskyPicks.length * 7 + Math.max(0, 100 - modelFit) * 0.35));
+  const riskLabel = riskPosition < 34 ? "Safe" : riskPosition < 66 ? "Balanced" : "Aggressive";
+
+  const distribution = useMemo(() => {
+    const sigma = 1.75 + Math.min(1.1, riskyPicks.length * 0.08);
+    const values = Array.from({ length: 17 }, (_, index) => Math.exp(-0.5 * Math.pow((index - expectedCorrectSlots) / sigma, 2)));
+    const total = values.reduce((sum, value) => sum + value, 0);
+    return values.map((value) => value / total);
+  }, [expectedCorrectSlots, riskyPicks.length]);
+
+  const maxDistribution = Math.max(...distribution);
+  const mostLikelyIndex = distribution.indexOf(maxDistribution);
+  const rangeStart = Math.max(0, mostLikelyIndex - 1);
+  const rangeEnd = Math.min(16, mostLikelyIndex + 1);
+  const likelyRangeChance = Math.round(distribution.slice(rangeStart, rangeEnd + 1).reduce((sum, value) => sum + value, 0) * 100);
 
   function moveTeam(targetCategory: Category, targetIndex: number, selectedTeam: string) {
     setBracket((current) => {
@@ -152,18 +189,32 @@ export default function Predictions() {
           </div>
 
           <aside className="prediction-score-panel">
-            <span className="eyebrow">EXPECTED POINTS</span><strong className="prediction-points">{expectedPoints.toLocaleString("en-US")}</strong><p>{isRecommended ? "average over 20,000 simulations · maximum possible 12,000" : "estimated from the selected slot probabilities"}</p>
-            <div className="prediction-stat-grid"><div><span>Correct slots</span><b>{expectedCorrectSlots.toFixed(1)}</b></div><div><span>Typically</span><b>720+</b></div><div><span>On a good run</span><b>2,520</b></div></div>
-            <h3>What you can reach</h3>
-            {[["8 correct", "14%", "2,520", 14], ["10 correct", "2.4%", "4,320", 2.4], ["12 correct", "0.2%", "6,600", 0.2], ["16 correct", "never", "12,000", 0.1]].map(([label, chance, points, width]) => <div className="reach-row" key={label as string}><div><span>{label}</span><small>{chance}</small><b>{points}</b></div><i><em style={{ width: `${width}%` }} /></i></div>)}
-            <h3>Outcome distribution</h3><div className="distribution-bars">{[2,5,14,32,56,78,84,72,48,23,9,3].map((height,index)=><i key={index} style={{height:`${height}%`}}><span>{index}</span></i>)}</div>
+            <span className="eyebrow">EXPECTED POINTS</span>
+            <strong className="prediction-points">{expectedPoints.toLocaleString("en-US")}</strong>
+            <p>{isRecommended ? "average over 20,000 simulations · maximum possible 12,000" : "adjusted from the selected slot probabilities"}</p>
+
+            <div className="prediction-stat-grid prediction-stat-grid-dynamic">
+              <div><span>Expected correct</span><b>{expectedCorrectSlots.toFixed(1)} / 16</b></div>
+              <div><span>Model fit</span><b>{modelFit}%</b></div>
+              <div><span>Vs model</span><b className={vsModelPoints < 0 ? "negative" : vsModelPoints > 0 ? "positive" : ""}>{vsModelPoints === 0 ? "—" : `${vsModelPoints > 0 ? "+" : ""}${vsModelPoints}`}</b></div>
+            </div>
+
+            <div className="prediction-risk-block">
+              <div className="prediction-panel-heading"><h3>Risk / reward</h3><strong>{riskLabel}</strong></div>
+              <div className="prediction-risk-scale" aria-label={`Risk profile: ${riskLabel}`}><span>SAFE</span><i><em style={{ left: `${riskPosition}%` }} /></i><span>UPSIDE</span></div>
+              <button className="prediction-risk-toggle" type="button" onClick={() => setShowRiskyPicks((value) => !value)}>{riskyPicks.length} risky {riskyPicks.length === 1 ? "pick" : "picks"} · {modelAgreement}/16 match the model</button>
+              {showRiskyPicks && riskyPicks.length > 0 && <div className="prediction-risk-list">{riskyPicks.map((pick) => <div key={pick.team}><span>{pick.team} · {labels[pick.category].title}</span><b>{formatPercent(pick.probability)}</b></div>)}</div>}
+            </div>
+
+            <div className="prediction-outcome-heading"><div><h3>Most likely outcome</h3><strong>{rangeStart}–{rangeEnd} correct</strong></div><b>{likelyRangeChance}%</b></div>
+            <div className="distribution-bars dynamic-distribution-bars">{distribution.map((chance,index)=><i key={index} title={`${index} correct · ${(chance * 100).toFixed(1)}%`} style={{height:`${Math.max(3, (chance / maxDistribution) * 100)}%`}}><span>{index}</span></i>)}</div>
           </aside>
         </div>
       </section>
 
       <section className="section team-probability-cards-section" id="team-probability-cards">
         <div className="section-title"><div><span className="eyebrow">TEAM ODDS</span><h2>Probability of every slot</h2></div><p>The highlighted cell is the category currently selected for that team in your bracket.</p></div>
-        <div className="team-probability-card-grid">
+        <div className="team-probability-card-grid team-probability-card-grid-compact">
           {teams.map((team) => {
             const active = selectedCategory.get(team.team)!;
             return (
