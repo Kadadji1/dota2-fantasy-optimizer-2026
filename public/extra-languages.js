@@ -13,7 +13,12 @@
       "Prefix":"Prefijo","Suffix":"Sufijo","Expected Prefix bonus":"Bono esperado del prefijo","Historical match rate":"Frecuencia histórica","Recommended Prefix":"Prefijo recomendado","Use recommended":"Usar recomendado","Best Prefixes for this roster":"Mejores prefijos para esta alineación","Score if Suffix triggers":"Puntuación si se activa el sufijo","Conditional bonus":"Bono condicional","Stable":"Estable","Gamble":"Arriesgado","Avoid":"Evitar","pair average":"promedio de la pareja","Expected Prefix":"Prefijo esperado",
       "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.":"Los eventos de sufijo no pueden proyectarse con fiabilidad antes de las partidas. El valor inferior añade el bono del sufijo al resultado base de forma independiente del prefijo esperado.",
       "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.":"Las proyecciones de prefijo usan la frecuencia histórica de activación de cada jugador. Para parejas se utiliza el promedio simple de ambos jugadores.",
+      "Crimson":"Carmesí","Cerulean":"Cerúleo","Emerald":"Esmeralda","Royal":"Real","Golden":"Dorado","Elemental":"Elemental","Otherworldly":"Ultraterreno","Heroic":"Heroico",
+      "when playing a red hero":"al jugar con un héroe rojo","when playing a blue hero":"al jugar con un héroe azul","when playing a green hero":"al jugar con un héroe verde","when playing a purple hero":"al jugar con un héroe morado","when playing a yellow or brown hero":"al jugar con un héroe amarillo o marrón","when playing a water, fire or ice hero":"al jugar con un héroe de agua, fuego o hielo","when playing an undead, demon or spirit hero":"al jugar con un no-muerto, demonio o espíritu","when playing a masked or cloaked hero":"al jugar con un héroe enmascarado o con capa",
+      "the Tormented":"el Atormentado","the Flayed Twins Acolyte":"el Acólito de los Gemelos Desollados","the Patient":"el Paciente","the Underdog":"el Desvalido","the Decisive":"el Decisivo","the Clutch":"el Clutch","the Lucky":"el Afortunado","the Cruel":"el Cruel",
+      "if any roster player dies to a Tormentor":"si algún jugador del roster muere ante un Tormentor","if first blood happens before the starting horn":"si la primera sangre ocurre antes del cuerno inicial","if first blood does not happen before 10:00":"si no hay primera sangre antes de 10:00","if that player's team loses":"si pierde el equipo de ese jugador","if the game ends before 25:00":"si la partida termina antes de 25:00","in the last possible game of a match":"en la última partida posible de una serie","if the game duration ends in the digit 8":"si la duración de la partida termina en 8","if a player is killed at their own fountain":"si un jugador muere en su propia fuente",
       "Each game is scored separately.":"Cada partida se puntúa por separado.","A match result is the sum of the two highest-scoring games in that series.":"El resultado del match es la suma de las dos partidas con mayor puntuación de la serie.","A player or pair value is the average match score over the selected source tournaments.":"El valor de un jugador o pareja es el promedio por match en los torneos seleccionados.","Death score is not clamped at zero and can become negative.":"La puntuación por muertes puede ser negativa.","Lotus data is approximate because OpenDota does not expose the exact pickup event.":"Los datos de lotos son aproximados porque OpenDota no ofrece el evento exacto de recogida.","Prefix expected value equals projected player score × historical trigger rate × Prefix bonus.":"El valor esperado del prefijo = puntuación proyectada × frecuencia histórica × bono del prefijo.","Suffixes are displayed as conditional scenarios. Their bonus is calculated independently from the base score and does not multiply the expected Prefix bonus.":"Los sufijos se muestran como escenarios condicionales. Su bono se calcula de forma independiente y no multiplica el bono esperado del prefijo.","Two suffixes cannot be modeled reliably with OpenDota: pre-horn first blood and fountain kills.":"Dos sufijos no pueden modelarse con fiabilidad: primera sangre antes del cuerno y muertes en la fuente.","Trait effects are applied multiplicatively to the tier-adjusted emblem contribution.":"Los efectos de propiedades se aplican de forma multiplicativa.",
+      "107 × kills":"107 × asesinatos","1950 − 195 × deaths":"1950 − 195 × muertes","3 × creeps":"3 × creeps","2 × GPM":"2 × GPM","13 × madstones":"13 × madstones","352 × towers":"352 × torres","117 × wards placed":"117 × wards colocados","234 × camps stacked":"234 × campamentos stackeados","141 × runes":"141 × runas","147 × watchers captured":"147 × watchers capturados","176 × lotuses (approx.)":"176 × lotos (aprox.)","293 × Smoke of Deceit uses":"293 × usos de Smoke of Deceit","2124 × teamfight participation":"2124 × participación en peleas de equipo","10 × stun duration":"10 × duración de aturdimientos","1934 × first blood":"1934 × primera sangre","879 × Tormentor kills":"879 × muertes de Tormentor","1172 × Roshan kills":"1172 × muertes de Roshan","703 × courier kills":"703 × muertes de couriers",
       "Made by Kadadji":"Hecho por Kadadji","Community-built Dota 2 fantasy tool. Not affiliated with Valve Corporation.":"Herramienta comunitaria de Fantasy para Dota 2. No afiliada con Valve Corporation.","Buy me a coffee":"Apoyar el proyecto"
     },
     zh: {
@@ -29,6 +34,10 @@
       "Prefix":"前缀","Suffix":"后缀","Expected Prefix bonus":"前缀预期加成","Historical match rate":"历史触发率","Recommended Prefix":"推荐前缀","Use recommended":"使用推荐","Best Prefixes for this roster":"当前阵容最佳前缀","Score if Suffix triggers":"后缀触发时得分","Conditional bonus":"条件加成","Stable":"稳定","Gamble":"博弈","Avoid":"不推荐","pair average":"组合平均值","Expected Prefix":"预期前缀加成",
       "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.":"比赛开始前无法可靠预测后缀事件。下方数值会将后缀加成独立加入基础阵容得分，不会与前缀预期加成相乘。",
       "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.":"前缀预测使用每位选手的历史触发率。双人组合采用两名选手触发率的简单平均值，因为源数据以组合形式存储得分。",
+      "Crimson":"绯红","Cerulean":"蔚蓝","Emerald":"翡翠","Royal":"皇家","Golden":"黄金","Elemental":"元素","Otherworldly":"异界","Heroic":"英勇",
+      "when playing a red hero":"使用红色英雄时","when playing a blue hero":"使用蓝色英雄时","when playing a green hero":"使用绿色英雄时","when playing a purple hero":"使用紫色英雄时","when playing a yellow or brown hero":"使用黄色或棕色英雄时","when playing a water, fire or ice hero":"使用水、火或冰系英雄时","when playing an undead, demon or spirit hero":"使用亡灵、恶魔或灵体英雄时","when playing a masked or cloaked hero":"使用戴面具或披风的英雄时",
+      "the Tormented":"受折磨者","the Flayed Twins Acolyte":"剥皮双子侍从","the Patient":"耐心者","the Underdog":"逆袭者","the Decisive":"果断者","the Clutch":"关键先生","the Lucky":"幸运者","the Cruel":"残酷者",
+      "if any roster player dies to a Tormentor":"若阵容中任一选手死于苦难者","if first blood happens before the starting horn":"若一血发生在开局号角前","if first blood does not happen before 10:00":"若 10:00 前没有发生一血","if that player's team loses":"若该选手所在战队输掉比赛","if the game ends before 25:00":"若比赛在 25:00 前结束","in the last possible game of a match":"在系列赛可能进行的最后一局中","if the game duration ends in the digit 8":"若比赛时长最后一位数字为 8","if a player is killed at their own fountain":"若选手在己方泉水处被击杀",
       "Each game is scored separately.":"每局比赛单独计分。","A match result is the sum of the two highest-scoring games in that series.":"一场系列赛取其中 Fantasy 得分最高的两局之和。","A player or pair value is the average match score over the selected source tournaments.":"选手或组合数值为所选赛事中的系列赛平均得分。","Death score is not clamped at zero and can become negative.":"死亡项得分不设零分下限，可能为负数。","Lotus data is approximate because OpenDota does not expose the exact pickup event.":"由于 OpenDota 不提供精确拾取事件，莲花数据为近似值。","Prefix expected value equals projected player score × historical trigger rate × Prefix bonus.":"前缀预期值 = 选手预测得分 × 历史触发率 × 前缀加成。","Suffixes are displayed as conditional scenarios. Their bonus is calculated independently from the base score and does not multiply the expected Prefix bonus.":"后缀以条件情景显示，其加成基于基础得分独立计算，不会与前缀预期加成相乘。","Two suffixes cannot be modeled reliably with OpenDota: pre-horn first blood and fountain kills.":"OpenDota 无法可靠计算两个后缀条件：号角前一血和泉水击杀。","Trait effects are applied multiplicatively to the tier-adjusted emblem contribution.":"属性效果在等级调整后的徽章贡献上以乘法方式计算。",
       "107 × kills":"107 × 击杀","1950 − 195 × deaths":"1950 − 195 × 死亡","3 × creeps":"3 × 正补","2 × GPM":"2 × 每分钟金钱","13 × madstones":"13 × 疯狂之石","352 × towers":"352 × 防御塔","117 × wards placed":"117 × 插眼","234 × camps stacked":"234 × 拉野","141 × runes":"141 × 神符","147 × watchers captured":"147 × 占领观察者","176 × lotuses (approx.)":"176 × 莲花（近似）","293 × Smoke of Deceit uses":"293 × 诡计之雾使用次数","2124 × teamfight participation":"2124 × 团战参与率","10 × stun duration":"10 × 眩晕时长","1934 × first blood":"1934 × 一血","879 × Tormentor kills":"879 × 苦难者击杀","1172 × Roshan kills":"1172 × Roshan 击杀","703 × courier kills":"703 × 信使击杀",
       "Made by Kadadji":"Kadadji 制作","Community-built Dota 2 fantasy tool. Not affiliated with Valve Corporation.":"社区制作的 Dota 2 Fantasy 工具，与 Valve Corporation 无关联。","Buy me a coffee":"支持项目"
@@ -37,32 +46,167 @@
 
   let activeExtraLanguage = null;
   let applying = false;
+  let syncing = false;
+
+  function lookupTranslation(trimmed, language) {
+    const map = common[language];
+    if (!map) return null;
+    if (map[trimmed]) return map[trimmed];
+    const lower = trimmed.toLowerCase();
+    const key = Object.keys(map).find((item) => item.toLowerCase() === lower);
+    return key ? map[key] : null;
+  }
+
   function translateText(value, language) {
-    const trimmed = value.trim(); const map = common[language]; if (!trimmed || !map) return value;
-    let translated = map[trimmed];
+    const trimmed = value.trim();
+    const map = common[language];
+    if (!trimmed || !map) return value;
+
+    let translated = lookupTranslation(trimmed, language);
     if (!translated) {
-      const emblemMatch = trimmed.match(/^Emblem\s+(\d+)$/); if (emblemMatch) translated = language === "es" ? `Emblema ${emblemMatch[1]}` : `徽章 ${emblemMatch[1]}`;
-      const sampleMatch = trimmed.match(/^Sample strength:\s*(Strong|Medium|Limited)$/); if (sampleMatch) translated = `${language === "es" ? "Calidad de la muestra" : "样本强度"}: ${map[sampleMatch[1]]}`;
+      const emblemMatch = trimmed.match(/^Emblem\s+(\d+)$/i);
+      if (emblemMatch) translated = language === "es" ? `Emblema ${emblemMatch[1]}` : `徽章 ${emblemMatch[1]}`;
+
+      const tierMatch = trimmed.match(/^Tier\s+([IV]+)$/i);
+      if (tierMatch) translated = language === "es" ? `Nivel ${tierMatch[1]}` : `等级 ${tierMatch[1]}`;
+
+      const sampleMatch = trimmed.match(/^Sample strength:\s*(Strong|Medium|Limited)$/i);
+      if (sampleMatch) translated = `${language === "es" ? "Calidad de la muestra" : "样本强度"}: ${lookupTranslation(sampleMatch[1], language) || sampleMatch[1]}`;
+
+      const sectionMatch = trimmed.match(/^(\d{2})\s*·\s*(.+)$/);
+      if (sectionMatch) {
+        const sectionTranslation = lookupTranslation(sectionMatch[2], language);
+        if (sectionTranslation) translated = `${sectionMatch[1]} · ${sectionTranslation}`;
+      }
+
+      if (!translated && /\b(red|blue|green)\b/i.test(trimmed)) {
+        translated = trimmed
+          .replace(/\bred\b/gi, map.red)
+          .replace(/\bblue\b/gi, map.blue)
+          .replace(/\bgreen\b/gi, map.green);
+      }
     }
     return translated ? value.replace(trimmed, translated) : value;
   }
+
   function applyLanguage(language) {
-    if (!common[language] || applying) return; applying = true; activeExtraLanguage = language;
+    if (!common[language] || applying) return;
+    applying = true;
+    activeExtraLanguage = language;
     document.documentElement.lang = language === "zh" ? "zh-CN" : "es";
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach((node) => { const parent = node.parentElement; if (!parent || parent.closest("script, style, .site-master-header, .home-native-hero, .fantasy-subnav")) return; node.nodeValue = translateText(node.nodeValue || "", language); });
-    document.querySelectorAll(".language-switch button").forEach((button) => button.classList.remove("active")); document.querySelector(`.language-switch button[data-extra-language="${language}"]`)?.classList.add("active"); applying = false;
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const parent = node.parentElement;
+      if (!parent || parent.closest("script, style, .site-master-header, .home-native-hero, .fantasy-subnav")) return;
+      node.nodeValue = translateText(node.nodeValue || "", language);
+    });
+
+    document.querySelectorAll(".language-switch button").forEach((button) => button.classList.remove("active"));
+    document.querySelector(`.language-switch button[data-extra-language="${language}"]`)?.classList.add("active");
+    applying = false;
   }
-  function restoreBuiltIn(language) { activeExtraLanguage = null; document.documentElement.lang = language; }
+
+  function restoreBuiltIn(language) {
+    activeExtraLanguage = null;
+    document.documentElement.lang = language;
+  }
+
+  function getSwitcher() {
+    return document.querySelector(".calculator-page-body .language-switch") || document.querySelector(".language-switch");
+  }
+
+  function clickBuiltIn(language) {
+    const switcher = getSwitcher();
+    if (!switcher) return false;
+    const label = language === "ru" ? "RU" : "EN";
+    const button = Array.from(switcher.querySelectorAll("button")).find((item) => !item.dataset.extraLanguage && item.textContent?.trim() === label);
+    if (!button) return false;
+    if (!button.classList.contains("active")) button.click();
+    return true;
+  }
+
+  function syncToSiteLanguage(language) {
+    if (syncing) return;
+    syncing = true;
+    mountButtons();
+
+    if (language === "es" || language === "zh") {
+      clickBuiltIn("en");
+      window.setTimeout(() => {
+        applyLanguage(language);
+        syncing = false;
+      }, 60);
+      return;
+    }
+
+    activeExtraLanguage = null;
+    clickBuiltIn(language === "ru" ? "ru" : "en");
+    document.documentElement.lang = language === "ru" ? "ru" : "en";
+    syncing = false;
+  }
+
   function mountButtons() {
-    const switcher = document.querySelector(".language-switch"); if (!switcher || switcher.querySelector("[data-extra-language]")) return;
-    const es = document.createElement("button"); es.type="button"; es.textContent="ES"; es.dataset.extraLanguage="es"; es.setAttribute("aria-label","Español");
-    const zh = document.createElement("button"); zh.type="button"; zh.textContent="中文"; zh.dataset.extraLanguage="zh"; zh.setAttribute("aria-label","简体中文"); switcher.append(es,zh);
-    [es,zh].forEach((button)=>button.addEventListener("click",()=>{ const language=button.dataset.extraLanguage; const english=Array.from(switcher.querySelectorAll("button")).find((item)=>item.textContent?.trim()==="EN"); if(english&&!english.classList.contains("active")) english.click(); window.setTimeout(()=>applyLanguage(language),30); }));
-    Array.from(switcher.querySelectorAll("button")).forEach((button)=>{ if(button.dataset.extraLanguage)return; button.addEventListener("click",()=>restoreBuiltIn(button.textContent?.trim()==="RU"?"ru":"en")); });
+    const switcher = getSwitcher();
+    if (!switcher || switcher.querySelector("[data-extra-language]")) return;
+
+    const es = document.createElement("button");
+    es.type = "button";
+    es.textContent = "ES";
+    es.dataset.extraLanguage = "es";
+    es.setAttribute("aria-label", "Español");
+
+    const zh = document.createElement("button");
+    zh.type = "button";
+    zh.textContent = "中文";
+    zh.dataset.extraLanguage = "zh";
+    zh.setAttribute("aria-label", "简体中文");
+    switcher.append(es, zh);
+
+    [es, zh].forEach((button) => button.addEventListener("click", () => {
+      const language = button.dataset.extraLanguage;
+      if (!language) return;
+      localStorage.setItem("site-language", language);
+      clickBuiltIn("en");
+      window.setTimeout(() => applyLanguage(language), 60);
+    }));
+
+    Array.from(switcher.querySelectorAll("button")).forEach((button) => {
+      if (button.dataset.extraLanguage) return;
+      button.addEventListener("click", () => restoreBuiltIn(button.textContent?.trim() === "RU" ? "ru" : "en"));
+    });
   }
-  function refresh(){ mountButtons(); if(activeExtraLanguage) applyLanguage(activeExtraLanguage); }
-  let queued=false; const schedule=()=>{ if(queued||applying)return; queued=true; requestAnimationFrame(()=>{queued=false;refresh();}); };
-  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",refresh); else refresh();
+
+  function refresh() {
+    mountButtons();
+    if (activeExtraLanguage) applyLanguage(activeExtraLanguage);
+  }
+
+  window.addEventListener("site-language-change", (event) => {
+    const language = event.detail?.language;
+    if (["en", "ru", "es", "zh"].includes(language)) syncToSiteLanguage(language);
+  });
+
+  let queued = false;
+  const schedule = () => {
+    if (queued || applying) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      refresh();
+    });
+  };
+
+  new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+
+  const start = () => {
+    refresh();
+    const saved = localStorage.getItem("site-language") || "en";
+    window.setTimeout(() => syncToSiteLanguage(saved), 80);
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();
