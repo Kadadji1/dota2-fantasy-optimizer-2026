@@ -42,13 +42,6 @@ export default function SiteHeader({ active }: { active: ActivePage }) {
     window.localStorage.setItem("site-language", language);
     document.documentElement.lang = language === "zh" ? "zh-CN" : language;
     window.dispatchEvent(new CustomEvent("site-language-change", { detail: { language } }));
-
-    const legacyLabel = languageButtons.find((item) => item.key === language)?.label;
-    if (legacyLabel) {
-      const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>(".calculator-page-body .language-switch button"));
-      const target = buttons.find((button) => button.textContent?.trim() === legacyLabel);
-      if (target && !target.classList.contains("active")) target.click();
-    }
   }, [language]);
 
   const t = navigation[language];
