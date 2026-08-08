@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-type Language = "en" | "ru";
+type SiteLanguage = "en" | "ru" | "es" | "zh";
 type Team = {
   name: string;
   former: string | null;
@@ -27,36 +27,63 @@ const teams: Team[] = [
   { name: "TEAM VISION", former: null, region: "EU", qualification: "qualifier", players: ["Satanic", "No[o]ne-", "Noticed", "9Class", "Dukalis"] },
   { name: "Team Resilience", former: null, region: "CN", qualification: "qualifier", players: ["YSR-04E", "Echozz", "niu", "planet", "zzq"] },
   { name: "Team Spirit", former: null, region: "EU", qualification: "qualifier", players: ["Yatoro", "Larl", "Collapse", "not me", "rue"] },
-  { name: "Vici Gaming", former: null, region: "CN", qualification: "qualifier", players: ["shiro", "Xm", "Bach", "XinQ", "y`"] },
+  { name: "Vici Gaming", former: null, region: "CN", qualification: "qualifier", players: ["shiro", "Xm", "Bach", "XinQ", "y`"] }
 ];
 
-const copy = {
+const copy: Record<SiteLanguage, {
+  eyebrow: string; title: string; subtitle: string; direct: string; qualifier: string;
+  former: string; position: string; player: string; coverage: string;
+}> = {
   en: {
     eyebrow: "07 · TOURNAMENT ROSTERS",
     title: "TI 2026 team rosters",
     subtitle: "All 16 announced teams and their positions. This section is informational and does not add missing players to the Reddit-based fantasy calculations.",
-    direct: "Direct invite",
-    qualifier: "Qualified",
-    former: "Formerly",
-    position: "Position",
-    player: "Player",
-    coverage: "16 teams · 80 players"
+    direct: "Direct invite", qualifier: "Qualified", former: "Formerly", position: "Position", player: "Player", coverage: "16 teams · 80 players"
   },
   ru: {
     eyebrow: "07 · СОСТАВЫ ТУРНИРА",
     title: "Составы команд TI 2026",
     subtitle: "Все 16 заявленных команд и позиции игроков. Этот раздел справочный и не добавляет отсутствующих игроков в расчёты по датасету Reddit.",
-    direct: "Прямое приглашение",
-    qualifier: "Через квалификацию",
-    former: "Ранее",
-    position: "Позиция",
-    player: "Игрок",
-    coverage: "16 команд · 80 игроков"
+    direct: "Прямое приглашение", qualifier: "Через квалификацию", former: "Ранее", position: "Позиция", player: "Игрок", coverage: "16 команд · 80 игроков"
+  },
+  es: {
+    eyebrow: "07 · PLANTILLAS DEL TORNEO",
+    title: "Plantillas de los equipos de TI 2026",
+    subtitle: "Los 16 equipos anunciados y las posiciones de sus jugadores. Esta sección es informativa y no añade jugadores ausentes a los cálculos Fantasy basados en el conjunto de datos.",
+    direct: "Invitación directa", qualifier: "Clasificado", former: "Anteriormente", position: "Posición", player: "Jugador", coverage: "16 equipos · 80 jugadores"
+  },
+  zh: {
+    eyebrow: "07 · 赛事阵容",
+    title: "TI 2026 战队阵容",
+    subtitle: "全部 16 支已公布战队及选手位置。本板块仅供参考，不会把数据集中缺失的选手加入 Fantasy 计算。",
+    direct: "直邀", qualifier: "预选赛晋级", former: "原战队", position: "位置", player: "选手", coverage: "16 支战队 · 80 名选手"
   }
-} as const;
+};
+
+function readLanguage(): SiteLanguage {
+  if (typeof window === "undefined") return "en";
+  const saved = window.localStorage.getItem("site-language") as SiteLanguage | null;
+  return saved && ["en", "ru", "es", "zh"].includes(saved) ? saved : "en";
+}
 
 export default function Rosters() {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguage] = useState<SiteLanguage>("en");
+
+  useEffect(() => {
+    setLanguage(readLanguage());
+    const onLanguage = (event: Event) => {
+      const custom = event as CustomEvent<{ language?: SiteLanguage }>;
+      if (custom.detail?.language && copy[custom.detail.language]) setLanguage(custom.detail.language);
+      else setLanguage(readLanguage());
+    };
+    window.addEventListener("site-language-change", onLanguage);
+    window.addEventListener("storage", onLanguage);
+    return () => {
+      window.removeEventListener("site-language-change", onLanguage);
+      window.removeEventListener("storage", onLanguage);
+    };
+  }, []);
+
   const t = copy[language];
 
   return (
@@ -67,13 +94,7 @@ export default function Rosters() {
           <h2>{t.title}</h2>
           <p>{t.subtitle}</p>
         </div>
-        <div className="rosters-tools">
-          <strong>{t.coverage}</strong>
-          <div className="language-switch">
-            <button className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>EN</button>
-            <button className={language === "ru" ? "active" : ""} onClick={() => setLanguage("ru")}>RU</button>
-          </div>
-        </div>
+        <div className="rosters-tools"><strong>{t.coverage}</strong></div>
       </div>
 
       <div className="rosters-grid">
