@@ -5,6 +5,7 @@ import FantasySubnav from "../components/FantasySubnav";
 import Optimizer from "../components/Optimizer";
 import Rosters from "../components/Rosters";
 import SiteHeader from "../components/SiteHeader";
+import RosterStatusNotice from "../components/RosterStatusNotice";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <FantasySubnav />
       <HomeHero />
       <div className="calculator-page-body">
+        <RosterStatusNotice />
         <Optimizer />
         <Rosters />
       </div>
