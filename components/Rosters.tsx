@@ -21,7 +21,7 @@ const teams: Team[] = [
   { name: "Xtreme Gaming", former: null, region: "CN", qualification: "direct", players: ["Ame", "NothingToSay", "Xxs", "fy", "xNova"] },
   { name: "GamerLegion", former: null, region: "NA", qualification: "qualifier", players: ["Ghost", "RCY", "Fayde", "Bignum", "Speeed"] },
   { name: "HULIGANI", former: "ex-L1GA TEAM", region: "EU", qualification: "qualifier", players: ["ssnovv1", "Mirage`", "Corrupted", "sayuw", "RESPECT"] },
-  { name: "LGD Gaming", former: null, region: "SA", qualification: "qualifier", players: ["Yuma", "TaiLung", "Wisper", "Thiolicor", "KJ"] },
+  { name: "LGD Gaming", former: null, region: "SA", qualification: "qualifier", players: ["Yuma", "TBD — replacement pending", "Wisper", "Thiolicor", "KJ"] },
   { name: "Nigma Galaxy", former: null, region: "EU", qualification: "qualifier", players: ["SumaiL", "lorenof", "Davai", "OmaR", "GH"] },
   { name: "OG", former: null, region: "SEA", qualification: "qualifier", players: ["Natsumi", "Yopaj-", "Raven", "TIMS", "skem"] },
   { name: "TEAM VISION", former: null, region: "EU", qualification: "qualifier", players: ["Satanic", "No[o]ne-", "Noticed", "9Class", "Dukalis"] },

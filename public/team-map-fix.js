@@ -5,7 +5,7 @@
     "Pure & 33":"Iron Wing","Yatoro & Collapse":"Team Spirit","shiro & Bach":"Vici Gaming","Ghost & Fayde":"GamerLegion",
     "miCKe & Ace":"Team Liquid","ssnovv1 & Corrupted":"HULIGANI","Natsumi & Raven":"OG","SumaiL & Davai":"Nigma Galaxy",
     "Nisha":"Team Liquid","Malr1ne":"Team Falcons","gpk":"BoomBoys","lorenof":"Nigma Galaxy","Echozz":"Team Resilience",
-    "Mikoto":"Aurora Gaming","bzm":"Iron Wing","No[o]ne":"Team Vision","Xm":"Vici Gaming","Tailung":"LGD Gaming",
+    "Mikoto":"Aurora Gaming","bzm":"Iron Wing","No[o]ne":"Team Vision","Xm":"Vici Gaming",
     "Larl":"Team Spirit","CHIRA_JUNIOR":"Team Yandex","RCY":"GamerLegion","NothingToSay":"Xtreme Gaming","Mirage`":"HULIGANI","Yopaj":"OG",
     "Thiolicor & KJ":"LGD Gaming","Saksa & Malady":"Team Yandex","Tims & skem":"OG","Cr1t- & Sneyking":"Team Falcons",
     "fy & xNova":"Xtreme Gaming","Ari & Whitemon":"Iron Wing","Mira & kaori":"Aurora Gaming","OmaR & GH":"Nigma Galaxy",

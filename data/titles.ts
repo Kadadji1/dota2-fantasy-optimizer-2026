@@ -57,7 +57,6 @@ export const prefixStatsByPlayerId: Record<string, PlayerPrefixStats[]> = {
   "bzm": [{name:"bzm",values:v(32,15,4,12,19,29,38,19)}],
   "noone": [{name:"No[o]ne",values:v(37,21,8,10,8,27,37,14)}],
   "xm": [{name:"Xm",values:v(28,34,12,6,9,20,44,6)}],
-  "tailung": [{name:"Tailung",values:v(26,25,19,7,18,16,25,5)}],
   "larl": [{name:"Larl",values:v(27,28,6,9,13,21,36,14)}],
   "chira": [{name:"CHIRA_JUNIOR",values:v(16,20,12,23,6,40,33,21)}],
   "rcy": [{name:"RCY",values:v(24,25,12,5,7,21,51,10)}],

@@ -37,6 +37,7 @@ const text = {
     subtitle: "Build all three banners, compare roster combinations and understand exactly where every projected point comes from.",
     builder: "Banner builder", results: "Best roster", teams: "Teams", titles: "Title",
     teamsSubtitle: "Teams represented by players in the current Reddit dataset.",
+    lgdRosterNotice: "LGD Gaming update: TaiLung has been disqualified. Until an official replacement is announced, LGD projections include only core and support; no mid projection is shown.",
     traits: "Traits", rerolls: "Reroll guide", rules: "Rules", methodology: "Methodology",
     core: "Core", mid: "Mid", support: "Support", pair: "same-team pair", single: "one player",
     emblem: "Emblem", tier: "Tier", trait: "Trait", optimize: "Optimize roster", reset: "Reset banners",
@@ -58,6 +59,7 @@ const text = {
     subtitle: "Соберите сразу три знамени, сравните связки и увидьте, откуда берётся каждое прогнозное очко.",
     builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды", titles: "Титул",
     teamsSubtitle: "Команды, игроки которых представлены в текущем датасете Reddit.",
+    lgdRosterNotice: "Обновление LGD Gaming: TaiLung дисквалифицирован. Пока официально не объявят замену, расчёты LGD учитывают только core и support — прогноза для мидера нет.",
     traits: "Свойства", rerolls: "Что роллить", rules: "Правила", methodology: "Методика расчёта",
     core: "Основа", mid: "Центр", support: "Поддержка", pair: "пара из одной команды", single: "1 игрок",
     emblem: "Эмблема", tier: "Разряд", trait: "Свойство", optimize: "Подобрать состав", reset: "Сбросить настройки",
@@ -113,7 +115,7 @@ const traitLabels: Record<Trait,{en:string;ru:string}> = {
 const teamByPlayerId: Record<string,string> = {
   "ysr-niu":"Team Resilience", "echozz":"Team Resilience", "planet-zzq":"Team Resilience",
   "satanic-noticed":"Team Vision", "noone":"Team Vision", "9class-dukalis":"Team Vision",
-  "yuma-wisper":"LGD Gaming", "tailung":"LGD Gaming", "thiolicor-kj":"LGD Gaming",
+  "yuma-wisper":"LGD Gaming", "thiolicor-kj":"LGD Gaming",
   "watson-dm":"Team Yandex", "chira":"Team Yandex", "saksa-malady":"Team Yandex",
   "kiritych-miero":"BoomBoys", "gpk":"BoomBoys", "save-kataomi":"BoomBoys",
   "skiter-atf":"Team Falcons", "marl1ne":"Team Falcons", "cr1t-sneyking":"Team Falcons",
@@ -215,7 +217,7 @@ export default function Optimizer(){
       {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team">{team}</div>}<div className="prefix-frequency">{frequencyText(winner.player.id)}</div></div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}<div className="prefix-breakdown"><span>{t.prefixContribution}</span><b>+{Math.round(winner.expectedPrefixBonus).toLocaleString(locale)}</b></div></div></article>})}
     </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives} · {prefixes[prefix].label[language]}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}<small className="prefix-frequency">{frequencyText(entry.player.id)}</small><small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
 
-    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
+    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>{entry.team==="LGD Gaming"&&<p className="team-roster-notice">{t.lgdRosterNotice}</p>}<footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
 
     <section className="section split-section" id="traits"><div><div className="eyebrow">04 · {t.traits}</div><h2>{t.traits}</h2></div><div className="trait-grid">{(Object.keys(traitDescriptions) as Trait[]).filter(x=>x!=="none").map(x=><article className="info-tile" key={x}><span>{traitLabels[x][language]}</span><p>{traitDescriptions[x][language]}</p></article>)}</div></section>
 
