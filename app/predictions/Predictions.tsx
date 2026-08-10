@@ -54,8 +54,27 @@ const recommended: Bracket = {
 const BASE_EXPECTED_POINTS = 1122;
 const BASE_CORRECT_SLOTS = 5.4;
 const byName = new Map(teams.map((team) => [team.team, team]));
+const roundOneMatches = [
+  { first: "Team Falcons", second: "LGD Gaming", stream: "Stream A", date: "Wed, Aug 12", time: "10:00 PM EDT" },
+  { first: "Iron Wing", second: "Nigma Galaxy", stream: "Stream B", date: "Wed, Aug 12", time: "10:00 PM EDT" },
+  { first: "BoomBoys", second: "OG", stream: "Stream C", date: "Wed, Aug 12", time: "10:00 PM EDT" },
+  { first: "TEAM VISION", second: "Team Resilience", stream: "Stream D", date: "Wed, Aug 12", time: "10:00 PM EDT" },
+  { first: "Team Spirit", second: "Xtreme Gaming", stream: "Stream A", date: "Thu, Aug 13", time: "1:00 AM EDT" },
+  { first: "Team Liquid", second: "Vici Gaming", stream: "Stream B", date: "Thu, Aug 13", time: "1:00 AM EDT" },
+  { first: "Aurora Gaming", second: "GamerLegion", stream: "Stream C", date: "Thu, Aug 13", time: "1:00 AM EDT" },
+  { first: "Team Yandex", second: "HULIGANI", stream: "Stream D", date: "Thu, Aug 13", time: "1:00 AM EDT" }
+] as const;
 const cloneBracket = (bracket: Bracket) => Object.fromEntries(categories.map((category) => [category, [...bracket[category]]])) as Bracket;
 const formatPercent = (value: number) => `${value.toFixed(value < 10 && value % 1 !== 0 ? 1 : 0)}%`;
+
+function matchProjection(first: string, second: string) {
+  const firstTeam = byName.get(first)!;
+  const secondTeam = byName.get(second)!;
+  const favorite = firstTeam.rating >= secondTeam.rating ? firstTeam : secondTeam;
+  const underdog = favorite === firstTeam ? secondTeam : firstTeam;
+  const chance = Math.round(100 / (1 + Math.pow(10, (underdog.rating - favorite.rating) / 400)));
+  return { favorite, chance, ratingGap: favorite.rating - underdog.rating };
+}
 
 function TeamLogo({ team, size = "lg" }: { team: string; size?: "sm" | "lg" }) {
   return <span className={`team-logo team-logo-${size} prediction-team-logo`} title={team} role="img" aria-label={team} />;
@@ -179,6 +198,36 @@ export default function Predictions() {
       </div>
 
       <section className="predictions-hero compact-predictions-hero"><div><span className="eyebrow">THE INTERNATIONAL 2026</span><h1>Group Stage Predictions</h1><p>Swap any team and the bracket stays complete automatically.</p></div></section>
+
+      <section className="section round-one-section" id="round-one">
+        <div className="section-title round-one-title">
+          <div><span className="eyebrow">GROUP STAGE · SWISS ROUND 1</span><h2>Round one</h2></div>
+          <p>All times are shown in New York, Eastern Time.</p>
+        </div>
+        <div className="round-one-grid">
+          {roundOneMatches.map((match) => {
+            const projection = matchProjection(match.first, match.second);
+            return (
+              <article className="round-one-card" key={`${match.first}-${match.second}`}>
+                <header className="round-one-card-top">
+                  <div className="round-one-time"><span>{match.date}</span><strong>{match.time}</strong></div>
+                  <span className="round-one-stream">{match.stream}</span>
+                </header>
+                <div className="round-one-matchup">
+                  <div className="round-one-team first"><span>{match.first}</span><TeamLogo team={match.first} /></div>
+                  <b>VS</b>
+                  <div className="round-one-team"><TeamLogo team={match.second} /><span>{match.second}</span></div>
+                </div>
+                <footer>
+                  <strong>{projection.favorite.team} · {projection.chance}% model win chance</strong>
+                  <span>Rating edge: +{projection.ratingGap} · best of 3</span>
+                </footer>
+              </article>
+            );
+          })}
+        </div>
+        <p className="round-one-note">Valve lists start times as approximate: each later match on a stream begins after the previous series finishes. Win chances are calculated from this site’s current team ratings.</p>
+      </section>
 
       <section className="section prediction-controls compact-prediction-section">
         <div className="predictions-layout">
