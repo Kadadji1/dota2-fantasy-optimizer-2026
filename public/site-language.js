@@ -3,6 +3,7 @@
     ru: {
       "Fantasy Calculator":"Фэнтези-калькулятор","Predictions":"Прогнозы","Guide":"Гайд",
       "Group Stage Predictions":"Прогнозы группового этапа","Swap any team and the bracket stays complete automatically.":"Меняйте любую команду — сетка автоматически останется полной.",
+      "GROUP STAGE · SWISS ROUND 1":"ГРУППОВОЙ ЭТАП · ШВЕЙЦАРСКИЙ РАУНД 1","Round one":"Первый раунд","All times are shown in New York, Eastern Time.":"Все времена указаны по восточному времени Нью-Йорка.","Wed, Aug 12":"Ср, 12 авг.","Thu, Aug 13":"Чт, 13 авг.","Stream A":"Трансляция A","Stream B":"Трансляция B","Stream C":"Трансляция C","Stream D":"Трансляция D","Valve lists start times as approximate: each later match on a stream begins after the previous series finishes. Win chances are calculated from this site’s current team ratings.":"Valve указывает время начала ориентировочно: каждый следующий матч в потоке начинается после завершения предыдущей серии. Шансы на победу рассчитаны по текущим рейтингам команд на сайте.",
       "Undefeated":"Без поражений","One loss":"Одно поражение","ADVANCING":"ПРОХОДЯТ ДАЛЬШЕ","Five out of the elimination round":"Пять команд вне раунда на вылет","ELIMINATED":"ВЫБЫВАЮТ","Five losers of the round":"Пять проигравших раунда","One win":"Одна победа","Winless":"Без побед",
       "Use recommended":"Использовать рекомендацию","This is the model bracket with the highest confidence.":"Это сетка модели с наивысшей уверенностью.",
       "EXPECTED POINTS":"ОЖИДАЕМЫЕ ОЧКИ","average over 20,000 simulations · maximum possible 12,000":"среднее по 20 000 симуляциям · максимум 12 000","adjusted from the selected slot probabilities":"скорректировано по вероятностям выбранных слотов","estimated from the selected slot probabilities":"оценка по вероятностям выбранных слотов",
@@ -26,6 +27,7 @@
     es: {
       "Fantasy Calculator":"Calculadora Fantasy","Predictions":"Predicciones","Guide":"Guía",
       "Group Stage Predictions":"Predicciones de la fase de grupos","Swap any team and the bracket stays complete automatically.":"Cambia cualquier equipo y el cuadro se mantiene completo automáticamente.",
+      "GROUP STAGE · SWISS ROUND 1":"FASE DE GRUPOS · RONDA SUIZA 1","Round one":"Primera ronda","All times are shown in New York, Eastern Time.":"Todos los horarios se muestran en la hora del Este de Nueva York.","Wed, Aug 12":"Mié., 12 de ago.","Thu, Aug 13":"Jue., 13 de ago.","Stream A":"Transmisión A","Stream B":"Transmisión B","Stream C":"Transmisión C","Stream D":"Transmisión D","Valve lists start times as approximate: each later match on a stream begins after the previous series finishes. Win chances are calculated from this site’s current team ratings.":"Valve indica las horas de inicio como aproximadas: cada partido posterior de una transmisión comienza cuando termina la serie anterior. Las probabilidades de victoria se calculan con las valoraciones actuales de los equipos en este sitio.",
       "Undefeated":"Invicto","One loss":"Una derrota","ADVANCING":"AVANZAN","Five out of the elimination round":"Cinco fuera de la ronda de eliminación","ELIMINATED":"ELIMINADOS","Five losers of the round":"Cinco perdedores de la ronda","One win":"Una victoria","Winless":"Sin victorias",
       "Use recommended":"Usar recomendación","This is the model bracket with the highest confidence.":"Este es el cuadro del modelo con mayor confianza.",
       "EXPECTED POINTS":"PUNTOS ESPERADOS","average over 20,000 simulations · maximum possible 12,000":"promedio de 20.000 simulaciones · máximo posible 12.000","adjusted from the selected slot probabilities":"ajustado según las probabilidades seleccionadas","estimated from the selected slot probabilities":"estimado a partir de las probabilidades seleccionadas",
@@ -49,6 +51,7 @@
     zh: {
       "Fantasy Calculator":"梦幻计算器","Predictions":"预测","Guide":"指南",
       "Group Stage Predictions":"小组赛预测","Swap any team and the bracket stays complete automatically.":"可自由更换任意战队，预测表会自动保持完整。",
+      "GROUP STAGE · SWISS ROUND 1":"小组赛 · 瑞士轮第 1 轮","Round one":"第一轮","All times are shown in New York, Eastern Time.":"所有时间均为纽约东部时间。","Wed, Aug 12":"8月12日，周三","Thu, Aug 13":"8月13日，周四","Stream A":"A 流","Stream B":"B 流","Stream C":"C 流","Stream D":"D 流","Valve lists start times as approximate: each later match on a stream begins after the previous series finishes. Win chances are calculated from this site’s current team ratings.":"Valve 标注的开赛时间为预计时间：同一直播流的后续比赛会在前一场系列赛结束后开始。胜率根据本站当前的战队评分计算。",
       "Undefeated":"全胜","One loss":"一负","ADVANCING":"晋级","Five out of the elimination round":"五支避开淘汰轮的战队","ELIMINATED":"淘汰","Five losers of the round":"淘汰轮五支失利战队","One win":"一胜","Winless":"全败",
       "Use recommended":"使用模型推荐","This is the model bracket with the highest confidence.":"这是模型置信度最高的预测表。",
       "EXPECTED POINTS":"预期积分","average over 20,000 simulations · maximum possible 12,000":"基于 20,000 次模拟的平均值 · 理论最高 12,000","adjusted from the selected slot probabilities":"根据当前所选位置概率动态调整","estimated from the selected slot probabilities":"根据当前所选位置概率估算",
@@ -127,6 +130,21 @@
       if (!match) return;
       const suffix = currentLanguage === "ru" ? "верных" : currentLanguage === "es" ? "aciertos" : currentLanguage === "zh" ? "项命中" : "correct";
       el.textContent = `${match[1]} ${suffix}`;
+    });
+
+    document.querySelectorAll(".round-one-card footer strong").forEach((el) => {
+      const match = el.textContent?.match(/^(.*?) · (\d+)% (?:model win chance|шанс модели на победу|probabilidad de victoria según el modelo|模型胜率)$/);
+      if (!match) return;
+      const suffix = currentLanguage === "ru" ? "шанс модели на победу" : currentLanguage === "es" ? "probabilidad de victoria según el modelo" : currentLanguage === "zh" ? "模型胜率" : "model win chance";
+      el.textContent = `${match[1]} · ${match[2]}% ${suffix}`;
+    });
+
+    document.querySelectorAll(".round-one-card footer span").forEach((el) => {
+      const match = el.textContent?.match(/^(?:Rating edge:|Разница рейтинга:|Ventaja de rating:|评分优势：) \+(\d+) · (?:best of 3|до двух побед|al mejor de 3|三局两胜)$/);
+      if (!match) return;
+      const text = currentLanguage === "ru" ? "Разница рейтинга" : currentLanguage === "es" ? "Ventaja de rating" : currentLanguage === "zh" ? "评分优势" : "Rating edge";
+      const format = currentLanguage === "ru" ? "до двух побед" : currentLanguage === "es" ? "al mejor de 3" : currentLanguage === "zh" ? "三局两胜" : "best of 3";
+      el.textContent = `${text}: +${match[1]} · ${format}`;
     });
   }
 
