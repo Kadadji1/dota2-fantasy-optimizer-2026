@@ -33,11 +33,11 @@ const suffixKeys = Object.keys(suffixes) as SuffixKey[];
 
 const text = {
   en: {
-    kicker: "THE INTERNATIONAL 2026", title: "Dota 2 Fantasy Optimizer",
-    subtitle: "Build all three banners, compare roster combinations and understand exactly where every projected point comes from.",
+    kicker: "THE INTERNATIONAL 2026 · MAIN EVENT", title: "Dota 2 Fantasy Optimizer",
+    subtitle: "Main Event is open: complete all five emblems on each banner, compare roster combinations and see every projected point.",
     builder: "Banner builder", results: "Best roster", teams: "Teams", titles: "Title",
     teamsSubtitle: "Teams represented by players in the current Reddit dataset.",
-    lgdRosterNotice: "LGD Gaming update: TaiLung has been disqualified. Until an official replacement is announced, LGD projections include only core and support; no mid projection is shown.",
+    lgdRosterNotice: "LGD Gaming note: TaiLung is not included in the model. The mid projection will return only after the replacement data has been validated.",
     traits: "Traits", rerolls: "Reroll guide", rules: "Rules", methodology: "Methodology",
     core: "Core", mid: "Mid", support: "Support", pair: "same-team pair", single: "one player",
     emblem: "Emblem", tier: "Tier", trait: "Trait", optimize: "Optimize roster", reset: "Reset banners",
@@ -55,11 +55,11 @@ const text = {
     prefixContribution: "Expected Prefix"
   },
   ru: {
-    kicker: "THE INTERNATIONAL 2026", title: "Оптимизатор Dota 2 Fantasy",
-    subtitle: "Соберите сразу три знамени, сравните связки и увидьте, откуда берётся каждое прогнозное очко.",
+    kicker: "THE INTERNATIONAL 2026 · ОСНОВНОЙ ЭТАП", title: "Оптимизатор Dota 2 Fantasy",
+    subtitle: "Основной этап открыт: заполните все пять эмблем на каждом знамени, сравните составы и увидьте вклад каждого прогнозного очка.",
     builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды", titles: "Титул",
     teamsSubtitle: "Команды, игроки которых представлены в текущем датасете Reddit.",
-    lgdRosterNotice: "Обновление LGD Gaming: TaiLung дисквалифицирован. Пока официально не объявят замену, расчёты LGD учитывают только core и support — прогноза для мидера нет.",
+    lgdRosterNotice: "Примечание по LGD Gaming: TaiLung не включён в модель. Прогноз по мидеру вернётся только после проверки данных замены.",
     traits: "Свойства", rerolls: "Что роллить", rules: "Правила", methodology: "Методика расчёта",
     core: "Основа", mid: "Центр", support: "Поддержка", pair: "пара из одной команды", single: "1 игрок",
     emblem: "Эмблема", tier: "Разряд", trait: "Свойство", optimize: "Подобрать состав", reset: "Сбросить настройки",
@@ -132,9 +132,9 @@ const teamByPlayerId: Record<string,string> = {
 };
 
 const defaults: BannerState = {
-  core:[{stat:"creeps",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"gpm",tier:"III",trait:"none"}],
-  mid:[{stat:"kills",tier:"III",trait:"none"},{stat:"runes",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"}],
-  support:[{stat:"wards",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"stacks",tier:"III",trait:"none"}]
+  core:[{stat:"creeps",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"gpm",tier:"III",trait:"none"},{stat:"stuns",tier:"III",trait:"none"},{stat:"kills",tier:"III",trait:"none"}],
+  mid:[{stat:"kills",tier:"III",trait:"none"},{stat:"runes",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"gpm",tier:"III",trait:"none"},{stat:"stuns",tier:"III",trait:"none"}],
+  support:[{stat:"wards",tier:"III",trait:"none"},{stat:"teamfight",tier:"III",trait:"none"},{stat:"stacks",tier:"III",trait:"none"},{stat:"stuns",tier:"III",trait:"none"},{stat:"smokes",tier:"III",trait:"none"}]
 };
 
 function playerTeam(id:string, stored:string){ return stored || teamByPlayerId[id] || ""; }
@@ -199,6 +199,7 @@ export default function Optimizer(){
     <section className="hero" id="top"><div className="hero-glow"/><div className="hero-copy"><div className="eyebrow">{t.kicker}</div><h1>{t.title}</h1><p>{t.subtitle}</p><div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div></div><aside className="dataset-card"><span>{t.source}</span><strong>1,601</strong><small>{t.matches}</small></aside></section>
 
     <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div>
+      <div className="main-event-notice"><b>{language === "ru" ? "Основной этап: 5 эмблем · 30 новых рероллов" : "Main Event: 5 emblems · 30 new rerolls"}</b><span>{language === "ru" ? "Первые три эмблемы перенесены из группового этапа; добавлены четвёртая и пятая." : "Your first three Group Stage emblems carry over; slots four and five are new."}</span></div>
       <div className="title-panel" id="titles">
         <div className="title-panel-heading"><div><div className="eyebrow">{t.titles}</div><h3>{t.titles}</h3><p>{t.titleIntro}</p></div><div className="title-score-chip"><span>{t.expectedBonus}</span><strong>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</strong></div></div>
         <div className="title-control-grid">

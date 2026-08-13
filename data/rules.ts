@@ -13,16 +13,18 @@ export const tierBonuses: Record<Tier, number> = {
 };
 
 export const bannerSlotColors: Record<Role, EmblemColor[]> = {
-  core: ["red", "green", "red"],
-  mid: ["red", "blue", "green"],
-  support: ["blue", "green", "blue"]
+  // Main Event adds two slots to every banner. The three Group Stage emblems
+  // carry over, so their colours remain the first three entries.
+  core: ["red", "green", "red", "green", "red"],
+  mid: ["red", "blue", "green", "red", "green"],
+  support: ["blue", "green", "blue", "green", "blue"]
 };
 
 export const traitDescriptions: Record<Trait, { en: string; ru: string }> = {
   none: { en: "No trait", ru: "Без свойства" },
   fractal: {
-    en: "+60% to this emblem if all three emblem tiers are different",
-    ru: "+60% к этой эмблеме, если все три разряда на знамени разные"
+    en: "+60% to this emblem if all five emblem tiers are different",
+    ru: "+60% к этой эмблеме, если все пять разрядов на знамени разные"
   },
   benevolent: {
     en: "+20% to adjacent emblems",

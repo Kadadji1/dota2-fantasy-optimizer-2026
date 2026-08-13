@@ -5,9 +5,9 @@ import PredictionsIntro from "../../components/PredictionsIntro";
 import Predictions from "./Predictions";
 
 export const metadata: Metadata = {
-  title: "TI2026 Group Stage Predictions",
+  title: "TI2026 Main Event Fantasy",
   description:
-    "Interactive TI2026 Group Stage predictions with team slot probabilities and a recommended bracket.",
+    "TI2026 Main Event Fantasy rules, five-emblem banners and roster-lock information.",
   alternates: { canonical: "/predictions" }
 };
 

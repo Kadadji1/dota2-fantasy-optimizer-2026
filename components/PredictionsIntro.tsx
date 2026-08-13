@@ -6,34 +6,34 @@ type SiteLanguage = "en" | "ru" | "es" | "zh";
 
 const copy: Record<SiteLanguage, { kicker: string; text: string; lock: string; date: string; inWord: string; days: string }> = {
   en: {
-    kicker: "Group stage predictions",
-    text: "We model how the Swiss stage ends: team ratings over a year of matches, recent form, results on patch 7.41, market odds and predictions from well-known analysts. The model fills the bracket for you — edit it freely and watch the expected points move.",
-    lock: "Draft locks",
-    date: "August 13",
+    kicker: "Main Event status",
+    text: "The Group Stage prediction board is now closed. This page tracks the Main Event Fantasy transition: five emblems per banner, a new pool of 30 rerolls, and the upcoming eight-team player pool.",
+    lock: "Roster locks",
+    date: "August 19",
     inWord: "in",
     days: "d."
   },
   ru: {
-    kicker: "Прогнозы группового этапа",
-    text: "Мы моделируем итог швейцарской стадии, учитывая рейтинги команд за год матчей, недавнюю форму, результаты на патче 7.41, рыночные коэффициенты и прогнозы известных аналитиков. Модель заполняет сетку за вас — меняйте команды и сразу смотрите, как меняются ожидаемые очки.",
-    lock: "Сетка фиксируется",
-    date: "13 августа",
+    kicker: "Статус Main Event",
+    text: "Доска прогнозов группового этапа закрыта. Здесь отражён переход в Main Event: пять эмблем на знамя, новый запас из 30 рероллов и предстоящий пул из восьми команд.",
+    lock: "Состав фиксируется",
+    date: "19 августа",
     inWord: "через",
     days: "дн."
   },
   es: {
-    kicker: "Predicciones de la fase de grupos",
-    text: "Modelamos cómo termina la fase suiza usando ratings de los equipos durante un año de partidas, forma reciente, resultados en el parche 7.41, cuotas de mercado y predicciones de analistas conocidos. El modelo completa el cuadro por ti: edítalo libremente y observa cómo cambian los puntos esperados.",
-    lock: "El cuadro se bloquea",
-    date: "13 de agosto",
+    kicker: "Estado del Evento Principal",
+    text: "El panel de predicciones de la fase de grupos está cerrado. Esta página sigue la transición a cinco emblemas por estandarte, 30 rerolls nuevos y un grupo de ocho equipos.",
+    lock: "La plantilla se bloquea",
+    date: "19 de agosto",
     inWord: "en",
     days: "d."
   },
   zh: {
-    kicker: "小组赛预测",
-    text: "我们通过过去一年比赛的战队评分、近期状态、7.41 版本表现、市场赔率以及知名分析师的预测来模拟瑞士轮最终结果。模型会自动填充预测表，你可以自由调整战队，并实时查看预期积分的变化。",
-    lock: "预测锁定",
-    date: "8月13日",
+    kicker: "主赛事状态",
+    text: "小组赛预测面板现已关闭。本页面跟踪主赛事切换：每面旗帜五枚徽章、30 次新的重掷，以及即将确定的八支晋级队伍。",
+    lock: "阵容锁定",
+    date: "8月19日",
     inWord: "还有",
     days: "天"
   }
@@ -41,7 +41,7 @@ const copy: Record<SiteLanguage, { kicker: string; text: string; lock: string; d
 
 function daysUntilLock() {
   const now = new Date();
-  const lock = new Date("2026-08-13T00:00:00-04:00");
+  const lock = new Date("2026-08-19T00:00:00-04:00");
   return Math.max(0, Math.ceil((lock.getTime() - now.getTime()) / 86400000));
 }
 

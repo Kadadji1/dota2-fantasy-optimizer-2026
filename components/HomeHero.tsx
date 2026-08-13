@@ -22,15 +22,15 @@ const copy: Record<SiteLanguage, {
   en: {
     kicker: "THE INTERNATIONAL 2026",
     title: "Dota 2 Fantasy Calculator & Optimizer",
-    subtitle: "Build your TI 2026 Fantasy roster using historical match data, player-specific performance and simulation-based projections.",
+    subtitle: "Main Event Fantasy is open. Complete the two new emblems on every banner, then compare your five-emblem roster with player-specific projections.",
     groupStage: "Group stage",
-    groupStageDate: "August 13 – 16",
-    mainEvent: "Main event",
-    mainEventDate: "August 20 – 23",
+    groupStageDate: "Locked",
+    mainEvent: "Main Event roster lock",
+    mainEventDate: "August 19",
     cards: [
-      ["BUILT FOR TI 2026", "Fantasy banners, roster optimization and group stage predictions."],
+      ["MAIN EVENT READY", "Five-emblem banners, roster optimization and Main Event preparation."],
       ["PLAYER-SPECIFIC ANALYSIS", "Stats are evaluated by role, player history, emblems, traits and titles."],
-      ["FREE COMMUNITY TOOL", "No account required. Built for the Dota 2 community."]
+      ["30 NEW REROLLS", "The first three emblems carry over; two new slots unlock on every banner."]
     ],
     model: "MODEL DATA",
     matches: "matches analyzed",
@@ -41,15 +41,15 @@ const copy: Record<SiteLanguage, {
   ru: {
     kicker: "THE INTERNATIONAL 2026",
     title: "Dota 2 Fantasy Калькулятор & Оптимизатор",
-    subtitle: "Соберите Fantasy-состав для TI 2026 на основе исторических матчей, статистики игроков и симуляций турнира.",
+    subtitle: "Fantasy основного этапа открыт. Заполните две новые эмблемы на каждом знамени и сравните состав из пяти эмблем по статистике игроков.",
     groupStage: "Групповой этап",
-    groupStageDate: "13–16 августа",
-    mainEvent: "Основной этап",
-    mainEventDate: "20–23 августа",
+    groupStageDate: "Закреплён",
+    mainEvent: "Фиксация состава Main Event",
+    mainEventDate: "19 августа",
     cards: [
-      ["ДЛЯ TI 2026", "Fantasy-знамёна, оптимизация состава и прогнозы групповой стадии."],
+      ["ГОТОВО К MAIN EVENT", "Знамёна с пятью эмблемами, оптимизация состава и подготовка к основному этапу."],
       ["АНАЛИЗ ИГРОКОВ", "Статистика учитывает роль, историю игрока, эмблемы, свойства и титулы."],
-      ["БЕСПЛАТНЫЙ ИНСТРУМЕНТ", "Без регистрации. Сделано для сообщества Dota 2."]
+      ["30 НОВЫХ РЕРОЛЛОВ", "Первые три эмблемы сохраняются, на каждом знамени открываются ещё две."]
     ],
     model: "ДАННЫЕ МОДЕЛИ",
     matches: "матчей проанализировано",
@@ -60,15 +60,15 @@ const copy: Record<SiteLanguage, {
   es: {
     kicker: "THE INTERNATIONAL 2026",
     title: "Calculadora y Optimizador de Dota 2 Fantasy",
-    subtitle: "Construye tu plantilla Fantasy de TI 2026 con datos históricos, rendimiento individual y proyecciones basadas en simulaciones.",
+    subtitle: "Fantasy del Evento Principal está abierto. Completa los dos emblemas nuevos de cada estandarte y compara una plantilla de cinco emblemas.",
     groupStage: "Fase de grupos",
-    groupStageDate: "13–16 de agosto",
-    mainEvent: "Evento principal",
-    mainEventDate: "20–23 de agosto",
+    groupStageDate: "Bloqueada",
+    mainEvent: "Cierre de plantilla del Evento Principal",
+    mainEventDate: "19 de agosto",
     cards: [
-      ["HECHO PARA TI 2026", "Banners Fantasy, optimización de plantilla y predicciones de la fase de grupos."],
+      ["LISTO PARA EL EVENTO PRINCIPAL", "Estandartes de cinco emblemas y preparación para el Evento Principal."],
       ["ANÁLISIS POR JUGADOR", "Las estadísticas consideran rol, historial, emblemas, rasgos y títulos."],
-      ["HERRAMIENTA GRATUITA", "Sin cuenta. Creada para la comunidad de Dota 2."]
+      ["30 REROLLS NUEVOS", "Los tres primeros emblemas se conservan y se desbloquean dos más por estandarte."]
     ],
     model: "DATOS DEL MODELO",
     matches: "partidas analizadas",
@@ -79,15 +79,15 @@ const copy: Record<SiteLanguage, {
   zh: {
     kicker: "THE INTERNATIONAL 2026",
     title: "Dota 2 Fantasy 计算器与优化器",
-    subtitle: "基于历史比赛、选手个人表现和模拟预测，构建你的 TI 2026 Fantasy 阵容。",
+    subtitle: "主赛事 Fantasy 已开放。完成每面旗帜新增的两枚徽章，并用选手数据比较五徽章阵容。",
     groupStage: "小组赛",
-    groupStageDate: "8月13日–16日",
-    mainEvent: "主赛事",
-    mainEventDate: "8月20日–23日",
+    groupStageDate: "已锁定",
+    mainEvent: "主赛事阵容锁定",
+    mainEventDate: "8月19日",
     cards: [
-      ["专为 TI 2026 打造", "Fantasy 旗帜、阵容优化与小组赛预测。"],
+      ["主赛事已就绪", "五徽章旗帜、阵容优化与主赛事准备。"],
       ["选手级分析", "按位置、选手历史、徽章、特性和称号评估数据。"],
-      ["免费社区工具", "无需账号。为 Dota 2 社区打造。"]
+      ["30 次新重掷", "前三枚徽章会保留；每面旗帜新增两格。"]
     ],
     model: "模型数据",
     matches: "场比赛已分析",
