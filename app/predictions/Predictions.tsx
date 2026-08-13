@@ -3,18 +3,24 @@
 import { useEffect, useState } from "react";
 
 type SiteLanguage = "en" | "ru" | "es" | "zh";
-type Match = { a: string; score: string; b: string };
+type Match = { a: string; score?: string; b: string; date: string; time: string };
 type Copy = { eyebrow: string; title: string; body: string; schedule: string; results: string; roundOne: string; roundTwo: string; upcoming: string; note: string; stages: Array<{ date: string; title: string; body: string }> };
 
 const roundOne: Match[] = [
-  { a: "Team Falcons", score: "2–1", b: "LGD Gaming" }, { a: "Iron Wing", score: "2–0", b: "Nigma Galaxy" },
-  { a: "BoomBoys", score: "2–0", b: "OG" }, { a: "TEAM VISION", score: "2–1", b: "Team Resilience" },
-  { a: "Team Yandex", score: "2–0", b: "HULIGANI" }, { a: "Team Spirit", score: "2–0", b: "Xtreme Gaming" },
-  { a: "Team Liquid", score: "2–0", b: "Vici Gaming" }, { a: "Aurora Gaming", score: "2–0", b: "GamerLegion" }
+  { a: "Team Falcons", score: "2–1", b: "LGD Gaming", date: "Aug 12", time: "10:00 PM EDT" }, { a: "Iron Wing", score: "2–0", b: "Nigma Galaxy", date: "Aug 12", time: "10:00 PM EDT" },
+  { a: "BoomBoys", score: "2–0", b: "OG", date: "Aug 12", time: "10:00 PM EDT" }, { a: "TEAM VISION", score: "2–1", b: "Team Resilience", date: "Aug 12", time: "10:00 PM EDT" },
+  { a: "Team Yandex", score: "2–0", b: "HULIGANI", date: "Aug 13", time: "1:00 AM EDT" }, { a: "Team Spirit", score: "2–0", b: "Xtreme Gaming", date: "Aug 13", time: "1:00 AM EDT" },
+  { a: "Team Liquid", score: "2–0", b: "Vici Gaming", date: "Aug 13", time: "1:00 AM EDT" }, { a: "Aurora Gaming", score: "2–0", b: "GamerLegion", date: "Aug 13", time: "1:00 AM EDT" }
 ];
 const roundTwo: Match[] = [
-  { a: "TEAM VISION", score: "2–1", b: "Team Falcons" }, { a: "BoomBoys", score: "2–1", b: "Iron Wing" },
-  { a: "LGD Gaming", score: "2–1", b: "Team Resilience" }, { a: "Nigma Galaxy", score: "2–0", b: "OG" }
+  { a: "TEAM VISION", score: "2–1", b: "Team Falcons", date: "Aug 13", time: "4:00 AM EDT" }, { a: "BoomBoys", score: "2–1", b: "Iron Wing", date: "Aug 13", time: "4:00 AM EDT" },
+  { a: "LGD Gaming", score: "2–1", b: "Team Resilience", date: "Aug 13", time: "4:00 AM EDT" }, { a: "Nigma Galaxy", score: "2–0", b: "OG", date: "Aug 13", time: "4:00 AM EDT" }
+];
+const nextMatches: Match[] = [
+  { a: "TEAM VISION", b: "BoomBoys", date: "Aug 13", time: "10:00 PM EDT" }, { a: "Team Yandex", b: "Team Liquid", date: "Aug 13", time: "10:00 PM EDT" },
+  { a: "Team Spirit", b: "Aurora Gaming", date: "Aug 13", time: "10:00 PM EDT" }, { a: "Team Falcons", b: "Iron Wing", date: "Aug 13", time: "10:00 PM EDT" },
+  { a: "LGD Gaming", b: "Nigma Galaxy", date: "Aug 14", time: "1:00 AM EDT" }, { a: "Xtreme Gaming", b: "GamerLegion", date: "Aug 14", time: "1:00 AM EDT" },
+  { a: "HULIGANI", b: "Vici Gaming", date: "Aug 14", time: "1:00 AM EDT" }, { a: "Team Resilience", b: "OG", date: "Aug 14", time: "1:00 AM EDT" }
 ];
 
 const copy: Record<SiteLanguage, Copy> = {
@@ -26,7 +32,8 @@ const copy: Record<SiteLanguage, Copy> = {
 
 function readLanguage(): SiteLanguage { if (typeof window === "undefined") return "en"; const stored = window.localStorage.getItem("site-language") as SiteLanguage | null; return stored && copy[stored] ? stored : "en"; }
 
-function ResultGrid({ matches }: { matches: Match[] }) { return <div className="match-results-grid">{matches.map((match) => <article key={`${match.a}-${match.b}`}><span>{match.a}</span><strong>{match.score}</strong><span>{match.b}</span></article>)}</div>; }
+function TeamLogo({ team }: { team: string }) { return <span className="team-logo team-logo-sm" title={team} role="img" aria-label={team} />; }
+function MatchGrid({ matches }: { matches: Match[] }) { return <div className="match-results-grid">{matches.map((match) => <article key={`${match.a}-${match.b}`}><time>{match.date} · {match.time}</time><div><span><TeamLogo team={match.a} />{match.a}</span><strong>{match.score ?? "VS"}</strong><span>{match.b}<TeamLogo team={match.b} /></span></div></article>)}</div>; }
 
 export default function Predictions() {
   const [language, setLanguage] = useState<SiteLanguage>("en");
@@ -35,6 +42,6 @@ export default function Predictions() {
   return <main className="site-shell predictions-page schedule-results-page">
     <section className="main-event-hero"><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{t.body}</p></section>
     <section className="schedule-section"><div className="section-title"><div><span className="eyebrow">{t.schedule}</span><h2>{t.schedule}</h2></div></div><div className="stage-timeline">{t.stages.map((stage) => <article key={stage.date}><strong>{stage.date}</strong><h3>{stage.title}</h3><p>{stage.body}</p></article>)}</div></section>
-    <section className="results-section schedule-results"><div className="section-title"><div><span className="eyebrow">{t.results}</span><h2>{t.results}</h2></div></div><div className="results-round"><h3>{t.roundOne}</h3><ResultGrid matches={roundOne} /></div><div className="results-round"><h3>{t.roundTwo}</h3><ResultGrid matches={roundTwo} /></div><p className="main-event-note">{t.upcoming}<br /><br />{t.note}</p></section>
+    <section className="results-section schedule-results"><div className="results-round upcoming-matches"><h3>Next matches · New York time</h3><MatchGrid matches={nextMatches} /></div><div className="section-title"><div><span className="eyebrow">{t.results}</span><h2>{t.results}</h2></div></div><div className="results-round"><h3>{t.roundOne}</h3><MatchGrid matches={roundOne} /></div><div className="results-round"><h3>{t.roundTwo}</h3><MatchGrid matches={roundTwo} /></div><p className="main-event-note">{t.upcoming}<br /><br />{t.note}</p></section>
   </main>;
 }
