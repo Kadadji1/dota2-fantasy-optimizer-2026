@@ -30,6 +30,7 @@ type TeamEntry = { team: string; roles: Partial<Record<Role, { name: string; sco
 const roles: Role[] = ["core", "mid", "support"];
 const prefixKeys = Object.keys(prefixes) as PrefixKey[];
 const suffixKeys = Object.keys(suffixes) as SuffixKey[];
+const setupStorageKey = "ti2026-fantasy-setup";
 
 const text = {
   en: {
@@ -145,10 +146,7 @@ function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
   return <span className={`team-logo team-logo-${size}`} title={team} role="img" aria-label={team} />;
 }
 
-function readSharedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
-  if (typeof window === "undefined") return null;
-  const params = new URLSearchParams(window.location.search);
-  const build = params.get("build");
+function parseSetup(build: string | null, nextPrefix: string | null, nextSuffix: string | null): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
   if (!build) return null;
 
   const chunks = build.split("|");
@@ -167,13 +165,31 @@ function readSharedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: S
     nextBanners[role] = nextSlots;
   }
 
-  const nextPrefix = params.get("prefix");
-  const nextSuffix = params.get("suffix");
   return {
     banners: nextBanners,
     prefix: nextPrefix && nextPrefix in prefixes ? nextPrefix as PrefixKey : "otherworldly",
     suffix: nextSuffix && nextSuffix in suffixes ? nextSuffix as SuffixKey : "clutch"
   };
+}
+
+function readSharedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  return parseSetup(params.get("build"), params.get("prefix"), params.get("suffix"));
+}
+
+function readSavedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(setupStorageKey) ?? "null") as { build?: string; prefix?: string; suffix?: string } | null;
+    return parseSetup(saved?.build ?? null, saved?.prefix ?? null, saved?.suffix ?? null);
+  } catch {
+    return null;
+  }
+}
+
+function serializeBuild(banners: BannerState) {
+  return roles.map(role => banners[role].map(({ stat, tier, trait }) => `${stat}.${tier}.${trait}`).join(",")).join("|");
 }
 
 export default function Optimizer(){
@@ -182,14 +198,16 @@ export default function Optimizer(){
   const [prefix,setPrefix]=useState<PrefixKey>("otherworldly");
   const [suffix,setSuffix]=useState<SuffixKey>("clutch");
   const [shared,setShared]=useState(false);
+  const [setupLoaded,setSetupLoaded]=useState(false);
   useEffect(()=>{
     const readLanguage=()=>{
       const saved=window.localStorage.getItem("site-language");
       return saved==="ru" ? "ru" : "en";
     };
-    const sharedSetup=readSharedSetup();
-    if(sharedSetup){setBanners(sharedSetup.banners);setPrefix(sharedSetup.prefix);setSuffix(sharedSetup.suffix);}
+    const setup=readSharedSetup() ?? readSavedSetup();
+    if(setup){setBanners(setup.banners);setPrefix(setup.prefix);setSuffix(setup.suffix);}
     setLanguage(readLanguage());
+    setSetupLoaded(true);
     const onLanguage=(event:Event)=>{
       const next=(event as CustomEvent<{language?:string}>).detail?.language;
       setLanguage(next==="ru" ? "ru" : readLanguage());
@@ -197,6 +215,10 @@ export default function Optimizer(){
     window.addEventListener("site-language-change",onLanguage);
     return()=>window.removeEventListener("site-language-change",onLanguage);
   },[]);
+  useEffect(()=>{
+    if(!setupLoaded) return;
+    window.localStorage.setItem(setupStorageKey,JSON.stringify({build:serializeBuild(banners),prefix,suffix}));
+  },[banners,prefix,suffix,setupLoaded]);
   const t=text[language];
   const locale=language==="ru"?"ru-RU":"en-US";
   const baseRankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
@@ -237,7 +259,7 @@ export default function Optimizer(){
   const frequencyText=(playerId:string)=>getPrefixEntries(playerId,prefix).map(entry=>`${entry.name} ${entry.frequency}%`).join(" · ");
   const shareSetup=()=>{
     const url=new URL(window.location.href);
-    const build=roles.map(role=>banners[role].map(({stat,tier,trait})=>`${stat}.${tier}.${trait}`).join(",")).join("|");
+    const build=serializeBuild(banners);
     url.searchParams.set("build",build);
     url.searchParams.set("prefix",prefix);
     url.searchParams.set("suffix",suffix);
