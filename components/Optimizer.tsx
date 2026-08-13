@@ -53,7 +53,7 @@ const text = {
     suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.",
     stable: "Stable", gamble: "Gamble", avoid: "Avoid", pairAverage: "pair average",
     titleMethod: "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.",
-    prefixContribution: "Expected Prefix", share: "Share this setup", copied: "Link copied"
+    prefixContribution: "Expected Prefix"
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026 · ОСНОВНОЙ ЭТАП", title: "Оптимизатор Dota 2 Fantasy",
@@ -75,7 +75,7 @@ const text = {
     suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже независимо добавляет бонус суффикса к базовому счёту состава, не усиливая ожидаемый бонус префикса.",
     stable: "Стабильный", gamble: "Азартный", avoid: "Лучше избегать", pairAverage: "среднее пары",
     titleMethod: "Прогноз префикса использует историческую частоту каждого игрока. Для пар берётся простое среднее двух игроков, потому что исходный счёт хранится общей парой.",
-    prefixContribution: "Ожидаемый префикс", share: "Поделиться сборкой", copied: "Ссылка скопирована"
+    prefixContribution: "Ожидаемый префикс"
   }
 } as const;
 
@@ -172,17 +172,12 @@ function parseSetup(build: string | null, nextPrefix: string | null, nextSuffix:
   };
 }
 
-function readSharedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
-  if (typeof window === "undefined") return null;
-  const params = new URLSearchParams(window.location.search);
-  return parseSetup(params.get("build"), params.get("prefix"), params.get("suffix"));
-}
-
 function readSavedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
   if (typeof window === "undefined") return null;
   try {
-    const saved = JSON.parse(window.localStorage.getItem(setupStorageKey) ?? "null") as { build?: string; prefix?: string; suffix?: string } | null;
-    return parseSetup(saved?.build ?? null, saved?.prefix ?? null, saved?.suffix ?? null);
+    const saved = JSON.parse(window.localStorage.getItem(setupStorageKey) ?? "null") as { banners?: BannerState; prefix?: string; suffix?: string } | null;
+    const build = saved?.banners ? serializeBuild(saved.banners) : null;
+    return parseSetup(build, saved?.prefix ?? null, saved?.suffix ?? null);
   } catch {
     return null;
   }
@@ -197,14 +192,13 @@ export default function Optimizer(){
   const [banners,setBanners]=useState<BannerState>(defaults);
   const [prefix,setPrefix]=useState<PrefixKey>("otherworldly");
   const [suffix,setSuffix]=useState<SuffixKey>("clutch");
-  const [shared,setShared]=useState(false);
   const [setupLoaded,setSetupLoaded]=useState(false);
   useEffect(()=>{
     const readLanguage=()=>{
       const saved=window.localStorage.getItem("site-language");
       return saved==="ru" ? "ru" : "en";
     };
-    const setup=readSharedSetup() ?? readSavedSetup();
+    const setup=readSavedSetup();
     if(setup){setBanners(setup.banners);setPrefix(setup.prefix);setSuffix(setup.suffix);}
     setLanguage(readLanguage());
     setSetupLoaded(true);
@@ -217,7 +211,10 @@ export default function Optimizer(){
   },[]);
   useEffect(()=>{
     if(!setupLoaded) return;
-    window.localStorage.setItem(setupStorageKey,JSON.stringify({build:serializeBuild(banners),prefix,suffix}));
+    const save=()=>window.localStorage.setItem(setupStorageKey,JSON.stringify({banners,prefix,suffix}));
+    save();
+    window.addEventListener("pagehide",save);
+    return()=>window.removeEventListener("pagehide",save);
   },[banners,prefix,suffix,setupLoaded]);
   const t=text[language];
   const locale=language==="ru"?"ru-RU":"en-US";
@@ -253,21 +250,11 @@ export default function Optimizer(){
     return Array.from(teams.values()).map(entry=>({...entry,total:roles.reduce((sum,role)=>sum+(entry.roles[role]?.score??0),0)})).sort((a,b)=>b.total-a.total);
   },[rankings]);
 
-  const updateEmblem=(role:Role,index:number,patch:Partial<EmblemInput>)=>setBanners(c=>({...c,[role]:c[role].map((x,i)=>i===index?{...x,...patch}:x)}));
-  const resetBanners=()=>setBanners({core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))});
+  const saveSetup=(nextBanners:BannerState,nextPrefix:PrefixKey=prefix,nextSuffix:SuffixKey=suffix)=>window.localStorage.setItem(setupStorageKey,JSON.stringify({banners:nextBanners,prefix:nextPrefix,suffix:nextSuffix}));
+  const updateEmblem=(role:Role,index:number,patch:Partial<EmblemInput>)=>{const next={...banners,[role]:banners[role].map((x,i)=>i===index?{...x,...patch}:x)};setBanners(next);saveSetup(next);};
+  const resetBanners=()=>{const next={core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))};setBanners(next);saveSetup(next);};
   const scrollToResults=()=>document.getElementById("results")?.scrollIntoView({behavior:"smooth",block:"start"});
   const frequencyText=(playerId:string)=>getPrefixEntries(playerId,prefix).map(entry=>`${entry.name} ${entry.frequency}%`).join(" · ");
-  const shareSetup=()=>{
-    const url=new URL(window.location.href);
-    const build=serializeBuild(banners);
-    url.searchParams.set("build",build);
-    url.searchParams.set("prefix",prefix);
-    url.searchParams.set("suffix",suffix);
-    window.history.replaceState({},"",url);
-    void navigator.clipboard?.writeText(url.toString());
-    setShared(true);
-    window.setTimeout(()=>setShared(false),2200);
-  };
 
   return <main className="site-shell">
     <header className="topbar">
@@ -279,12 +266,11 @@ export default function Optimizer(){
     <section className="hero" id="top"><div className="hero-glow"/><div className="hero-copy"><div className="eyebrow">{t.kicker}</div><h1>{t.title}</h1><p>{t.subtitle}</p><div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div></div><aside className="dataset-card"><span>{t.source}</span><strong>1,601</strong><small>{t.matches}</small></aside></section>
 
     <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div>
-      <div className="main-event-notice"><div><b>{language === "ru" ? "Основной этап: 5 эмблем · 30 новых рероллов" : "Main Event: 5 emblems · 30 new rerolls"}</b><span>{language === "ru" ? "Первые три эмблемы перенесены из группового этапа; добавлены четвёртая и пятая." : "Your first three Group Stage emblems carry over; slots four and five are new."}</span></div><button className="share-build-button" onClick={shareSetup}>{shared?t.copied:t.share}</button></div>
       <div className="title-panel" id="titles">
         <div className="title-panel-heading"><div><div className="eyebrow">{t.titles}</div><h3>{t.titles}</h3><p>{t.titleIntro}</p></div><div className="title-score-chip"><span>{t.expectedBonus}</span><strong>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</strong></div></div>
         <div className="title-control-grid">
-          <div className="title-control-card prefix-card"><label>{t.prefix}<select value={prefix} onChange={e=>setPrefix(e.target.value as PrefixKey)}>{prefixKeys.map(key=><option value={key} key={key}>{prefixes[key].label[language]} (+{prefixes[key].bonus}%)</option>)}</select></label><p>{prefixes[prefix].condition[language]}</p><div className="title-stat-line"><span>{t.expectedBonus}</span><b>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</b></div><small>{t.titleMethod}</small></div>
-          <div className="title-control-card suffix-card"><div className="suffix-label-row"><label>{t.suffix}<select value={suffix} onChange={e=>setSuffix(e.target.value as SuffixKey)}>{suffixKeys.map(key=><option value={key} key={key}>{suffixes[key].label[language]} (+{suffixes[key].bonus}%)</option>)}</select></label><span className={`suffix-badge category-${suffixes[suffix].category}`}>{categoryLabel(suffixes[suffix].category,language)}</span></div><p>{suffixes[suffix].condition[language]}</p><div className="title-stat-line"><span>{t.suffixScenario}</span><b>{Math.round(suffixTriggeredScore).toLocaleString(locale)}</b></div><small>{t.suffixNote}</small></div>
+          <div className="title-control-card prefix-card"><label>{t.prefix}<select value={prefix} onChange={e=>{const next=e.target.value as PrefixKey;setPrefix(next);saveSetup(banners,next,suffix);}}>{prefixKeys.map(key=><option value={key} key={key}>{prefixes[key].label[language]} (+{prefixes[key].bonus}%)</option>)}</select></label><p>{prefixes[prefix].condition[language]}</p><div className="title-stat-line"><span>{t.expectedBonus}</span><b>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</b></div><small>{t.titleMethod}</small></div>
+          <div className="title-control-card suffix-card"><div className="suffix-label-row"><label>{t.suffix}<select value={suffix} onChange={e=>{const next=e.target.value as SuffixKey;setSuffix(next);saveSetup(banners,prefix,next);}}>{suffixKeys.map(key=><option value={key} key={key}>{suffixes[key].label[language]} (+{suffixes[key].bonus}%)</option>)}</select></label><span className={`suffix-badge category-${suffixes[suffix].category}`}>{categoryLabel(suffixes[suffix].category,language)}</span></div><p>{suffixes[suffix].condition[language]}</p><div className="title-stat-line"><span>{t.suffixScenario}</span><b>{Math.round(suffixTriggeredScore).toLocaleString(locale)}</b></div><small>{t.suffixNote}</small></div>
         </div>
         <div className="prefix-recommendations"><div className="recommendation-heading"><div><span>{t.recommendedPrefix}</span><strong>{prefixes[prefixRecommendations[0].prefix].label[language]} · +{Math.round(prefixRecommendations[0].bonus).toLocaleString(locale)}</strong></div><button className="ghost-button compact-button" onClick={()=>setPrefix(prefixRecommendations[0].prefix)}>{t.useRecommended}</button></div><div className="prefix-rank-list">{prefixRecommendations.slice(0,4).map((entry,index)=><button key={entry.prefix} className={entry.prefix===prefix?"active":""} onClick={()=>setPrefix(entry.prefix)}><i>{index+1}</i><span>{prefixes[entry.prefix].label[language]}</span><b>+{Math.round(entry.bonus).toLocaleString(locale)}</b></button>)}</div></div>
       </div>
