@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { players, roleStats, Role, StatKey } from "../data/players";
 import {
   averageEmblemValues,
@@ -37,7 +37,7 @@ const text = {
     subtitle: "Main Event is open: complete all five emblems on each banner, compare roster combinations and see every projected point.",
     builder: "Banner builder", results: "Best roster", teams: "Teams", titles: "Title",
     teamsSubtitle: "Teams represented by players in the current Reddit dataset.",
-    lgdRosterNotice: "LGD Gaming note: TaiLung is not included in the model. The mid projection will return only after the replacement data has been validated.",
+    lgdRosterNotice: "LGD Gaming note: Topson is modeled with TaiLung's previous historical sample until a dedicated TI 2026 sample is available.",
     traits: "Traits", rerolls: "Reroll guide", rules: "Rules", methodology: "Methodology",
     core: "Core", mid: "Mid", support: "Support", pair: "same-team pair", single: "one player",
     emblem: "Emblem", tier: "Tier", trait: "Trait", optimize: "Optimize roster", reset: "Reset banners",
@@ -52,14 +52,14 @@ const text = {
     suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.",
     stable: "Stable", gamble: "Gamble", avoid: "Avoid", pairAverage: "pair average",
     titleMethod: "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.",
-    prefixContribution: "Expected Prefix"
+    prefixContribution: "Expected Prefix", share: "Share this setup", copied: "Link copied"
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026 · ОСНОВНОЙ ЭТАП", title: "Оптимизатор Dota 2 Fantasy",
     subtitle: "Основной этап открыт: заполните все пять эмблем на каждом знамени, сравните составы и увидьте вклад каждого прогнозного очка.",
     builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды", titles: "Титул",
     teamsSubtitle: "Команды, игроки которых представлены в текущем датасете Reddit.",
-    lgdRosterNotice: "Примечание по LGD Gaming: TaiLung не включён в модель. Прогноз по мидеру вернётся только после проверки данных замены.",
+    lgdRosterNotice: "Примечание по LGD Gaming: для Topson временно используется прошлый исторический сэмпл TaiLung, пока не появится отдельная выборка TI 2026.",
     traits: "Свойства", rerolls: "Что роллить", rules: "Правила", methodology: "Методика расчёта",
     core: "Основа", mid: "Центр", support: "Поддержка", pair: "пара из одной команды", single: "1 игрок",
     emblem: "Эмблема", tier: "Разряд", trait: "Свойство", optimize: "Подобрать состав", reset: "Сбросить настройки",
@@ -74,7 +74,7 @@ const text = {
     suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже независимо добавляет бонус суффикса к базовому счёту состава, не усиливая ожидаемый бонус префикса.",
     stable: "Стабильный", gamble: "Азартный", avoid: "Лучше избегать", pairAverage: "среднее пары",
     titleMethod: "Прогноз префикса использует историческую частоту каждого игрока. Для пар берётся простое среднее двух игроков, потому что исходный счёт хранится общей парой.",
-    prefixContribution: "Ожидаемый префикс"
+    prefixContribution: "Ожидаемый префикс", share: "Поделиться сборкой", copied: "Ссылка скопирована"
   }
 } as const;
 
@@ -115,7 +115,7 @@ const traitLabels: Record<Trait,{en:string;ru:string}> = {
 const teamByPlayerId: Record<string,string> = {
   "ysr-niu":"Team Resilience", "echozz":"Team Resilience", "planet-zzq":"Team Resilience",
   "satanic-noticed":"Team Vision", "noone":"Team Vision", "9class-dukalis":"Team Vision",
-  "yuma-wisper":"LGD Gaming", "thiolicor-kj":"LGD Gaming",
+  "yuma-wisper":"LGD Gaming", "topson":"LGD Gaming", "thiolicor-kj":"LGD Gaming",
   "watson-dm":"Team Yandex", "chira":"Team Yandex", "saksa-malady":"Team Yandex",
   "kiritych-miero":"BoomBoys", "gpk":"BoomBoys", "save-kataomi":"BoomBoys",
   "skiter-atf":"Team Falcons", "marl1ne":"Team Falcons", "cr1t-sneyking":"Team Falcons",
@@ -145,11 +145,58 @@ function TeamLogo({team,size="md"}:{team:string;size?:"sm"|"md"|"lg"}){
   return <span className={`team-logo team-logo-${size}`} title={team} role="img" aria-label={team} />;
 }
 
+function readSharedSetup(): { banners: BannerState; prefix: PrefixKey; suffix: SuffixKey } | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const build = params.get("build");
+  if (!build) return null;
+
+  const chunks = build.split("|");
+  if (chunks.length !== roles.length) return null;
+
+  const nextBanners = {} as BannerState;
+  for (const [roleIndex, role] of roles.entries()) {
+    const slots = chunks[roleIndex].split(",");
+    if (slots.length !== defaults[role].length) return null;
+    const nextSlots: EmblemInput[] = [];
+    for (const slot of slots) {
+      const [stat, tier, trait] = slot.split(".");
+      if (!roleStats[role].includes(stat as StatKey) || !(tier in tierBonuses) || !(trait in traitDescriptions)) return null;
+      nextSlots.push({ stat: stat as StatKey, tier: tier as Tier, trait: trait as Trait });
+    }
+    nextBanners[role] = nextSlots;
+  }
+
+  const nextPrefix = params.get("prefix");
+  const nextSuffix = params.get("suffix");
+  return {
+    banners: nextBanners,
+    prefix: nextPrefix && nextPrefix in prefixes ? nextPrefix as PrefixKey : "otherworldly",
+    suffix: nextSuffix && nextSuffix in suffixes ? nextSuffix as SuffixKey : "clutch"
+  };
+}
+
 export default function Optimizer(){
   const [language,setLanguage]=useState<Language>("en");
   const [banners,setBanners]=useState<BannerState>(defaults);
   const [prefix,setPrefix]=useState<PrefixKey>("otherworldly");
   const [suffix,setSuffix]=useState<SuffixKey>("clutch");
+  const [shared,setShared]=useState(false);
+  useEffect(()=>{
+    const readLanguage=()=>{
+      const saved=window.localStorage.getItem("site-language");
+      return saved==="ru" ? "ru" : "en";
+    };
+    const sharedSetup=readSharedSetup();
+    if(sharedSetup){setBanners(sharedSetup.banners);setPrefix(sharedSetup.prefix);setSuffix(sharedSetup.suffix);}
+    setLanguage(readLanguage());
+    const onLanguage=(event:Event)=>{
+      const next=(event as CustomEvent<{language?:string}>).detail?.language;
+      setLanguage(next==="ru" ? "ru" : readLanguage());
+    };
+    window.addEventListener("site-language-change",onLanguage);
+    return()=>window.removeEventListener("site-language-change",onLanguage);
+  },[]);
   const t=text[language];
   const locale=language==="ru"?"ru-RU":"en-US";
   const baseRankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
@@ -188,6 +235,17 @@ export default function Optimizer(){
   const resetBanners=()=>setBanners({core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))});
   const scrollToResults=()=>document.getElementById("results")?.scrollIntoView({behavior:"smooth",block:"start"});
   const frequencyText=(playerId:string)=>getPrefixEntries(playerId,prefix).map(entry=>`${entry.name} ${entry.frequency}%`).join(" · ");
+  const shareSetup=()=>{
+    const url=new URL(window.location.href);
+    const build=roles.map(role=>banners[role].map(({stat,tier,trait})=>`${stat}.${tier}.${trait}`).join(",")).join("|");
+    url.searchParams.set("build",build);
+    url.searchParams.set("prefix",prefix);
+    url.searchParams.set("suffix",suffix);
+    window.history.replaceState({},"",url);
+    void navigator.clipboard?.writeText(url.toString());
+    setShared(true);
+    window.setTimeout(()=>setShared(false),2200);
+  };
 
   return <main className="site-shell">
     <header className="topbar">
@@ -199,7 +257,7 @@ export default function Optimizer(){
     <section className="hero" id="top"><div className="hero-glow"/><div className="hero-copy"><div className="eyebrow">{t.kicker}</div><h1>{t.title}</h1><p>{t.subtitle}</p><div className="hero-actions"><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button><button className="ghost-button" onClick={resetBanners}>{t.reset}</button></div></div><aside className="dataset-card"><span>{t.source}</span><strong>1,601</strong><small>{t.matches}</small></aside></section>
 
     <section className="section" id="builder"><div className="section-title"><div><div className="eyebrow">01 · {t.builder}</div><h2>{t.builder}</h2></div><button className="text-button" onClick={resetBanners}>{t.reset}</button></div>
-      <div className="main-event-notice"><b>{language === "ru" ? "Основной этап: 5 эмблем · 30 новых рероллов" : "Main Event: 5 emblems · 30 new rerolls"}</b><span>{language === "ru" ? "Первые три эмблемы перенесены из группового этапа; добавлены четвёртая и пятая." : "Your first three Group Stage emblems carry over; slots four and five are new."}</span></div>
+      <div className="main-event-notice"><div><b>{language === "ru" ? "Основной этап: 5 эмблем · 30 новых рероллов" : "Main Event: 5 emblems · 30 new rerolls"}</b><span>{language === "ru" ? "Первые три эмблемы перенесены из группового этапа; добавлены четвёртая и пятая." : "Your first three Group Stage emblems carry over; slots four and five are new."}</span></div><button className="share-build-button" onClick={shareSetup}>{shared?t.copied:t.share}</button></div>
       <div className="title-panel" id="titles">
         <div className="title-panel-heading"><div><div className="eyebrow">{t.titles}</div><h3>{t.titles}</h3><p>{t.titleIntro}</p></div><div className="title-score-chip"><span>{t.expectedBonus}</span><strong>+{Math.round(selectedPrefixBonus).toLocaleString(locale)}</strong></div></div>
         <div className="title-control-grid">
