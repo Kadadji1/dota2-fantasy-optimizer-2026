@@ -26,11 +26,24 @@ import { rankPlayers, EmblemInput } from "../lib/optimizer";
 type Language = "en" | "ru";
 type BannerState = Record<Role, EmblemInput[]>;
 type TeamEntry = { team: string; roles: Partial<Record<Role, { name: string; score: number }>>; total: number };
+type PlayoffTeam = { team: string; titleOdds: number; maps: number; top4: number; top6: number };
 
 const roles: Role[] = ["core", "mid", "support"];
 const prefixKeys = Object.keys(prefixes) as PrefixKey[];
 const suffixKeys = Object.keys(suffixes) as SuffixKey[];
 const setupStorageKey = "ti2026-fantasy-setup";
+const playoffTeams: PlayoffTeam[] = [
+  {team:"Team Vision",titleOdds:43,maps:11.1,top4:78.6,top6:91.6},{team:"Team Liquid",titleOdds:12,maps:9.5,top4:55,top6:79},
+  {team:"Iron Wing",titleOdds:10,maps:9.2,top4:51,top6:78},{team:"Team Falcons",titleOdds:9.3,maps:9.1,top4:49.3,top6:75.3},
+  {team:"Team Yandex",titleOdds:8,maps:8.8,top4:45,top6:72},{team:"Nigma Galaxy",titleOdds:6.2,maps:8.6,top4:43.2,top6:71.2},
+  {team:"Team Spirit",titleOdds:6,maps:8.4,top4:40,top6:69},{team:"BoomBoys",titleOdds:5.3,maps:8,top4:36.5,top6:62.5}
+];
+const playoffTeamNames = new Set(playoffTeams.map(({team})=>team));
+const playoffByTeam = new Map(playoffTeams.map(team=>[team.team,team]));
+const prefixMeta: Array<{key:PrefixKey;points:number;bans:number;wins:number}> = [
+  {key:"golden",points:1.72,bans:409,wins:48},{key:"heroic",points:1.69,bans:201,wins:51},{key:"cerulean",points:1.66,bans:199,wins:48},{key:"otherworldly",points:1.42,bans:226,wins:57},
+  {key:"elemental",points:1.24,bans:194,wins:50},{key:"emerald",points:.94,bans:73,wins:45},{key:"royal",points:.64,bans:140,wins:50},{key:"crimson",points:.58,bans:65,wins:54}
+];
 
 const text = {
   en: {
@@ -53,7 +66,7 @@ const text = {
     suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.",
     stable: "Stable", gamble: "Gamble", avoid: "Avoid", pairAverage: "pair average",
     titleMethod: "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.",
-    prefixContribution: "Expected Prefix"
+    prefixContribution: "Expected Prefix", prefixMetaTitle:"What is being picked at TI", prefixMetaIntro:"A Prefix triggers when a player drafts a hero from its group. These TI draft results show how often each group is available and how well it performs — season strength alone is not enough.", perMap:"per map", bans:"bans", wins:"wins", prefixMetaNote:"Many bans with fewer picks means the group is respected, but its Prefix may trigger less often. Personalized recommendations above still use each player's historical trigger rate.", playoffOutlook:"Main Event match potential", playoffIntro:"Only the eight teams still in the tournament are included. The thresholds come from the balanced bracket model; expected maps show how much scoring opportunity may remain.", minMatches:"matches or more", titleChance:"title", mapsAhead:"maps ahead", modelNote:"Model estimate · season strength + this TI", badgeHelp:"Title chance and expected maps remaining"
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026 · ОСНОВНОЙ ЭТАП", title: "Оптимизатор Dota 2 Fantasy",
@@ -75,7 +88,7 @@ const text = {
     suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже независимо добавляет бонус суффикса к базовому счёту состава, не усиливая ожидаемый бонус префикса.",
     stable: "Стабильный", gamble: "Азартный", avoid: "Лучше избегать", pairAverage: "среднее пары",
     titleMethod: "Прогноз префикса использует историческую частоту каждого игрока. Для пар берётся простое среднее двух игроков, потому что исходный счёт хранится общей парой.",
-    prefixContribution: "Ожидаемый префикс"
+    prefixContribution: "Ожидаемый префикс", prefixMetaTitle:"Что пикают на TI", prefixMetaIntro:"Префикс срабатывает, когда игрок берёт героя своей группы. Статистика драфтов этого TI показывает, насколько часто группа доступна и успешно играет — выбирать только по силе героев за сезон недостаточно.", perMap:"за карту", bans:"банов", wins:"побед", prefixMetaNote:"Много банов при малом числе пиков означает, что группу считают сильной, но её префикс может срабатывать реже. Персональная рекомендация выше всё равно учитывает историческую частоту каждого игрока.", playoffOutlook:"Потенциал матчей Main Event", playoffIntro:"В расчёте оставлены только восемь команд, которые продолжают турнир. Пороговые шансы взяты из сбалансированной симуляции сетки, а ожидаемые карты показывают оставшийся потенциал набора очков.", minMatches:"матча и больше", titleChance:"на титул", mapsAhead:"карт впереди", modelNote:"Оценка модели · сила сезона + этот TI", badgeHelp:"Шанс на титул и ожидаемое число оставшихся карт"
   }
 } as const;
 
@@ -218,7 +231,8 @@ export default function Optimizer(){
   },[banners,prefix,suffix,setupLoaded]);
   const t=text[language];
   const locale=language==="ru"?"ru-RU":"en-US";
-  const baseRankings=useMemo(()=>({core:rankPlayers(players,"core",banners.core),mid:rankPlayers(players,"mid",banners.mid),support:rankPlayers(players,"support",banners.support)}),[banners]);
+  const playoffPlayers=useMemo(()=>players.filter(player=>playoffTeamNames.has(playerTeam(player.id,player.team))),[]);
+  const baseRankings=useMemo(()=>({core:rankPlayers(playoffPlayers,"core",banners.core),mid:rankPlayers(playoffPlayers,"mid",banners.mid),support:rankPlayers(playoffPlayers,"support",banners.support)}),[banners,playoffPlayers]);
 
   const buildTitleRanking=(role:Role,selectedPrefix:PrefixKey)=>baseRankings[role].map(entry=>{
     const prefixFrequency=getAveragePrefixFrequency(entry.player.id,selectedPrefix);
@@ -255,6 +269,8 @@ export default function Optimizer(){
   const resetBanners=()=>{const next={core:defaults.core.map(x=>({...x})),mid:defaults.mid.map(x=>({...x})),support:defaults.support.map(x=>({...x}))};setBanners(next);saveSetup(next);};
   const scrollToResults=()=>document.getElementById("results")?.scrollIntoView({behavior:"smooth",block:"start"});
   const frequencyText=(playerId:string)=>getPrefixEntries(playerId,prefix).map(entry=>`${entry.name} ${entry.frequency}%`).join(" · ");
+  const formatPercent=(value:number)=>`${value.toLocaleString(locale,{maximumFractionDigits:1})}%`;
+  const TeamPotentialBadge=({team}:{team:string})=>{const outlook=playoffByTeam.get(team);return outlook?<span className="team-potential-badge" title={t.badgeHelp}><b>★ {formatPercent(outlook.titleOdds)}</b><i/>{outlook.maps.toLocaleString(locale,{maximumFractionDigits:1})}</span>:null;};
 
   return <main className="site-shell">
     <header className="topbar">
@@ -273,6 +289,7 @@ export default function Optimizer(){
           <div className="title-control-card suffix-card"><div className="suffix-label-row"><label>{t.suffix}<select value={suffix} onChange={e=>{const next=e.target.value as SuffixKey;setSuffix(next);saveSetup(banners,prefix,next);}}>{suffixKeys.map(key=><option value={key} key={key}>{suffixes[key].label[language]} (+{suffixes[key].bonus}%)</option>)}</select></label><span className={`suffix-badge category-${suffixes[suffix].category}`}>{categoryLabel(suffixes[suffix].category,language)}</span></div><p>{suffixes[suffix].condition[language]}</p><div className="title-stat-line"><span>{t.suffixScenario}</span><b>{Math.round(suffixTriggeredScore).toLocaleString(locale)}</b></div><small>{t.suffixNote}</small></div>
         </div>
         <div className="prefix-recommendations"><div className="recommendation-heading"><div><span>{t.recommendedPrefix}</span><strong>{prefixes[prefixRecommendations[0].prefix].label[language]} · +{Math.round(prefixRecommendations[0].bonus).toLocaleString(locale)}</strong></div><button className="ghost-button compact-button" onClick={()=>setPrefix(prefixRecommendations[0].prefix)}>{t.useRecommended}</button></div><div className="prefix-rank-list">{prefixRecommendations.slice(0,4).map((entry,index)=><button key={entry.prefix} className={entry.prefix===prefix?"active":""} onClick={()=>setPrefix(entry.prefix)}><i>{index+1}</i><span>{prefixes[entry.prefix].label[language]}</span><b>+{Math.round(entry.bonus).toLocaleString(locale)}</b></button>)}</div></div>
+        <div className="prefix-meta-card"><header><h4>{t.prefixMetaTitle}</h4><p>{t.prefixMetaIntro}</p></header><div className="prefix-meta-list">{prefixMeta.map(entry=><div className="prefix-meta-row" key={entry.key}><span>{prefixes[entry.key].label[language]}</span><b>{entry.points.toLocaleString(locale,{minimumFractionDigits:2,maximumFractionDigits:2})} <small>{t.perMap}</small></b><em>{entry.bans} {t.bans}</em><em>{entry.wins}% {t.wins}</em><i><u style={{width:`${entry.points/1.72*100}%`}}/></i></div>)}</div><footer>{t.prefixMetaNote}</footer></div>
       </div>
       <div className="banner-board">
       {roles.map(role=><article className={`banner-column role-${role}`} key={role}><div className="banner-heading"><div><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><b>{bannerSlotColors[role].map(c=>t[c]).join(" · ")}</b></div><div className="banner-slots">
@@ -281,8 +298,10 @@ export default function Optimizer(){
     </div><div className="builder-footer"><p>{prefixes[prefix].label[language]} +{prefixes[prefix].bonus}% · {suffixes[suffix].label[language]} +{suffixes[suffix].bonus}%</p><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button></div></section>
 
     <section className="section results-section" id="results"><div className="results-hero"><div><div className="eyebrow">02 · {t.results}</div><h2>{t.results}</h2><p>{t.source}</p></div><div className="total-score"><span>{t.total}</span><strong>{Math.round(totalScore).toLocaleString(locale)}</strong><small>{t.suffixScenario}: {Math.round(suffixTriggeredScore).toLocaleString(locale)}</small></div></div><div className="winner-grid">
-      {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team">{team}</div>}<div className="prefix-frequency">{frequencyText(winner.player.id)}</div></div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}<div className="prefix-breakdown"><span>{t.prefixContribution}</span><b>+{Math.round(winner.expectedPrefixBonus).toLocaleString(locale)}</b></div></div></article>})}
-    </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives} · {prefixes[prefix].label[language]}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}<small className="prefix-frequency">{frequencyText(entry.player.id)}</small><small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
+      {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team-line"><div className="winner-team">{team}</div><TeamPotentialBadge team={team}/></div>}<div className="prefix-frequency">{frequencyText(winner.player.id)}</div></div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}<div className="prefix-breakdown"><span>{t.prefixContribution}</span><b>+{Math.round(winner.expectedPrefixBonus).toLocaleString(locale)}</b></div></div></article>})}
+    </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives} · {prefixes[prefix].label[language]}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}{team&&<TeamPotentialBadge team={team}/>}<small className="prefix-frequency">{frequencyText(entry.player.id)}</small><small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
+
+    <section className="section team-probability-cards-section" id="playoff-outlook"><div className="section-title"><div><div className="eyebrow">03 · MAIN EVENT</div><h2>{t.playoffOutlook}</h2></div><p>{t.playoffIntro}</p></div><div className="team-probability-card-grid">{playoffTeams.map(team=><article className="team-probability-card" key={team.team}><header><TeamLogo team={team.team} size="sm"/><div><h3>{team.team}</h3><p>{t.modelNote}</p></div></header><div className="team-probability-values"><div><span>2+ {t.minMatches}</span><b>100%</b></div><div><span>3+ {t.minMatches}</span><b>{formatPercent(team.top6)}</b></div><div><span>4+ {t.minMatches}</span><b>{formatPercent(team.top4)}</b></div></div><footer><strong>{formatPercent(team.titleOdds)}</strong><span>{t.titleChance} · {team.maps.toLocaleString(locale,{maximumFractionDigits:1})} {t.mapsAhead}</span><i><em style={{width:`${team.maps/11.1*100}%`}}/></i></footer></article>)}</div></section>
 
     <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>{entry.team==="LGD Gaming"&&<p className="team-roster-notice">{t.lgdRosterNotice}</p>}<footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
 
