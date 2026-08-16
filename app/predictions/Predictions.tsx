@@ -77,18 +77,62 @@ function getLanguage(): Lang { if (typeof window === "undefined") return "en"; c
 function Logo({ team }: { team: Team }) { return <span className="team-logo team-logo-sm" title={team} role="img" aria-label={team} />; }
 function BracketCard({ pick }: { pick: Pick }) { return <article className="prediction-bracket-card"><header><small>{pick.label}</small><time>{pick.date}</time></header><div className={pick.winner === pick.a ? "predicted-winner" : ""}><span><Logo team={pick.a} />{pick.a}</span><b>{pick.aChance}</b></div><div className={pick.winner === pick.b ? "predicted-winner" : ""}><span><Logo team={pick.b} />{pick.b}</span><b>{pick.bChance}</b></div></article>; }
 
+type MatchId = "m1" | "m2" | "m3" | "m4" | "m5" | "m6" | "m7" | "m8" | "m9" | "m10" | "m11" | "m12" | "m13" | "m14";
+type InteractiveMatch = { id: MatchId; stage: "upper1" | "upper2" | "upper3" | "lower1" | "lower2" | "lower3" | "final"; label: string; date: string; points: number; teams: [Team | null, Team | null] };
+
+const matchMeta: Record<MatchId, Omit<InteractiveMatch, "teams">> = {
+  m1: { id: "m1", stage: "upper1", label: "M1 · Upper quarterfinal", date: schedules.qf1, points: 100 },
+  m2: { id: "m2", stage: "upper1", label: "M2 · Upper quarterfinal", date: schedules.qf2, points: 100 },
+  m3: { id: "m3", stage: "upper1", label: "M3 · Upper quarterfinal", date: schedules.qf3, points: 100 },
+  m4: { id: "m4", stage: "upper1", label: "M4 · Upper quarterfinal", date: schedules.qf4, points: 100 },
+  m5: { id: "m5", stage: "upper2", label: "M5 · Upper semifinal", date: schedules.upper, points: 130 },
+  m6: { id: "m6", stage: "upper2", label: "M6 · Upper semifinal", date: schedules.upper, points: 130 },
+  m7: { id: "m7", stage: "upper3", label: "M7 · Upper final", date: schedules.upper, points: 170 },
+  m8: { id: "m8", stage: "lower1", label: "M8 · Lower round 1", date: schedules.lower, points: 110 },
+  m9: { id: "m9", stage: "lower1", label: "M9 · Lower round 1", date: schedules.lower, points: 110 },
+  m10: { id: "m10", stage: "lower2", label: "M10 · Lower round 2", date: schedules.lower, points: 140 },
+  m11: { id: "m11", stage: "lower2", label: "M11 · Lower round 2", date: schedules.lower, points: 140 },
+  m12: { id: "m12", stage: "lower3", label: "M12 · Lower semifinal", date: schedules.lower, points: 180 },
+  m13: { id: "m13", stage: "lower3", label: "M13 · Lower final", date: schedules.lower, points: 220 },
+  m14: { id: "m14", stage: "final", label: "M14 · Grand Final", date: schedules.final, points: 320 }
+};
+
+function defaultSelections(key: ModelKey): Partial<Record<MatchId, Team>> { return Object.fromEntries(models[key].picks.map((pick) => [pick.id as MatchId, pick.winner])) as Partial<Record<MatchId, Team>>; }
+
+function buildInteractiveBracket(selections: Partial<Record<MatchId, Team>>): InteractiveMatch[] {
+  const matches = new Map<MatchId, InteractiveMatch>();
+  const add = (id: MatchId, teams: [Team | null, Team | null]) => matches.set(id, { ...matchMeta[id], teams });
+  const winner = (id: MatchId) => { const match = matches.get(id); const choice = selections[id]; return match && choice && match.teams.includes(choice) ? choice : null; };
+  const loser = (id: MatchId) => { const match = matches.get(id); const won = winner(id); return match && won ? match.teams.find((team) => team && team !== won) ?? null : null; };
+  add("m1", ["Iron Wing", "Team Spirit"]); add("m2", ["TEAM VISION", "BoomBoys"]); add("m3", ["Team Liquid", "Team Yandex"]); add("m4", ["Nigma Galaxy", "Team Falcons"]);
+  add("m5", [winner("m1"), winner("m2")]); add("m6", [winner("m3"), winner("m4")]); add("m7", [winner("m5"), winner("m6")]);
+  add("m8", [loser("m1"), loser("m2")]); add("m9", [loser("m3"), loser("m4")]); add("m10", [loser("m5"), winner("m8")]); add("m11", [loser("m6"), winner("m9")]); add("m12", [winner("m10"), winner("m11")]); add("m13", [winner("m12"), loser("m7")]); add("m14", [winner("m7"), winner("m13")]);
+  return Array.from(matches.values());
+}
+
+function InteractiveMatchCard({ match, selected, onPick }: { match: InteractiveMatch; selected?: Team; onPick: (id: MatchId, team: Team) => void }) {
+  return <article className="prediction-bracket-card interactive-match-card"><header><small>{match.label}</small><time>{match.date}</time></header>{match.teams.map((team, index) => <button key={team ?? `open-${match.id}-${index}`} type="button" disabled={!team} className={selected === team ? "picked-team" : ""} onClick={() => team && onPick(match.id, team)}>{team ? <><span><Logo team={team} />{team}</span>{selected === team && <b>✓</b>}</> : <span>Winner of previous match</span>}</button>)}</article>;
+}
+
+function InteractivePredictionBoard({ language }: { language: Lang }) {
+  const [active, setActive] = useState<ModelKey>("historical");
+  const [selections, setSelections] = useState<Partial<Record<MatchId, Team>>>(() => defaultSelections("historical"));
+  const t = copy[language]; const model = models[active];
+  const bracket = useMemo(() => buildInteractiveBracket(selections), [selections]);
+  const validPicks = bracket.filter((match) => selections[match.id] && match.teams.includes(selections[match.id] as Team));
+  const expected = validPicks.reduce((sum, match) => { const picked = selections[match.id] as Team; const [a, b] = match.teams as [Team, Team]; return sum + match.points * model.odds[picked] / (model.odds[a] + model.odds[b]); }, 0);
+  const correct = validPicks.reduce((sum, match) => { const picked = selections[match.id] as Team; const [a, b] = match.teams as [Team, Team]; return sum + model.odds[picked] / (model.odds[a] + model.odds[b]); }, 0);
+  const maxPoints = validPicks.reduce((sum, match) => sum + match.points, 0);
+  const byStage = (stage: InteractiveMatch["stage"]) => bracket.filter((match) => match.stage === stage);
+  const score = Math.round(expected).toLocaleString(language === "ru" ? "ru-RU" : "en-US");
+  return <main className="site-shell predictions-page bracket-predictions-page">
+    <section className="main-event-hero prediction-hero"><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{language === "ru" ? "Нажмите на команду в каждом матче — сетка продолжится автоматически, а расчёт справа обновится сразу." : "Click a team in each match. The bracket advances automatically and the score estimate updates immediately."}</p><div className="prediction-model-toggle" role="group" aria-label={t.method}><button type="button" aria-pressed={active === "historical"} className={active === "historical" ? "active" : ""} onClick={() => setActive("historical")}><strong>{t.historical}</strong><span>{models.historical.summary}</span></button><button type="button" aria-pressed={active === "tiOnly"} className={active === "tiOnly" ? "active" : ""} onClick={() => setActive("tiOnly")}><strong>{t.tiOnly}</strong><span>{models.tiOnly.summary}</span></button></div></section>
+    <section className="prediction-bracket-section"><div className="section-title"><div><span className="eyebrow">{model.title}</span><h2>{language === "ru" ? "Ваша прогнозная сетка" : "Your prediction bracket"}</h2></div><div className="prediction-actions"><button type="button" onClick={() => setSelections(defaultSelections(active))}>{language === "ru" ? "Взять прогноз модели" : "Use model picks"}</button><button type="button" onClick={() => setSelections({})}>{language === "ru" ? "Очистить" : "Clear picks"}</button></div></div><div className="prediction-interactive-layout"><div className="bracket-model-board"><div className="bracket-model-upper"><h3>{t.upper}</h3><div className="bracket-model-grid">{["upper1", "upper2", "upper3"].map((stage) => <div key={stage}>{byStage(stage as InteractiveMatch["stage"]).map((match) => <InteractiveMatchCard key={match.id} match={match} selected={selections[match.id]} onPick={(id, team) => setSelections((current) => ({ ...current, [id]: team }))} />)}</div>)}</div></div><div className="bracket-model-lower"><h3>{t.lower}</h3><div className="bracket-model-grid">{["lower1", "lower2", "lower3"].map((stage) => <div key={stage}>{byStage(stage as InteractiveMatch["stage"]).map((match) => <InteractiveMatchCard key={match.id} match={match} selected={selections[match.id]} onPick={(id, team) => setSelections((current) => ({ ...current, [id]: team }))} />)}</div>)}</div></div><div className="bracket-model-final"><h3>{t.final}</h3>{byStage("final").map((match) => <InteractiveMatchCard key={match.id} match={match} selected={selections[match.id]} onPick={(id, team) => setSelections((current) => ({ ...current, [id]: team }))} />)}</div></div><aside className="prediction-score-panel"><span>{language === "ru" ? "ОЖИДАЕМЫЙ РЕЗУЛЬТАТ" : "EXPECTED RESULT"}</span><strong>{score}</strong><p>{language === "ru" ? "очков в среднем по выбранной сетке" : "points on average for your bracket"}</p><div><article><small>{language === "ru" ? "Верных прогнозов" : "Correct picks"}</small><b>{correct.toFixed(1)} / 14</b></article><article><small>{language === "ru" ? "Выбрано матчей" : "Matches picked"}</small><b>{validPicks.length} / 14</b></article><article><small>{language === "ru" ? "Если всё зайдёт" : "If all hit"}</small><b>{maxPoints.toLocaleString()}</b></article></div><p className="score-model-note">{language === "ru" ? `Расчёт по модели: ${active === "historical" ? "сила до TI" : "только матчи этого TI"}.` : `Calculated with: ${active === "historical" ? "pre-TI strength" : "TI 2026 only"}.`}</p></aside></div></section>
+  </main>;
+}
+
 export default function Predictions() {
   const [language, setLanguage] = useState<Lang>("en");
-  const [active, setActive] = useState<ModelKey>("historical");
   useEffect(() => { setLanguage(getLanguage()); const onChange = (event: Event) => { const lang = (event as CustomEvent<{ language?: Lang }>).detail?.language; setLanguage(lang && copy[lang] ? lang : getLanguage()); }; window.addEventListener("site-language-change", onChange); return () => window.removeEventListener("site-language-change", onChange); }, []);
-  const t = copy[language]; const model = models[active];
-  const picks = useMemo(() => (stage: Pick["stage"]) => model.picks.filter((pick) => pick.stage === stage), [model]);
-  const sortedOdds = useMemo(() => [...teams].sort((a, b) => model.odds[b.team] - model.odds[a.team]), [model]);
-  return <main className="site-shell predictions-page bracket-predictions-page">
-    <section className="main-event-hero prediction-hero"><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{t.body}</p><div className="prediction-model-toggle" role="group" aria-label={t.method}><button type="button" aria-pressed={active === "historical"} className={active === "historical" ? "active" : ""} onClick={() => setActive("historical")}><strong>{t.historical}</strong><span>{models.historical.summary}</span></button><button type="button" aria-pressed={active === "tiOnly"} className={active === "tiOnly" ? "active" : ""} onClick={() => setActive("tiOnly")}><strong>{t.tiOnly}</strong><span>{models.tiOnly.summary}</span></button></div>
-    </section>
-    <section className="prediction-bracket-section"><div className="section-title"><div><span className="eyebrow">{model.title}</span><h2>{t.bracket}</h2></div><p>{model.summary}</p></div><div className="bracket-model-board"><div className="bracket-model-upper"><h3>{t.upper}</h3><div className="bracket-model-grid"><div>{picks("upper1").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div><div>{picks("upper2").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div><div>{picks("upper3").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div></div></div><div className="bracket-model-lower"><h3>{t.lower}</h3><div className="bracket-model-grid"><div>{picks("lower1").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div><div>{picks("lower2").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div><div>{picks("lower3").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div></div></div><div className="bracket-model-final"><h3>{t.final}</h3>{picks("final").map((pick) => <BracketCard key={pick.id} pick={pick} />)}</div></div></section>
-    <section className="prediction-odds-section"><div className="section-title"><div><span className="eyebrow">{t.odds}</span><h2>{t.odds}</h2></div></div><div className="prediction-odds-table"><div className="prediction-odds-head"><span>Team</span><span>{t.record}</span><span>{t.titleChance}</span><span>{t.delta}</span><span>{t.maps}</span></div>{sortedOdds.map((item) => { const old = models.historical.odds[item.team]; const diff = model.odds[item.team] - old; return <article key={item.team}><div><Logo team={item.team} /><strong>{item.team}</strong></div><span>{item.record} · {item.games}</span><b>{model.odds[item.team]}%</b><em className={diff >= 0 ? "up" : "down"}>{diff === 0 ? "—" : `${diff > 0 ? "+" : ""}${diff} pp`}</em><strong>{model.maps[item.team].toFixed(1)}</strong></article>; })}</div></section>
-    <details className="group-stage-history"><summary><span>{t.finished}</span><small>{t.archive}</small></summary><div className="qualified-records">{teams.map((item) => <article key={item.team}><Logo team={item.team} /><span>{item.team}</span><b>{item.record}</b><small>{item.games} maps</small></article>)}</div></details>
-  </main>;
+  return <InteractivePredictionBoard language={language} />;
 }
