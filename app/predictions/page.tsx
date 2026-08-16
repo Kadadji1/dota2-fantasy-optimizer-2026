@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import "./predictions-intro.css";
 import SiteHeader from "../../components/SiteHeader";
-import PredictionsIntro from "../../components/PredictionsIntro";
 import Predictions from "./Predictions";
 
 export const metadata: Metadata = {
@@ -12,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function PredictionsPage() {
-  return <><SiteHeader active="predictions" /><div className="predictions-intro-shell"><PredictionsIntro /></div><Predictions /></>;
+  return <><SiteHeader active="predictions" /><Predictions /></>;
 }
