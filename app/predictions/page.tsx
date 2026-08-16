@@ -5,9 +5,9 @@ import PredictionsIntro from "../../components/PredictionsIntro";
 import Predictions from "./Predictions";
 
 export const metadata: Metadata = {
-  title: "TI2026 Tournament Hub | Schedule, Results & Main Event",
+  title: "TI2026 Main Event Predictions | Bracket & Team Odds",
   description:
-    "TI2026 match schedule, confirmed Group Stage results and the upcoming Main Event bracket.",
+    "TI2026 Main Event double-elimination bracket, post-group-stage team odds, and Group Stage results.",
   alternates: { canonical: "/predictions" }
 };
 
