@@ -6,7 +6,8 @@ type Lang = "en" | "ru" | "es" | "zh";
 type ModelKey = "historical" | "tiOnly";
 type Team = "TEAM VISION" | "Nigma Galaxy" | "Team Liquid" | "Team Falcons" | "Team Yandex" | "Team Spirit" | "BoomBoys" | "Iron Wing";
 type Pick = { id: string; stage: "upper1" | "upper2" | "upper3" | "lower1" | "lower2" | "lower3" | "final"; label: string; date: string; a: Team; b: Team; aChance: number; bChance: number; winner: Team };
-type Model = { title: string; summary: string; odds: Record<Team, number>; maps: Record<Team, number>; picks: Pick[] };
+type PlacementOdds = Record<"1" | "2" | "3" | "4" | "5-6" | "7-8", number>;
+type Model = { title: string; summary: string; odds: Record<Team, number>; placements: Record<Team, PlacementOdds>; maps: Record<Team, number>; picks: Pick[] };
 
 const teams: Array<{ team: Team; record: string; games: string }> = [
   { team: "TEAM VISION", record: "4–0", games: "8–2" }, { team: "Nigma Galaxy", record: "4–1", games: "8–2" },
@@ -25,6 +26,12 @@ const models: Record<ModelKey, Model> = {
   historical: {
     title: "Balanced model", summary: "Balances season strength with this TI's Group Stage results.",
     odds: { "TEAM VISION": 43, "Team Liquid": 12, "Iron Wing": 10, "Team Falcons": 9.3, "Team Yandex": 8, "Nigma Galaxy": 6.2, "Team Spirit": 6, "BoomBoys": 5.3 },
+    placements: {
+      "TEAM VISION": { "1": 43, "2": 16, "3": 11, "4": 8.6, "5-6": 13, "7-8": 8.7 }, "Team Liquid": { "1": 12, "2": 16, "3": 15, "4": 12, "5-6": 24, "7-8": 20 },
+      "Iron Wing": { "1": 10, "2": 13, "3": 13, "4": 15, "5-6": 27, "7-8": 22 }, "Team Falcons": { "1": 9.3, "2": 14, "3": 14, "4": 12, "5-6": 26, "7-8": 24 },
+      "Team Yandex": { "1": 8, "2": 12, "3": 13, "4": 12, "5-6": 27, "7-8": 28 }, "Nigma Galaxy": { "1": 6.2, "2": 11, "3": 13, "4": 13, "5-6": 28, "7-8": 28 },
+      "Team Spirit": { "1": 6, "2": 9.1, "3": 11, "4": 13, "5-6": 29, "7-8": 31 }, "BoomBoys": { "1": 5.3, "2": 8, "3": 9.2, "4": 14, "5-6": 26, "7-8": 38 }
+    },
     maps: { "TEAM VISION": 11.1, "Team Liquid": 9.5, "Iron Wing": 9.2, "Team Falcons": 9.1, "Team Yandex": 8.8, "Nigma Galaxy": 8.6, "Team Spirit": 8.4, "BoomBoys": 8 },
     picks: [
       makePick("m1", "upper1", "M1 · Upper quarterfinal", schedules.qf1, "Iron Wing", "Team Spirit", 42, "Team Spirit"),
@@ -46,6 +53,12 @@ const models: Record<ModelKey, Model> = {
   tiOnly: {
     title: "TI 2026 only", summary: "Uses only series and maps already played at this TI.",
     odds: { "TEAM VISION": 50, "Team Liquid": 12, "Iron Wing": 10, "Team Yandex": 7.5, "Nigma Galaxy": 6.7, "Team Falcons": 6.3, "Team Spirit": 3.8, "BoomBoys": 3.6 },
+    placements: {
+      "TEAM VISION": { "1": 50, "2": 15, "3": 10, "4": 7.5, "5-6": 11, "7-8": 6.3 }, "Team Liquid": { "1": 12, "2": 18, "3": 15, "4": 12, "5-6": 23, "7-8": 19 },
+      "Iron Wing": { "1": 10, "2": 14, "3": 14, "4": 15, "5-6": 27, "7-8": 19 }, "Team Yandex": { "1": 7.5, "2": 13, "3": 13, "4": 12, "5-6": 27, "7-8": 27 },
+      "Nigma Galaxy": { "1": 6.7, "2": 13, "3": 14, "4": 13, "5-6": 27, "7-8": 26 }, "Team Falcons": { "1": 6.3, "2": 13, "3": 14, "4": 13, "5-6": 27, "7-8": 28 },
+      "Team Spirit": { "1": 3.8, "2": 7.7, "3": 11, "4": 14, "5-6": 31, "7-8": 33 }, "BoomBoys": { "1": 3.6, "2": 6.7, "3": 8.3, "4": 14, "5-6": 27, "7-8": 41 }
+    },
     maps: { "TEAM VISION": 11.3, "Team Liquid": 9.6, "Iron Wing": 9.4, "Team Yandex": 8.8, "Nigma Galaxy": 8.8, "Team Falcons": 8.7, "Team Spirit": 8.1, "BoomBoys": 7.7 },
     picks: [
       makePick("m1", "upper1", "M1 · Upper quarterfinal", schedules.qf1, "Iron Wing", "Team Spirit", 51, "Iron Wing"),
@@ -146,9 +159,13 @@ function InteractivePredictionBoard({ language }: { language: Lang }) {
   const expected = simulation.points; const correct = simulation.correct; const maxPoints = scorePool[validPicks.length];
   const byStage = (stage: InteractiveMatch["stage"]) => bracket.filter((match) => match.stage === stage);
   const score = Math.round(expected).toLocaleString(language === "ru" ? "ru-RU" : "en-US");
+  const rankedTeams = [...teams].sort((left, right) => model.odds[right.team] - model.odds[left.team]);
+  const placeHeaders: Array<keyof PlacementOdds> = ["1", "2", "3", "4", "5-6", "7-8"];
+  const formatPercent = (value: number) => `${value.toLocaleString(language === "ru" ? "ru-RU" : "en-US", { maximumFractionDigits: 1 })}%`;
   return <main className="site-shell predictions-page bracket-predictions-page">
     <section className="main-event-hero prediction-hero"><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{language === "ru" ? "Нажмите на команду в каждом матче — сетка продолжится автоматически, а расчёт справа обновится сразу." : "Click a team in each match. The bracket advances automatically and the score estimate updates immediately."}</p><div className="prediction-model-toggle" role="group" aria-label={t.method}><button type="button" aria-pressed={active === "historical"} className={active === "historical" ? "active" : ""} onClick={() => activateModel("historical")}><strong>{t.historical}</strong><span>{language === "ru" ? "Сезон и турнир" : models.historical.summary}</span></button><button type="button" aria-pressed={active === "tiOnly"} className={active === "tiOnly" ? "active" : ""} onClick={() => activateModel("tiOnly")}><strong>{t.tiOnly}</strong><span>{language === "ru" ? "Считаем по турниру" : models.tiOnly.summary}</span></button></div></section>
     <section className="prediction-bracket-section"><div className="section-title"><div><span className="eyebrow">{active === "historical" ? t.historical : t.tiOnly}</span><h2>{language === "ru" ? "Ваша прогнозная сетка" : "Your prediction bracket"}</h2></div><div className="prediction-actions"><button type="button" onClick={() => setSelections(defaultSelections(active))}>{language === "ru" ? "Взять прогноз модели" : "Use model picks"}</button><button type="button" onClick={() => setSelections({})}>{language === "ru" ? "Очистить" : "Clear picks"}</button></div></div><div className="prediction-interactive-layout"><div className="bracket-model-board"><div className="bracket-model-upper"><h3>{t.upper}</h3><div className="bracket-model-grid bracket-model-upper-grid">{["upper1", "upper2", "upper3", "final"].map((stage) => <div key={stage}>{byStage(stage as InteractiveMatch["stage"]).map((match) => <InteractiveMatchCard key={match.id} match={match} model={model} selected={selections[match.id]} onPick={(id, team) => setSelections((current) => ({ ...current, [id]: team }))} />)}</div>)}</div></div><div className="bracket-model-lower"><h3>{t.lower}</h3><div className="bracket-model-grid">{["lower1", "lower2", "lower3"].map((stage) => <div key={stage}>{byStage(stage as InteractiveMatch["stage"]).map((match) => <InteractiveMatchCard key={match.id} match={match} model={model} selected={selections[match.id]} onPick={(id, team) => setSelections((current) => ({ ...current, [id]: team }))} />)}</div>)}</div></div></div><aside className="prediction-score-panel"><span>{language === "ru" ? "ОЖИДАЕМЫЙ РЕЗУЛЬТАТ" : "EXPECTED RESULT"}</span><strong>{score}</strong><p>{language === "ru" ? "очков в среднем по выбранной сетке" : "points on average for your bracket"}</p><div><article><small>{language === "ru" ? "Верных прогнозов" : "Correct picks"}</small><b>{correct.toFixed(1)} / 14</b></article><article><small>{language === "ru" ? "Выбрано матчей" : "Matches picked"}</small><b>{validPicks.length} / 14</b></article><article><small>{language === "ru" ? "Если всё зайдёт" : "If all hit"}</small><b>{maxPoints.toLocaleString()}</b></article></div><p className="score-model-note">{language === "ru" ? `Официальная шкала: 1 совпадение — 120, 14 — 12 000. Расчёт по модели: ${active === "historical" ? "сбалансированно" : "только матчи этого Инта"}.` : `Official pool: 1 correct pick = 120, 14 = 12,000. Calculated with: ${active === "historical" ? "balanced model" : "TI 2026 only"}.`}</p></aside></div></section>
+    <section className="placement-odds-section"><div className="section-title"><div><span className="eyebrow">{language === "ru" ? "СИМУЛЯЦИЯ СЕТКИ" : "BRACKET SIMULATION"}</span><h2>{language === "ru" ? "Шансы команд" : "Team finish odds"}</h2></div><p>{language === "ru" ? "Вероятность каждой итоговой позиции по выбранной модели." : "Probability of each finishing position under the selected model."}</p></div><div className="placement-odds-table"><div className="placement-odds-head"><span>{language === "ru" ? "Команда" : "Team"}</span>{placeHeaders.map((place) => <span key={place}>{place}</span>)}<span>{language === "ru" ? "Карт впереди" : "Maps ahead"}</span></div>{rankedTeams.map(({ team, record }) => <article key={team}><header><Logo team={team} /><div><strong>{team}</strong><small>{language === "ru" ? `TI: ${record}` : `TI: ${record}`}</small></div></header>{placeHeaders.map((place) => <span key={place} className={place === "1" ? "title-odds" : ""}>{formatPercent(model.placements[team][place])}</span>)}<b>{model.maps[team].toLocaleString(language === "ru" ? "ru-RU" : "en-US", { maximumFractionDigits: 1 })}</b></article>)}</div><p className="placement-odds-note">{language === "ru" ? "Вероятности рассчитаны отдельно для каждой модели; строки суммируются до 100%." : "Probabilities are calculated independently for each model; each row totals 100%."}</p></section>
   </main>;
 }
 
