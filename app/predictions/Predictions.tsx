@@ -9,10 +9,10 @@ type Copy = { title: string; body: string; live: string; updated: string; next: 
 
 const updatedAt = "Aug 16, 2026 · 1:00 PM EDT";
 const qf: BracketMatch[] = [
-  { label: "UB · Quarterfinal 1", a: "TEAM VISION", b: "LGD Gaming", meta: "Aug 20 · 10:00 PM EDT · Bo3" },
-  { label: "UB · Quarterfinal 2", a: "Nigma Galaxy", b: "Iron Wing", meta: "Aug 21 · 1:00 AM EDT · Bo3" },
-  { label: "UB · Quarterfinal 3", a: "Team Liquid", b: "Team Spirit", meta: "Aug 21 · 4:00 AM EDT · Bo3" },
-  { label: "UB · Quarterfinal 4", a: "Team Falcons", b: "Aurora Gaming", meta: "Aug 21 · 7:00 AM EDT · Bo3" }
+  { label: "UB · Quarterfinal 1", a: "Iron Wing", b: "Team Spirit", meta: "Aug 19 · 10:00 PM EDT · Bo3" },
+  { label: "UB · Quarterfinal 2", a: "TEAM VISION", b: "BoomBoys", meta: "Aug 20 · 1:00 AM EDT · Bo3" },
+  { label: "UB · Quarterfinal 3", a: "Team Liquid", b: "Team Yandex", meta: "Aug 20 · 4:00 AM EDT · Bo3" },
+  { label: "UB · Quarterfinal 4", a: "Nigma Galaxy", b: "Team Falcons", meta: "Aug 20 · 7:00 AM EDT · Bo3" }
 ];
 const upper: BracketMatch[] = [
   { label: "Upper semifinal 1", a: "Winner UB QF 1", b: "Winner UB QF 2", meta: "Aug 21 · time TBA · Bo3" },
@@ -30,10 +30,10 @@ const lower: BracketMatch[] = [
 const grandFinal: BracketMatch = { label: "Grand Final", a: "Winner upper final", b: "Winner lower final", meta: "Aug 23 · time TBA · Bo5" };
 const odds = [
   ["TEAM VISION", "4–0 · Swiss", 28], ["Nigma Galaxy", "4–1 · Swiss", 18], ["Team Liquid", "4–1 · Swiss", 15], ["Team Falcons", "3–2 · elimination round", 14],
-  ["Team Spirit", "3–2 · elimination round", 10], ["Aurora Gaming", "3–2 · elimination round", 8], ["Iron Wing", "3–2 · elimination round", 4], ["LGD Gaming", "3–2 · elimination round", 3]
+  ["Team Yandex", "2–3 · elimination round", 12], ["Team Spirit", "3–2 · elimination round", 7], ["BoomBoys", "2–3 · elimination round", 5], ["Iron Wing", "3–2 · elimination round", 1]
 ] as const;
 const elimination: Match[] = [
-  { a: "Team Falcons", b: "Vici Gaming", date: "Aug 15", time: "Elimination round" }, { a: "Aurora Gaming", b: "BoomBoys", date: "Aug 15", time: "Elimination round" }, { a: "Team Spirit", b: "Team Resilience", date: "Aug 16", time: "Elimination round" }, { a: "Iron Wing", b: "GamerLegion", date: "Aug 16", time: "Elimination round" }, { a: "LGD Gaming", b: "Team Yandex", date: "Aug 16", time: "Elimination round" }
+  { a: "Team Falcons", score: "2–0", b: "Vici Gaming", date: "Aug 15", time: "Elimination round" }, { a: "Aurora Gaming", score: "0–2", b: "BoomBoys", date: "Aug 15", time: "Elimination round" }, { a: "Team Spirit", score: "2–1", b: "Team Resilience", date: "Aug 16", time: "Elimination round" }, { a: "Iron Wing", score: "2–0", b: "GamerLegion", date: "Aug 16", time: "Elimination round" }, { a: "LGD Gaming", score: "1–2", b: "Team Yandex", date: "Aug 16", time: "Elimination round" }
 ];
 const groupRounds: Array<{ title: string; matches: Match[] }> = [
   { title: "Swiss round 1", matches: [{ a: "Team Falcons", score: "2–1", b: "LGD Gaming", date: "Aug 12", time: "10:49 PM EDT" }, { a: "TEAM VISION", score: "2–1", b: "Team Resilience", date: "Aug 12", time: "11:13 PM EDT" }, { a: "Iron Wing", score: "2–0", b: "Nigma Galaxy", date: "Aug 12", time: "11:18 PM EDT" }, { a: "BoomBoys", score: "2–0", b: "OG", date: "Aug 12", time: "11:24 PM EDT" }, { a: "Team Liquid", score: "2–0", b: "Vici Gaming", date: "Aug 13", time: "1:56 AM EDT" }, { a: "Aurora Gaming", score: "2–0", b: "GamerLegion", date: "Aug 13", time: "2:01 AM EDT" }, { a: "Team Spirit", score: "2–0", b: "Xtreme Gaming", date: "Aug 13", time: "2:48 AM EDT" }, { a: "Team Yandex", score: "2–0", b: "HULIGANI", date: "Aug 13", time: "3:16 AM EDT" }] },
