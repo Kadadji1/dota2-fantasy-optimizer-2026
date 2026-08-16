@@ -87,7 +87,7 @@ export function calculatePlayerScore(player: Player, emblems: EmblemInput[]): nu
 
 export function rankPlayers(players: Player[], role: Role, emblems: EmblemInput[]) {
   return players
-    .filter((player) => player.role === role)
+    .filter((player) => player.role === role && player.id !== "tailung")
     .map((player) => ({
       player,
       score: calculatePlayerScore(player, emblems),
