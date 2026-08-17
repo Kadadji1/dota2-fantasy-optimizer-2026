@@ -1,12 +1,10 @@
 <div align="center">
 
-# 🛡️ TI2026 Fantasy Optimizer
+# 🛡️ TI2026 Fantasy Calculator & Optimizer
 
-## Dota 2 TI2026 Fantasy Calculator & Optimizer
+Build five-emblem Fantasy banners, compare active Main Event players, evaluate trainer titles and create a complete TI2026 playoff prediction.
 
-Build and compare Fantasy banners, optimize your roster and explore TI2026 Group Stage predictions using historical professional match data and simulation-based projections.
-
-[![Open Fantasy Calculator & Optimizer](https://img.shields.io/badge/Open%20Fantasy%20Calculator%20%26%20Optimizer-d6a93d?style=for-the-badge)](https://www.ti2026calculator.com/)
+[![Open the live website](https://img.shields.io/badge/Open%20TI2026%20Calculator-d6a93d?style=for-the-badge)](https://www.ti2026calculator.com/)
 [![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
 **English · Русский · Español · 简体中文 · Desktop / Mobile**
@@ -14,166 +12,129 @@ Build and compare Fantasy banners, optimize your roster and explore TI2026 Group
 </div>
 
 <p align="center">
-  <img
-    src="./docs/775155BD-7682-4F14-BC16-84EF29BDEDDB.png"
-    alt="Dota 2 TI2026 Fantasy Calculator and Optimizer interface preview"
-    width="100%"
-  />
+  <img src="./docs/775155BD-7682-4F14-BC16-84EF29BDEDDB.png" alt="TI2026 Fantasy Calculator and Optimizer interface" width="100%" />
 </p>
-
----
 
 ## Live website
 
 **https://www.ti2026calculator.com/**
 
-The project now includes three main sections:
+The site currently follows the **TI2026 Main Event**. The Group Stage prediction board is closed and its completed results are used as tournament context.
 
-- **Fantasy Calculator** — build Core, Mid and Support banners, compare players and optimize the projected roster.
-- **Predictions** — edit the TI2026 Swiss-stage bracket and compare team outcome probabilities and expected points.
-- **Guide** — a compact reference for emblems, scoring, tiers, traits, rerolls, trainer titles and model limitations.
+## Main sections
 
----
+- **Fantasy Calculator** — enter the five emblems on each banner, select a shared Prefix and Suffix, then compare the strongest Core, Mid and Support choices.
+- **Main Event Predictions** — fill the complete 14-match double-elimination bracket, compare two models and see expected Compendium prediction points.
+- **Fantasy Guide** — learn how scoring, tiers, traits, trainer titles, team opportunity, rerolls and saving work.
 
-## Current model data
+## Current Main Event scope
 
-The website currently uses a broader professional Dota 2 dataset covering:
+Only the eight teams still competing are included in Fantasy rankings and team-opportunity cards:
 
-- **8,000+ matches analyzed**
-- **80+ competitive events**
-- **15,000 tournament simulations**
-- player-level historical performance
-- recent form and patch-specific results where available
-- team ratings and external prediction signals for the Group Stage model
+- TEAM VISION
+- Nigma Galaxy
+- Team Liquid
+- Iron Wing
+- Team Falcons
+- Team Spirit
+- Team Yandex
+- BoomBoys
 
-The project is designed for **The International 2026** and will continue to be updated as the tournament progresses.
-
----
+Eliminated teams remain only in historical source data and are not selectable or ranked by the current calculator.
 
 ## Fantasy Calculator
 
-The calculator helps Dota 2 players compare banner configurations and identify stronger projected Fantasy lineups.
+### Banner and roster support
 
-### Features
+- five emblem slots for each Main Event banner;
+- one Core pair, one Mid player and one Support pair;
+- role-compatible red, blue and green stats;
+- tiers I–V: **+10%, +30%, +60%, +100%, +150%**;
+- Fractal, Benevolent, Vampiric, Unique and Friendly trait interactions;
+- player-specific contribution breakdowns and alternatives;
+- automatic local saving of emblems, Prefix and Suffix.
 
-- **Banner Builder** — configure all three emblems for Core, Mid and Support.
-- **Best Roster** — compare projected player and role-pair combinations.
-- **Player-specific scoring** — recommendations adapt to the selected player, role, historical performance and hero pool.
-- **Traits and tiers** — account for emblem tier values and trait activation.
-- **Trainer titles** — prefix and suffix scenarios are included where the available data supports them.
-- **Team Overview** — compare represented TI2026 teams and players.
-- **Reroll Guide** — compare emblem value and reroll priorities.
-- **Scoring Reference** — review the Fantasy rules used by the calculator.
+Core and Support entries represent a same-team pair. Mid entries represent one player. Player projections are **per match**; team title chance and expected remaining maps are shown separately and do not silently change the player ranking.
 
-### TI2026 schedule
+### Trainer titles
 
-- **Group Stage:** August 13–16
-- **Main Event:** August 20–23
+The calculator supports one shared Prefix and one shared Suffix for the roster.
 
----
+- Prefix expected value uses the player's historical hero-group trigger rate and the title bonus.
+- Pair trigger rates use the simple average of both players.
+- The TI draft-context block summarizes **109 Group Stage maps**.
+- Suffixes are displayed as conditional scenarios because their triggering events occur on future individual maps.
 
-## Group Stage Predictions
+### Team opportunity
 
-The Predictions page models how the TI2026 Swiss stage can end.
+Each active team card shows:
 
-The model combines team ratings built from roughly a year of professional matches with recent form, patch 7.41 results, market odds and predictions from well-known analysts.
+- model title chance;
+- expected maps remaining;
+- chance to play at least 2, 3 or 4 Main Event series.
 
-The recommended bracket is filled automatically, but every team can be moved freely. The bracket always remains complete, and the expected result metrics update with the current selection.
+These values describe tournament opportunity, not guaranteed Fantasy points.
 
-### Prediction features
+## Main Event Predictions
 
-- interactive Swiss-stage bracket
-- probability for every team in every possible finishing slot
-- playoff qualification probabilities
-- expected-point estimate for the selected bracket
-- expected correct slots
-- model-fit comparison
-- risk / reward profile
-- dynamic outcome distribution
-- compact and detailed Team Odds views
+The prediction page contains the complete eight-team double-elimination bracket:
 
-**Draft lock:** August 13
+- 14 selectable matches from the upper quarterfinals through the Grand Final;
+- confirmed opening matchups;
+- a compact one-line schedule in New York time;
+- **Balanced** and **TI-only** models;
+- downstream opponents rebuilt from every selected winner;
+- match win probabilities;
+- 20,000 deterministic bracket simulations per selection state;
+- expected correct picks and expected Compendium points;
+- team placement probabilities and expected maps.
 
----
+The official prediction reward scale depends on the **total number of correct picks**, from 120 points for one correct result to 12,000 points for all 14.
 
-## Fantasy Guide
-
-The Guide explains the parts of the Fantasy system that are easy to misread when looking only at raw percentages.
-
-It covers:
-
-- Fantasy roster basics
-- emblems and scoring
-- tiers
-- traits
-- reroll priorities
-- trainer titles
-- when to lock the roster
-- Group Stage predictions
-- known data limitations
-
----
+Model probabilities are estimates based on relative team strength. They are not bookmaker odds or guarantees.
 
 ## Data and methodology
 
-The project uses publicly available professional match statistics and additional community research.
+- dedicated Fantasy player sample: **1,601 matches across 13 Tier 1 tournaments**;
+- broader project analysis: **8,000+ professional matches across 80+ events**;
+- bracket projection: **20,000 simulations**;
+- current TI context: Group Stage records, map results and 109-map draft summary.
 
-Fantasy projections are based on historical player performance, role-specific statistics, team context, emblem configuration and supported title effects.
+Each game is scored separately. A series result uses its two highest-scoring games, and the displayed player or pair value is an average match score over the source tournaments.
 
-The Group Stage prediction model combines longer-term team ratings with more recent and tournament-specific signals. Predictions are probabilistic rather than guarantees, and the values can change as new results become available.
+Known limitations are stated in the interface and Guide:
 
-Some Fantasy events are not exposed reliably in public match data. In particular, Lotus-related values and several conditional suffix scenarios should be treated as approximate or conditional where noted on the website.
+- Lotus events are approximate because public match data does not expose the exact pickup event reliably;
+- two rare Suffix conditions cannot be modeled reliably from OpenDota events;
+- Prefixes use historical trigger frequencies;
+- Suffix results are conditional examples;
+- team probabilities are model estimates and may change with new information.
 
----
+## Localization and responsive design
 
-## Localization and platform support
+The calculator, predictions, guide, roster section and navigation support:
 
-The interface supports:
+- English;
+- Russian;
+- Spanish;
+- Simplified Chinese.
 
-- English
-- Russian
-- Spanish
-- Simplified Chinese
+Desktop uses full tables and bracket columns. Mobile uses round-by-round bracket navigation, compact team-probability cards, horizontally scrollable utility rows and single-column Guide/roster layouts.
 
-The website is responsive and designed to work on desktop, tablet and mobile.
+## Current tournament dates
 
----
+- **Group Stage:** August 13–16, 2026 — completed;
+- **Main Event:** August 20–23, 2026, Shanghai.
 
-## Support the project
-
-- **[⭐ Star this repository](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026)**
-- **[❤️ Support the Project](https://buymeacoffee.com/kadadji?status=1)**
-- **[🎮 Steam Profile](https://steamcommunity.com/id/Kadadji1/)**
-
----
-
-## Roadmap
-
-- [x] TI2026 Fantasy Calculator & Optimizer
-- [x] Banner tiers and traits
-- [x] Best roster and player alternatives
-- [x] Team logos and team overview
-- [x] Trainer title support and title guidance
-- [x] Group Stage Predictions
-- [x] Interactive Team Odds and bracket editing
-- [x] Dedicated Fantasy Guide
-- [x] English, Russian, Spanish and Simplified Chinese localization
-- [x] Mobile support
-- [ ] Refresh Fantasy and prediction data after the Group Stage
-- [ ] Main Event updates
-- [ ] Additional TI2026 improvements based on tournament results and community feedback
-- [ ] TI2027 update
-
----
+Main Event Fantasy should be locked before the first match. The website presents match times in New York time where a timezone is needed.
 
 ## Technology
 
-- Next.js
-- React
+- Next.js 14
+- React 18
 - TypeScript
-- Vercel
-
----
+- Vercel Analytics
+- Vercel hosting
 
 ## Local development
 
@@ -182,9 +143,34 @@ npm install
 npm run dev
 ```
 
-Then open `http://localhost:3000`.
+Open `http://localhost:3000`.
 
----
+Production verification:
+
+```bash
+npm run build
+```
+
+## Project status
+
+- [x] Five-emblem Main Event Fantasy calculator
+- [x] Active-team-only player rankings
+- [x] Traits, tiers, Prefixes and Suffix scenarios
+- [x] Team title chance, expected maps and series thresholds
+- [x] Complete interactive Main Event bracket
+- [x] Official 14-pick point scale
+- [x] English, Russian, Spanish and Simplified Chinese
+- [x] Responsive desktop and mobile layouts
+- [x] Persistent browser-local calculator setup
+- [x] Main Event Fantasy Guide
+- [ ] Update model inputs as Main Event results become available
+- [ ] Archive TI2026 and prepare the next tournament edition
+
+## Support the project
+
+- [⭐ Star this repository](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026)
+- [❤️ Support the project](https://buymeacoffee.com/kadadji?status=1)
+- [🎮 Steam profile](https://steamcommunity.com/id/Kadadji1/)
 
 ## Disclaimer
 
