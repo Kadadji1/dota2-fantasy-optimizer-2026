@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 type SiteLanguage = "en" | "ru" | "es" | "zh";
 
 const labels: Record<SiteLanguage, string[]> = {
-  en: ["Banner builder", "Title", "Best roster", "Teams", "Traits", "Reroll guide", "Rules"],
-  ru: ["Калькулятор знамён", "Титул", "Лучший состав", "Команды", "Свойства", "Что роллить", "Правила"],
-  es: ["Constructor", "Título", "Mejor plantilla", "Equipos", "Rasgos", "Guía de reroll", "Reglas"],
-  zh: ["旗帜构建", "称号", "最佳阵容", "战队", "特性", "重掷指南", "规则"]
+  en: ["Banner builder", "Title", "Best roster", "Match potential", "Teams", "Traits", "Reroll guide", "Rules"],
+  ru: ["Калькулятор знамён", "Титул", "Лучший состав", "Потенциал матчей", "Команды", "Свойства", "Что роллить", "Правила"],
+  es: ["Constructor", "Título", "Mejor plantilla", "Potencial", "Equipos", "Rasgos", "Guía de reroll", "Reglas"],
+  zh: ["旗帜构建", "称号", "最佳阵容", "比赛潜力", "战队", "特性", "重掷指南", "规则"]
 };
 
-const anchors = ["builder", "titles", "results", "teams", "traits", "rerolls", "rules"];
+const anchors = ["builder", "titles", "results", "playoff-outlook", "teams", "traits", "rerolls", "rules"];
 
 function readLanguage(): SiteLanguage {
   if (typeof window === "undefined") return "en";
