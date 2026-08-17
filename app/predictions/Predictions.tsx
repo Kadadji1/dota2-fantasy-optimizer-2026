@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { balancedMainEvent, mainEventTeams, MainEventTeam, PlacementOdds } from "../../data/mainEvent";
 
 type Lang = "en" | "ru" | "es" | "zh";
 type ModelKey = "historical" | "tiOnly";
-type Team = "TEAM VISION" | "Nigma Galaxy" | "Team Liquid" | "Team Falcons" | "Team Yandex" | "Team Spirit" | "BoomBoys" | "Iron Wing";
+type Team = MainEventTeam;
 type Pick = { id: string; stage: "upper1" | "upper2" | "upper3" | "lower1" | "lower2" | "lower3" | "final"; label: string; date: string; a: Team; b: Team; aChance: number; bChance: number; winner: Team };
-type PlacementOdds = Record<"1" | "2" | "3" | "4" | "5-6" | "7-8", number>;
 type Model = { title: string; summary: string; odds: Record<Team, number>; placements: Record<Team, PlacementOdds>; maps: Record<Team, number>; picks: Pick[] };
 
-const teams: Array<{ team: Team; record: string; games: string }> = [
-  { team: "TEAM VISION", record: "4–0", games: "8–2" }, { team: "Nigma Galaxy", record: "4–1", games: "8–2" },
-  { team: "Team Liquid", record: "4–1", games: "9–5" }, { team: "Iron Wing", record: "4–2", games: "10–6" },
-  { team: "Team Falcons", record: "4–2", games: "10–7" }, { team: "Team Spirit", record: "4–2", games: "8–6" },
-  { team: "Team Yandex", record: "3–3", games: "9–8" }, { team: "BoomBoys", record: "3–3", games: "7–7" }
-];
+const teams = mainEventTeams;
 
 const schedules = {
   qf1: "Aug 19 · 10:00 PM EDT · Bo3", qf2: "Aug 20 · 1:00 AM EDT · Bo3", qf3: "Aug 20 · 4:00 AM EDT · Bo3", qf4: "Aug 20 · 7:00 AM EDT · Bo3",
@@ -25,14 +20,9 @@ const makePick = (id: string, stage: Pick["stage"], label: string, date: string,
 const models: Record<ModelKey, Model> = {
   historical: {
     title: "Balanced model", summary: "Balances season strength with this TI's Group Stage results.",
-    odds: { "TEAM VISION": 43, "Team Liquid": 12, "Iron Wing": 10, "Team Falcons": 9.3, "Team Yandex": 8, "Nigma Galaxy": 6.2, "Team Spirit": 6, "BoomBoys": 5.3 },
-    placements: {
-      "TEAM VISION": { "1": 43, "2": 16, "3": 11, "4": 8.6, "5-6": 13, "7-8": 8.7 }, "Team Liquid": { "1": 12, "2": 16, "3": 15, "4": 12, "5-6": 24, "7-8": 20 },
-      "Iron Wing": { "1": 10, "2": 13, "3": 13, "4": 15, "5-6": 27, "7-8": 22 }, "Team Falcons": { "1": 9.3, "2": 14, "3": 14, "4": 12, "5-6": 26, "7-8": 24 },
-      "Team Yandex": { "1": 8, "2": 12, "3": 13, "4": 12, "5-6": 27, "7-8": 28 }, "Nigma Galaxy": { "1": 6.2, "2": 11, "3": 13, "4": 13, "5-6": 28, "7-8": 28 },
-      "Team Spirit": { "1": 6, "2": 9.1, "3": 11, "4": 13, "5-6": 29, "7-8": 31 }, "BoomBoys": { "1": 5.3, "2": 8, "3": 9.2, "4": 14, "5-6": 26, "7-8": 38 }
-    },
-    maps: { "TEAM VISION": 11.1, "Team Liquid": 9.5, "Iron Wing": 9.2, "Team Falcons": 9.1, "Team Yandex": 8.8, "Nigma Galaxy": 8.6, "Team Spirit": 8.4, "BoomBoys": 8 },
+    odds: balancedMainEvent.odds,
+    placements: balancedMainEvent.placements,
+    maps: balancedMainEvent.maps,
     picks: [
       makePick("m1", "upper1", "M1 · Upper quarterfinal", schedules.qf1, "Iron Wing", "Team Spirit", 42, "Team Spirit"),
       makePick("m2", "upper1", "M2 · Upper quarterfinal", schedules.qf2, "TEAM VISION", "BoomBoys", 68, "TEAM VISION"),
