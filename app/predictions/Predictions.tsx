@@ -33,11 +33,11 @@ const models: Record<ModelKey, Model> = {
       makePick("m7", "upper3", "M7 · Upper final", schedules.upper, "TEAM VISION", "Team Falcons", 67, "TEAM VISION"),
       makePick("m8", "lower1", "M8 · Lower round 1", schedules.lower, "Iron Wing", "BoomBoys", 28, "BoomBoys"),
       makePick("m9", "lower1", "M9 · Lower round 1", schedules.lower, "Team Liquid", "Nigma Galaxy", 79, "Team Liquid"),
-      makePick("m10", "lower2", "M10 · Lower round 2", schedules.lower, "BoomBoys", "Team Spirit", 37, "Team Spirit"),
-      makePick("m11", "lower2", "M11 · Lower round 2", schedules.lower, "Team Liquid", "Team Yandex", 36, "Team Yandex"),
-      makePick("m12", "lower3", "M12 · Lower semifinal", schedules.lower, "Team Spirit", "Team Yandex", 58, "Team Spirit"),
-      makePick("m13", "lower3", "M13 · Lower final", schedules.lower, "Team Spirit", "Team Falcons", 39, "Team Falcons"),
-      makePick("m14", "final", "M14 · Grand Final", schedules.final, "TEAM VISION", "Team Falcons", 67, "TEAM VISION")
+      makePick("m10", "lower2", "M10 · Lower round 2", schedules.lower, "BoomBoys", "Team Yandex", 45, "Team Yandex"),
+      makePick("m11", "lower2", "M11 · Lower round 2", schedules.lower, "Team Liquid", "Team Spirit", 59, "Team Liquid"),
+      makePick("m12", "lower3", "M12 · Lower semifinal", schedules.lower, "Team Yandex", "Team Liquid", 45, "Team Liquid"),
+      makePick("m13", "lower3", "M13 · Lower final", schedules.lower, "Team Liquid", "Team Falcons", 53, "Team Liquid"),
+      makePick("m14", "final", "M14 · Grand Final", schedules.final, "TEAM VISION", "Team Liquid", 65, "TEAM VISION")
     ]
   },
   tiOnly: {
@@ -60,11 +60,11 @@ const models: Record<ModelKey, Model> = {
       makePick("m7", "upper3", "M7 · Upper final", schedules.upper, "TEAM VISION", "Nigma Galaxy", 68, "TEAM VISION"),
       makePick("m8", "lower1", "M8 · Lower round 1", schedules.lower, "Team Spirit", "BoomBoys", 63, "Team Spirit"),
       makePick("m9", "lower1", "M9 · Lower round 1", schedules.lower, "Team Yandex", "Team Falcons", 42, "Team Falcons"),
-      makePick("m10", "lower2", "M10 · Lower round 2", schedules.lower, "Team Spirit", "Iron Wing", 43, "Iron Wing"),
-      makePick("m11", "lower2", "M11 · Lower round 2", schedules.lower, "Team Falcons", "Team Liquid", 45, "Team Liquid"),
-      makePick("m12", "lower3", "M12 · Lower semifinal", schedules.lower, "Iron Wing", "Team Liquid", 54, "Iron Wing"),
-      makePick("m13", "lower3", "M13 · Lower final", schedules.lower, "Iron Wing", "Nigma Galaxy", 39, "Nigma Galaxy"),
-      makePick("m14", "final", "M14 · Grand Final", schedules.final, "TEAM VISION", "Nigma Galaxy", 68, "TEAM VISION")
+      makePick("m10", "lower2", "M10 · Lower round 2", schedules.lower, "Team Spirit", "Team Liquid", 36, "Team Liquid"),
+      makePick("m11", "lower2", "M11 · Lower round 2", schedules.lower, "Team Falcons", "Iron Wing", 44, "Iron Wing"),
+      makePick("m12", "lower3", "M12 · Lower semifinal", schedules.lower, "Team Liquid", "Iron Wing", 52, "Team Liquid"),
+      makePick("m13", "lower3", "M13 · Lower final", schedules.lower, "Team Liquid", "Nigma Galaxy", 57, "Team Liquid"),
+      makePick("m14", "final", "M14 · Grand Final", schedules.final, "TEAM VISION", "Team Liquid", 67, "TEAM VISION")
     ]
   }
 };
@@ -143,7 +143,7 @@ function buildInteractiveBracket(selections: Partial<Record<MatchId, Team>>): In
   const loser = (id: MatchId) => { const match = matches.get(id); const won = winner(id); return match && won ? match.teams.find((team) => team && team !== won) ?? null : null; };
   add("m1", ["Iron Wing", "Team Spirit"]); add("m2", ["TEAM VISION", "BoomBoys"]); add("m3", ["Team Liquid", "Team Yandex"]); add("m4", ["Nigma Galaxy", "Team Falcons"]);
   add("m5", [winner("m1"), winner("m2")]); add("m6", [winner("m3"), winner("m4")]); add("m7", [winner("m5"), winner("m6")]);
-  add("m8", [loser("m1"), loser("m2")]); add("m9", [loser("m3"), loser("m4")]); add("m10", [loser("m5"), winner("m8")]); add("m11", [loser("m6"), winner("m9")]); add("m12", [winner("m10"), winner("m11")]); add("m13", [winner("m12"), loser("m7")]); add("m14", [winner("m7"), winner("m13")]);
+  add("m8", [loser("m1"), loser("m2")]); add("m9", [loser("m3"), loser("m4")]); add("m10", [winner("m8"), loser("m6")]); add("m11", [winner("m9"), loser("m5")]); add("m12", [winner("m10"), winner("m11")]); add("m13", [winner("m12"), loser("m7")]); add("m14", [winner("m7"), winner("m13")]);
   return Array.from(matches.values());
 }
 
