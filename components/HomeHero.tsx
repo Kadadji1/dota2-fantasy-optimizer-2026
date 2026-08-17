@@ -26,7 +26,7 @@ const copy: Record<SiteLanguage, {
     groupStage: "Group stage",
     groupStageDate: "Locked",
     mainEvent: "Main Event roster lock",
-    mainEventDate: "August 19",
+    mainEventDate: "Before the first match · New York time",
     cards: [
       ["MAIN EVENT READY", "Five-emblem banners, roster optimization and Main Event preparation."],
       ["PLAYER-SPECIFIC ANALYSIS", "Stats are evaluated by role, player history, emblems, traits and titles."],
@@ -45,7 +45,7 @@ const copy: Record<SiteLanguage, {
     groupStage: "Групповой этап",
     groupStageDate: "Закреплён",
     mainEvent: "Фиксация состава Main Event",
-    mainEventDate: "19 августа",
+    mainEventDate: "До первого матча · время Нью-Йорка",
     cards: [
       ["ГОТОВО К MAIN EVENT", "Знамёна с пятью эмблемами, оптимизация состава и подготовка к основному этапу."],
       ["АНАЛИЗ ИГРОКОВ", "Статистика учитывает роль, историю игрока, эмблемы, свойства и титулы."],
@@ -64,7 +64,7 @@ const copy: Record<SiteLanguage, {
     groupStage: "Fase de grupos",
     groupStageDate: "Bloqueada",
     mainEvent: "Cierre de plantilla del Evento Principal",
-    mainEventDate: "19 de agosto",
+    mainEventDate: "Antes del primer partido · hora de Nueva York",
     cards: [
       ["LISTO PARA EL EVENTO PRINCIPAL", "Estandartes de cinco emblemas y preparación para el Evento Principal."],
       ["ANÁLISIS POR JUGADOR", "Las estadísticas consideran rol, historial, emblemas, rasgos y títulos."],
@@ -83,7 +83,7 @@ const copy: Record<SiteLanguage, {
     groupStage: "小组赛",
     groupStageDate: "已锁定",
     mainEvent: "主赛事阵容锁定",
-    mainEventDate: "8月19日",
+    mainEventDate: "首场比赛前 · 纽约时间",
     cards: [
       ["主赛事已就绪", "五徽章旗帜、阵容优化与主赛事准备。"],
       ["选手级分析", "按位置、选手历史、徽章、特性和称号评估数据。"],
@@ -145,7 +145,7 @@ export default function HomeHero() {
           </div>
           <div className="home-model-secondary">
             <div>
-              <strong>15,000</strong>
+              <strong>20,000</strong>
               <small>{t.simulations}</small>
             </div>
             <div>
