@@ -142,6 +142,13 @@
       return;
     }
 
+    if (activeExtraLanguage) {
+      activeExtraLanguage = null;
+      document.documentElement.lang = language === "ru" ? "ru" : "en";
+      window.location.reload();
+      return;
+    }
+
     activeExtraLanguage = null;
     clickBuiltIn(language === "ru" ? "ru" : "en");
     document.documentElement.lang = language === "ru" ? "ru" : "en";
