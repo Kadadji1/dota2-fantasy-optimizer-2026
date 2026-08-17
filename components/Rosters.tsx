@@ -27,25 +27,25 @@ const copy: Record<SiteLanguage, {
   former: string; position: string; player: string; coverage: string; showAll: string; compact: string;
 }> = {
   en: {
-    eyebrow: "07 · TOURNAMENT ROSTERS",
+    eyebrow: "08 · TOURNAMENT ROSTERS",
     title: "TI 2026 Main Event rosters",
     subtitle: "Only the eight teams still competing. Eliminated teams are excluded from every Fantasy calculation and ranking.",
     direct: "Direct invite", qualifier: "Qualified", former: "Formerly", position: "Position", player: "Player", coverage: "8 teams · 40 players", showAll: "Show Main Event rosters", compact: "Only active tournament teams"
   },
   ru: {
-    eyebrow: "07 · СОСТАВЫ ТУРНИРА",
+    eyebrow: "08 · СОСТАВЫ ТУРНИРА",
     title: "Составы Main Event TI 2026",
     subtitle: "Только восемь команд, которые продолжают турнир. Вылетевшие команды исключены из всех расчётов и рейтингов Fantasy.",
     direct: "Прямое приглашение", qualifier: "Через квалификацию", former: "Ранее", position: "Позиция", player: "Игрок", coverage: "8 команд · 40 игроков", showAll: "Показать составы Main Event", compact: "Только команды, оставшиеся в турнире"
   },
   es: {
-    eyebrow: "07 · PLANTILLAS DEL TORNEO",
+    eyebrow: "08 · PLANTILLAS DEL TORNEO",
     title: "Plantillas del Evento Principal de TI 2026",
     subtitle: "Solo los ocho equipos que siguen en el torneo. Los equipos eliminados no aparecen en los cálculos ni en las clasificaciones Fantasy.",
     direct: "Invitación directa", qualifier: "Clasificado", former: "Anteriormente", position: "Posición", player: "Jugador", coverage: "8 equipos · 40 jugadores", showAll: "Mostrar plantillas del Evento Principal", compact: "Solo equipos activos"
   },
   zh: {
-    eyebrow: "07 · 赛事阵容",
+    eyebrow: "08 · 赛事阵容",
     title: "TI 2026 主赛事战队阵容",
     subtitle: "仅显示仍在参赛的八支战队。已淘汰战队不会出现在 Fantasy 计算或排名中。",
     direct: "直邀", qualifier: "预选赛晋级", former: "原战队", position: "位置", player: "选手", coverage: "8 支战队 · 40 名选手", showAll: "查看主赛事阵容", compact: "仅显示在赛战队"
