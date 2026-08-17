@@ -150,7 +150,7 @@
 
   function translatePage() {
     if (observer) observer.disconnect();
-    if (location.pathname.startsWith("/predictions") || location.pathname.startsWith("/guide")) {
+    if (location.pathname.startsWith("/predictions")) {
       document.querySelectorAll("h1,h2,h3,p,span,strong,button,th,td,a").forEach(translateElement);
       translateDynamic();
     }
