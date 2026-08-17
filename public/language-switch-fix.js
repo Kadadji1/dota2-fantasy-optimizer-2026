@@ -117,37 +117,17 @@
 
       event.preventDefault();
       event.stopImmediatePropagation();
-      switching = true;
-      const releaseVisualFreeze = createVisualFreeze();
-
-      restoreEnglishReact(() => {
-        const buttons = getButtons();
-        const destination = targetExtra === 'es' ? buttons?.es : buttons?.zh;
-        destination?.click();
-        window.setTimeout(() => {
-          setOnlyActive(targetExtra);
-          switching = false;
-          releaseVisualFreeze();
-        }, 120);
-      });
+      localStorage.setItem('site-language', targetExtra);
+      window.location.reload();
       return;
     }
 
     if ((targetBuiltIn === 'EN' || targetBuiltIn === 'RU') && isExtraLanguageActive()) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      switching = true;
-      const releaseVisualFreeze = createVisualFreeze();
       const destination = targetBuiltIn === 'RU' ? 'ru' : 'en';
-
-      restoreEnglishReact(() => {
-        if (destination === 'ru') getButtons()?.ru?.click();
-        window.setTimeout(() => {
-          setOnlyActive(destination);
-          switching = false;
-          releaseVisualFreeze();
-        }, 120);
-      });
+      localStorage.setItem('site-language', destination);
+      window.location.reload();
     }
   }, true);
 })();
