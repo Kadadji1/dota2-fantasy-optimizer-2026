@@ -22,22 +22,17 @@ import {
   SuffixCategory
 } from "../data/titles";
 import { rankPlayers, EmblemInput } from "../lib/optimizer";
+import { balancedMainEvent, getMatchThresholds, mainEventTeams } from "../data/mainEvent";
 
 type Language = "en" | "ru";
 type BannerState = Record<Role, EmblemInput[]>;
 type TeamEntry = { team: string; roles: Partial<Record<Role, { name: string; score: number }>>; total: number };
-type PlayoffTeam = { team: string; titleOdds: number; maps: number; top4: number; top6: number };
 
 const roles: Role[] = ["core", "mid", "support"];
 const prefixKeys = Object.keys(prefixes) as PrefixKey[];
 const suffixKeys = Object.keys(suffixes) as SuffixKey[];
 const setupStorageKey = "ti2026-fantasy-setup";
-const playoffTeams: PlayoffTeam[] = [
-  {team:"Team Vision",titleOdds:43,maps:11.1,top4:78.6,top6:91.6},{team:"Team Liquid",titleOdds:12,maps:9.5,top4:55,top6:79},
-  {team:"Iron Wing",titleOdds:10,maps:9.2,top4:51,top6:78},{team:"Team Falcons",titleOdds:9.3,maps:9.1,top4:49.3,top6:75.3},
-  {team:"Team Yandex",titleOdds:8,maps:8.8,top4:45,top6:72},{team:"Nigma Galaxy",titleOdds:6.2,maps:8.6,top4:43.2,top6:71.2},
-  {team:"Team Spirit",titleOdds:6,maps:8.4,top4:40,top6:69},{team:"BoomBoys",titleOdds:5.3,maps:8,top4:36.5,top6:62.5}
-];
+const playoffTeams = [...mainEventTeams].sort((a,b)=>balancedMainEvent.odds[b.team]-balancedMainEvent.odds[a.team]).map(entry=>({team:entry.calculatorName,titleOdds:balancedMainEvent.odds[entry.team],maps:balancedMainEvent.maps[entry.team],...getMatchThresholds(entry.team)}));
 const playoffTeamNames = new Set(playoffTeams.map(({team})=>team));
 const playoffByTeam = new Map(playoffTeams.map(team=>[team.team,team]));
 const prefixMeta: Array<{key:PrefixKey;points:number;bans:number;wins:number}> = [
@@ -50,13 +45,12 @@ const text = {
     kicker: "THE INTERNATIONAL 2026 · MAIN EVENT", title: "Dota 2 Fantasy Optimizer",
     subtitle: "Main Event is open: complete all five emblems on each banner, compare roster combinations and see every projected point.",
     builder: "Banner builder", results: "Best roster", teams: "Teams", titles: "Title",
-    teamsSubtitle: "Teams represented by players in the current Reddit dataset.",
-    lgdRosterNotice: "LGD Gaming note: Topson is modeled with TaiLung's previous historical sample until a dedicated TI 2026 sample is available.",
+    teamsSubtitle: "The eight active Main Event teams represented in the Fantasy player sample.",
     traits: "Traits", rerolls: "Reroll guide", rules: "Rules", methodology: "Methodology",
     core: "Core", mid: "Mid", support: "Support", pair: "same-team pair", single: "one player",
     emblem: "Emblem", tier: "Tier", trait: "Trait", optimize: "Optimize roster", reset: "Reset banners",
     total: "Projected roster score", score: "Projected score", alternatives: "Top alternatives",
-    source: "Reddit dataset · 13 Tier 1 tournaments",
+    source: "Fantasy player sample · 1,601 matches across 13 Tier 1 tournaments",
     confidence: "Sample strength", strong: "Strong", medium: "Medium", limited: "Limited",
     matches: "matches in the source dataset", representedRoles: "Roles represented",
     availableTotal: "Available-role total", red: "red", blue: "blue", green: "green",
@@ -66,19 +60,18 @@ const text = {
     suffixScenario: "Score if Suffix triggers", conditionalBonus: "Conditional bonus", suffixNote: "Suffix events cannot be projected reliably before the games. The value below adds the Suffix bonus to the base roster score independently from the expected Prefix bonus.",
     stable: "Stable", gamble: "Gamble", avoid: "Avoid", pairAverage: "pair average",
     titleMethod: "Prefix projections use each player's historical trigger rate. Pair entries use the simple average of both players because the source score is stored as a pair.",
-    prefixContribution: "Expected Prefix", prefixMetaTitle:"What is being picked at TI", prefixMetaIntro:"A Prefix triggers when a player drafts a hero from its group. These TI draft results show how often each group is available and how well it performs — season strength alone is not enough.", perMap:"per map", bans:"bans", wins:"wins", prefixMetaNote:"Many bans with fewer picks means the group is respected, but its Prefix may trigger less often. Personalized recommendations above still use each player's historical trigger rate.", playoffOutlook:"Main Event match potential", playoffIntro:"Only the eight teams still in the tournament are included. The thresholds come from the balanced bracket model; expected maps show how much scoring opportunity may remain.", minMatches:"matches or more", titleChance:"title", mapsAhead:"maps ahead", modelNote:"Model estimate · season strength + this TI", badgeHelp:"Title chance and expected maps remaining"
+    prefixContribution: "Expected Prefix", prefixMetaTitle:"What is being picked at TI", prefixMetaIntro:"A Prefix triggers when a player drafts a hero from its group. Group Stage draft data (109 maps) shows how often each group is available and how well it performs.", perMap:"per map", bans:"bans", wins:"wins", prefixMetaNote:"Many bans with fewer picks means the group is respected, but its Prefix may trigger less often. The personalized recommendation above still uses each player's historical trigger rate.", playoffOutlook:"Main Event match potential", playoffIntro:"Only the eight active teams are included. These thresholds come from the balanced bracket model; expected maps are context and do not change the per-match player ranking.", minMatches:"matches", titleChance:"title", mapsAhead:"maps ahead", modelNote:"Model estimate · season strength + this TI", badgeHelp:"Title chance and expected maps remaining", scoreScope:"Per-match projection; team map potential is shown separately."
   },
   ru: {
     kicker: "THE INTERNATIONAL 2026 · ОСНОВНОЙ ЭТАП", title: "Оптимизатор Dota 2 Fantasy",
     subtitle: "Основной этап открыт: заполните все пять эмблем на каждом знамени, сравните составы и увидьте вклад каждого прогнозного очка.",
     builder: "Калькулятор знамён", results: "Лучший состав", teams: "Команды", titles: "Титул",
-    teamsSubtitle: "Команды, игроки которых представлены в текущем датасете Reddit.",
-    lgdRosterNotice: "Примечание по LGD Gaming: для Topson временно используется прошлый исторический сэмпл TaiLung, пока не появится отдельная выборка TI 2026.",
+    teamsSubtitle: "Восемь активных команд Main Event, представленных в Fantasy-выборке игроков.",
     traits: "Свойства", rerolls: "Что роллить", rules: "Правила", methodology: "Методика расчёта",
     core: "Основа", mid: "Центр", support: "Поддержка", pair: "пара из одной команды", single: "1 игрок",
     emblem: "Эмблема", tier: "Разряд", trait: "Свойство", optimize: "Подобрать состав", reset: "Сбросить настройки",
     total: "Прогноз состава", score: "Прогнозный счёт", alternatives: "Лучшие альтернативы",
-    source: "Данные Reddit · 13 турниров Tier 1",
+    source: "Fantasy-выборка игроков · 1 601 матч на 13 турнирах Tier 1",
     confidence: "Сила выборки", strong: "Высокая", medium: "Средняя", limited: "Ограниченная",
     matches: "матчей в исходном датасете", representedRoles: "Представленные роли",
     availableTotal: "Сумма доступных ролей", red: "красный", blue: "синий", green: "зелёный",
@@ -88,7 +81,7 @@ const text = {
     suffixScenario: "Счёт, если суффикс сработает", conditionalBonus: "Условный бонус", suffixNote: "События суффиксов нельзя надёжно предсказать до игр. Значение ниже независимо добавляет бонус суффикса к базовому счёту состава, не усиливая ожидаемый бонус префикса.",
     stable: "Стабильный", gamble: "Азартный", avoid: "Лучше избегать", pairAverage: "среднее пары",
     titleMethod: "Прогноз префикса использует историческую частоту каждого игрока. Для пар берётся простое среднее двух игроков, потому что исходный счёт хранится общей парой.",
-    prefixContribution: "Ожидаемый префикс", prefixMetaTitle:"Что пикают на TI", prefixMetaIntro:"Префикс срабатывает, когда игрок берёт героя своей группы. Статистика драфтов этого TI показывает, насколько часто группа доступна и успешно играет — выбирать только по силе героев за сезон недостаточно.", perMap:"за карту", bans:"банов", wins:"побед", prefixMetaNote:"Много банов при малом числе пиков означает, что группу считают сильной, но её префикс может срабатывать реже. Персональная рекомендация выше всё равно учитывает историческую частоту каждого игрока.", playoffOutlook:"Потенциал матчей Main Event", playoffIntro:"В расчёте оставлены только восемь команд, которые продолжают турнир. Пороговые шансы взяты из сбалансированной симуляции сетки, а ожидаемые карты показывают оставшийся потенциал набора очков.", minMatches:"матча и больше", titleChance:"на титул", mapsAhead:"карт впереди", modelNote:"Оценка модели · сила сезона + этот TI", badgeHelp:"Шанс на титул и ожидаемое число оставшихся карт"
+    prefixContribution: "Ожидаемый префикс", prefixMetaTitle:"Что пикают на TI", prefixMetaIntro:"Префикс срабатывает, когда игрок берёт героя своей группы. Драфты группового этапа (109 карт) показывают, насколько часто группа доступна и успешно играет.", perMap:"за карту", bans:"банов", wins:"побед", prefixMetaNote:"Много банов при малом числе пиков означает, что группу считают сильной, но её префикс может срабатывать реже. Персональная рекомендация выше всё равно учитывает историческую частоту каждого игрока.", playoffOutlook:"Потенциал матчей Main Event", playoffIntro:"В расчёте оставлены только восемь активных команд. Шансы взяты из сбалансированной модели сетки; ожидаемые карты служат контекстом и не меняют рейтинг игрока за матч.", minMatches:"матча", titleChance:"на титул", mapsAhead:"карт впереди", modelNote:"Оценка модели · сила сезона + этот TI", badgeHelp:"Шанс на титул и ожидаемое число оставшихся карт", scoreScope:"Прогноз за матч; потенциал карт команды показан отдельно."
   }
 } as const;
 
@@ -127,21 +120,13 @@ const traitLabels: Record<Trait,{en:string;ru:string}> = {
 };
 
 const teamByPlayerId: Record<string,string> = {
-  "ysr-niu":"Team Resilience", "echozz":"Team Resilience", "planet-zzq":"Team Resilience",
   "satanic-noticed":"Team Vision", "noone":"Team Vision", "9class-dukalis":"Team Vision",
-  "yuma-wisper":"LGD Gaming", "topson":"LGD Gaming", "thiolicor-kj":"LGD Gaming",
   "watson-dm":"Team Yandex", "chira":"Team Yandex", "saksa-malady":"Team Yandex",
   "kiritych-miero":"BoomBoys", "gpk":"BoomBoys", "save-kataomi":"BoomBoys",
   "skiter-atf":"Team Falcons", "marl1ne":"Team Falcons", "cr1t-sneyking":"Team Falcons",
-  "ame-xxs":"Xtreme Gaming", "nts":"Xtreme Gaming", "fy-xnova":"Xtreme Gaming",
-  "nightfall-ws":"Aurora Gaming", "mikoto":"Aurora Gaming", "mira-kaori":"Aurora Gaming",
   "pure-33":"Iron Wing", "bzm":"Iron Wing", "ari-whitemon":"Iron Wing",
   "yatoro-collapse":"Team Spirit", "larl":"Team Spirit", "rue-notme":"Team Spirit",
-  "shiro-bach":"Vici Gaming", "xm":"Vici Gaming", "xinq-y":"Vici Gaming",
-  "ghost-fayde":"GamerLegion", "rcy":"GamerLegion", "bignum-speeed":"GamerLegion",
   "micke-ace":"Team Liquid", "nisha":"Team Liquid", "boxi-tofu":"Team Liquid",
-  "ssnovv-corrupted":"HULIGANI", "mirage":"HULIGANI", "sayuw-respect":"HULIGANI",
-  "natsumi-raven":"OG", "yopaj":"OG", "tims-skem":"OG",
   "sumail-davai":"Nigma Galaxy", "lorenof":"Nigma Galaxy", "omar-gh":"Nigma Galaxy"
 };
 
@@ -297,18 +282,18 @@ export default function Optimizer(){
       </div></article>)}
     </div><div className="builder-footer"><p>{prefixes[prefix].label[language]} +{prefixes[prefix].bonus}% · {suffixes[suffix].label[language]} +{suffixes[suffix].bonus}%</p><button className="primary-button" onClick={scrollToResults}>{t.optimize}</button></div></section>
 
-    <section className="section results-section" id="results"><div className="results-hero"><div><div className="eyebrow">02 · {t.results}</div><h2>{t.results}</h2><p>{t.source}</p></div><div className="total-score"><span>{t.total}</span><strong>{Math.round(totalScore).toLocaleString(locale)}</strong><small>{t.suffixScenario}: {Math.round(suffixTriggeredScore).toLocaleString(locale)}</small></div></div><div className="winner-grid">
+    <section className="section results-section" id="results"><div className="results-hero"><div><div className="eyebrow">02 · {t.results}</div><h2>{t.results}</h2><p>{t.source}</p><small className="score-scope-note">{t.scoreScope}</small></div><div className="total-score"><span>{t.total}</span><strong>{Math.round(totalScore).toLocaleString(locale)}</strong><small>{t.suffixScenario}: {Math.round(suffixTriggeredScore).toLocaleString(locale)}</small></div></div><div className="winner-grid">
       {roles.map(role=>{const winner=rankings[role][0];if(!winner)return null;const team=playerTeam(winner.player.id,winner.player.team);return <article className="winner-card" key={role}><div className="winner-role"><span>{t[role]}</span><small>{role==="mid"?t.single:t.pair}</small></div><div className="winner-identity">{team&&<TeamLogo team={team} size="lg"/>}<div><div className="winner-name">{winner.player.name}</div>{team&&<div className="winner-team-line"><div className="winner-team">{team}</div><TeamPotentialBadge team={team}/></div>}<div className="prefix-frequency">{frequencyText(winner.player.id)}</div></div></div><div className="winner-score"><span>{t.score}</span><strong>{Math.round(winner.score).toLocaleString(locale)}</strong></div><div className="winner-breakdown">{winner.contributions.map(x=><div key={x.stat}><span>{labels[x.stat][language]}</span><b>{Math.round(x.weightedValue).toLocaleString(locale)}</b></div>)}<div className="prefix-breakdown"><span>{t.prefixContribution}</span><b>+{Math.round(winner.expectedPrefixBonus).toLocaleString(locale)}</b></div></div></article>})}
     </div><div className="alternatives-grid">{roles.map(role=><article className="alternatives-card" key={role}><div className="alternatives-heading"><h3>{t[role]}</h3><span>{t.alternatives} · {prefixes[prefix].label[language]}</span></div>{rankings[role].slice(0,8).map((entry,index)=>{const team=playerTeam(entry.player.id,entry.player.team);return <div className="alternative-row" key={entry.player.id}><span className="rank-number">{index+1}</span>{team&&<TeamLogo team={team} size="sm"/>}<div><strong>{entry.player.name}</strong>{team&&<small className="team-label">{team}</small>}{team&&<TeamPotentialBadge team={team}/>}<small className="prefix-frequency">{frequencyText(entry.player.id)}</small><small>{t.confidence}: {sampleStrength(index,language)}</small></div><b>{Math.round(entry.score).toLocaleString(locale)}</b></div>})}</article>)}</div></section>
 
-    <section className="section team-probability-cards-section" id="playoff-outlook"><div className="section-title"><div><div className="eyebrow">03 · MAIN EVENT</div><h2>{t.playoffOutlook}</h2></div><p>{t.playoffIntro}</p></div><div className="team-probability-card-grid">{playoffTeams.map(team=><article className="team-probability-card" key={team.team}><header><TeamLogo team={team.team} size="sm"/><div><h3>{team.team}</h3><p>{t.modelNote}</p></div></header><div className="team-probability-values"><div><span>2+ {t.minMatches}</span><b>100%</b></div><div><span>3+ {t.minMatches}</span><b>{formatPercent(team.top6)}</b></div><div><span>4+ {t.minMatches}</span><b>{formatPercent(team.top4)}</b></div></div><footer><strong>{formatPercent(team.titleOdds)}</strong><span>{t.titleChance} · {team.maps.toLocaleString(locale,{maximumFractionDigits:1})} {t.mapsAhead}</span><i><em style={{width:`${team.maps/11.1*100}%`}}/></i></footer></article>)}</div></section>
+    <section className="section team-probability-cards-section" id="playoff-outlook"><div className="section-title"><div><div className="eyebrow">03 · MAIN EVENT</div><h2>{t.playoffOutlook}</h2></div><p>{t.playoffIntro}</p></div><div className="team-probability-card-grid">{playoffTeams.map(team=><article className="team-probability-card" key={team.team}><header><TeamLogo team={team.team} size="sm"/><div><h3>{team.team}</h3><p>{t.modelNote}</p></div></header><div className="team-probability-values"><div><span>2+ {t.minMatches}</span><b>100%</b></div><div><span>3+ {t.minMatches}</span><b>{formatPercent(team.threePlus)}</b></div><div><span>4+ {t.minMatches}</span><b>{formatPercent(team.fourPlus)}</b></div></div><footer><strong>{formatPercent(team.titleOdds)}</strong><span>{t.titleChance} · {team.maps.toLocaleString(locale,{maximumFractionDigits:1})} {t.mapsAhead}</span><i><em style={{width:`${team.maps/11.1*100}%`}}/></i></footer></article>)}</div></section>
 
-    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">03 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div>{entry.team==="LGD Gaming"&&<p className="team-roster-notice">{t.lgdRosterNotice}</p>}<footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
+    <section className="section" id="teams"><div className="section-title"><div><div className="eyebrow">04 · {t.teams}</div><h2>{t.teams}</h2><p>{t.teamsSubtitle}</p></div></div><div className="team-grid">{teamOverview.map(entry=><article className="team-card" key={entry.team}><div className="team-card-header"><div className="team-card-title"><TeamLogo team={entry.team} size="lg"/><h3>{entry.team}</h3></div><strong>{Math.round(entry.total).toLocaleString(locale)}</strong></div><small>{t.availableTotal}</small><div className="team-role-list">{roles.map(role=>entry.roles[role]?<div key={role}><span>{t[role]}</span><b>{entry.roles[role]!.name}</b><em>{Math.round(entry.roles[role]!.score).toLocaleString(locale)}</em></div>:null)}</div><footer>{t.representedRoles}: {roles.filter(role=>entry.roles[role]).length}/3</footer></article>)}</div></section>
 
-    <section className="section split-section" id="traits"><div><div className="eyebrow">04 · {t.traits}</div><h2>{t.traits}</h2></div><div className="trait-grid">{(Object.keys(traitDescriptions) as Trait[]).filter(x=>x!=="none").map(x=><article className="info-tile" key={x}><span>{traitLabels[x][language]}</span><p>{traitDescriptions[x][language]}</p></article>)}</div></section>
+    <section className="section split-section" id="traits"><div><div className="eyebrow">05 · {t.traits}</div><h2>{t.traits}</h2></div><div className="trait-grid">{(Object.keys(traitDescriptions) as Trait[]).filter(x=>x!=="none").map(x=><article className="info-tile" key={x}><span>{traitLabels[x][language]}</span><p>{traitDescriptions[x][language]}</p></article>)}</div></section>
 
-    <section className="section" id="rerolls"><div className="section-title"><div><div className="eyebrow">05 · {t.rerolls}</div><h2>{t.rerolls}</h2></div></div><div className="reroll-grid">{roles.map(role=>{const values=averageEmblemValues[role];const ranking=roleStats[role].filter(s=>values[s]!==undefined).map(s=>({stat:s,value:values[s]??0})).sort((a,b)=>b.value-a.value);return <article className="reroll-card" key={role}><h3>{t[role]}</h3>{ranking.map((x,i)=><div key={x.stat}><span><i>{i+1}</i>{labels[x.stat][language]} <small>{t[statColors[x.stat]]}</small></span><b>{x.value.toLocaleString(locale)}</b></div>)}</article>})}</div></section>
+    <section className="section" id="rerolls"><div className="section-title"><div><div className="eyebrow">06 · {t.rerolls}</div><h2>{t.rerolls}</h2></div></div><div className="reroll-grid">{roles.map(role=>{const values=averageEmblemValues[role];const ranking=roleStats[role].filter(s=>values[s]!==undefined).map(s=>({stat:s,value:values[s]??0})).sort((a,b)=>b.value-a.value);return <article className="reroll-card" key={role}><h3>{t[role]}</h3>{ranking.map((x,i)=><div key={x.stat}><span><i>{i+1}</i>{labels[x.stat][language]} <small>{t[statColors[x.stat]]}</small></span><b>{x.value.toLocaleString(locale)}</b></div>)}</article>})}</div></section>
 
-    <section className="section" id="rules"><div className="section-title"><div><div className="eyebrow">06 · {t.rules}</div><h2>{t.rules}</h2></div></div><div className="rules-grid">{Object.keys(scoringRules).map(stat=><article className="rule-tile" key={stat}><span>{labels[stat as StatKey][language]}</span><b>{formulas[stat as StatKey][language]}</b></article>)}</div><div className="methodology"><h3>{t.methodology}</h3><ul>{methodology[language].map(note=><li key={note}>{note}</li>)}</ul></div></section>
+    <section className="section" id="rules"><div className="section-title"><div><div className="eyebrow">07 · {t.rules}</div><h2>{t.rules}</h2></div></div><div className="rules-grid">{Object.keys(scoringRules).map(stat=><article className="rule-tile" key={stat}><span>{labels[stat as StatKey][language]}</span><b>{formulas[stat as StatKey][language]}</b></article>)}</div><div className="methodology"><h3>{t.methodology}</h3><ul>{methodology[language].map(note=><li key={note}>{note}</li>)}</ul></div></section>
   </main>;
 }
