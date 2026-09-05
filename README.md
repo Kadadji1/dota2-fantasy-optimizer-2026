@@ -151,6 +151,24 @@ Production verification:
 npm run build
 ```
 
+## Quality checks
+
+The calculator has automated checks for the scoring logic and the core browser flow.
+
+```bash
+# Fast unit tests for score calculation, traits and role ranking
+npm test
+
+# Browser checks for loading the calculator, changing a selection and saving it
+npx playwright install chromium
+npm run test:e2e
+
+# Run both suites
+npm run test:all
+```
+
+The unit suite protects the calculation rules in `lib/optimizer.ts`. The browser suite covers the public calculator experience, including a saved title selection after a page reload. GitHub Actions runs both suites for every push and pull request.
+
 ## Project status
 
 - [x] Five-emblem Main Event Fantasy calculator
