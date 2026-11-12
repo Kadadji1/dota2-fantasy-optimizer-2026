@@ -4,7 +4,7 @@
 
 Build five-emblem Fantasy banners, compare active Main Event players, evaluate trainer titles and create a complete TI2026 playoff prediction.
 
-[![Open the live website](https://img.shields.io/badge/Open%20TI2026%20Calculator-d6a93d?style=for-the-badge)](https://www.ti2026calculator.com/)
+[![Project case study](https://img.shields.io/badge/Project-Case%20Study-315EBD?style=for-the-badge)](https://vlad-kononov-portfolio.duskyskink6.chatgpt.site/#/projects/ti2026)
 [![GitHub Stars](https://img.shields.io/github/stars/Kadadji1/dota2-fantasy-optimizer-2026?style=for-the-badge)](https://github.com/Kadadji1/dota2-fantasy-optimizer-2026/stargazers)
 
 **English · Русский · Español · 简体中文 · Desktop / Mobile**
@@ -15,11 +15,28 @@ Build five-emblem Fantasy banners, compare active Main Event players, evaluate t
   <img src="./docs/775155BD-7682-4F14-BC16-84EF29BDEDDB.png" alt="TI2026 Fantasy Calculator and Optimizer interface" width="100%" />
 </p>
 
-## Live website
+## Completed event project
 
-**https://www.ti2026calculator.com/**
+The live website has been closed after the tournament decision window. This repository preserves the source and documentation; it does not provide a currently hosted calculator.
 
-The site currently follows the **TI2026 Main Event**. The Group Stage prediction board is closed and its completed results are used as tournament context.
+[Project case study](https://vlad-kononov-portfolio.duskyskink6.chatgpt.site/#/projects/ti2026) · [Analytics evidence](docs/analytics-evidence.md) · [Production QA case](docs/qa/bracket-routing.md)
+
+## Results from the live period
+
+| Metric | Result | Source / reporting window |
+| --- | --- | --- |
+| Visitors | **94,508** | Vercel Analytics / Last 30 Days |
+| Page views | **247,239** | Vercel Analytics / Last 30 Days |
+| Organic search clicks | **approximately 31K** | Google Search Console / 28 days |
+| Search impressions | **approximately 305K** | Google Search Console / 28 days |
+
+These are historical snapshots, not current counters. The screenshots show relative reporting windows; exact start/end dates are not fully visible. Clicks are not unique visitors, and impressions are not page views. [View the original evidence](docs/analytics-evidence.md).
+
+## Product ownership
+
+I owned product scope, implementation/integration, testing, debugging, deployment, tournament-data updates, analytics review, and community support. Cursor and ChatGPT assisted development; I remained responsible for reviewing and validating behavior.
+
+The final live version followed the **TI2026 Main Event**. Group Stage results were used as historical tournament context.
 
 ## Main sections
 
@@ -27,9 +44,9 @@ The site currently follows the **TI2026 Main Event**. The Group Stage prediction
 - **Main Event Predictions** — fill the complete 14-match double-elimination bracket, compare two models and see expected Compendium prediction points.
 - **Fantasy Guide** — learn how scoring, tiers, traits, trainer titles, team opportunity, rerolls and saving work.
 
-## Current Main Event scope
+## Final live-version scope
 
-Only the eight teams still competing are included in Fantasy rankings and team-opportunity cards:
+The final event snapshot included the eight remaining teams in Fantasy rankings and team-opportunity cards:
 
 - TEAM VISION
 - Nigma Galaxy
@@ -121,12 +138,12 @@ The calculator, predictions, guide, roster section and navigation support:
 
 Desktop uses full tables and bracket columns. Mobile uses round-by-round bracket navigation, compact team-probability cards, horizontally scrollable utility rows and single-column Guide/roster layouts.
 
-## Current tournament dates
+## Historical tournament dates
 
 - **Group Stage:** August 13–16, 2026 — completed;
 - **Main Event:** August 20–23, 2026, Shanghai.
 
-Main Event Fantasy should be locked before the first match. The website presents match times in New York time where a timezone is needed.
+During the live event, Main Event Fantasy needed to be locked before the first match. The website presents match times in New York time where a timezone is needed.
 
 ## Technology
 
@@ -181,8 +198,9 @@ The unit suite protects the calculation rules in `lib/optimizer.ts`. The browser
 - [x] Responsive desktop and mobile layouts
 - [x] Persistent browser-local calculator setup
 - [x] Main Event Fantasy Guide
-- [ ] Update model inputs as Main Event results become available
-- [ ] Archive TI2026 and prepare the next tournament edition
+- [x] Live event completed; hosted website closed
+- [x] Source, analytics evidence, and production QA case retained
+- [ ] A future tournament edition is not currently committed
 
 ## Support the project
 
